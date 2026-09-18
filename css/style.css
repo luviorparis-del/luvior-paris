@@ -251,6 +251,17 @@ ul, ol {
     flex-shrink: 0;
 }
 
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header__logo-img {
+    height: 36px;
+    width: auto;
+}
+
 .header__logo-text {
     font-family: var(--font-sans);
     font-size: 1.3rem;

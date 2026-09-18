@@ -223,7 +223,7 @@ const JOURNAL_ARTICLES = [
     {
         id: 7,
         category: "Places",
-        title: "Places That Inspire Maison Noire",
+        title: "Places That Inspire Luvior Paris",
         description: "From Grasse to Kyoto — the landscapes that shape our fragrances.",
         date: "Jun 22, 2024",
         readTime: "6 min read",

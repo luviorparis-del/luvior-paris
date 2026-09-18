@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order — Luvior Paris</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .track-container { max-width: 600px; margin: 0 auto; padding: var(--spacing-2xl) var(--spacing-md); }
+        .track-form { margin-bottom: var(--spacing-2xl); }
+        .track-form input {
+            width: 100%; padding: 14px 16px; border: var(--border-thin);
+            background: transparent; color: var(--color-white); font-size: 14px;
+            font-family: var(--font-body); margin-bottom: 12px;
+        }
+        .track-form input::placeholder { color: var(--color-gray-500); }
+        .track-form input:focus { outline: none; border-color: var(--color-white); }
+        .track-result { display: none; }
+        .track-status-list { list-style: none; padding: 0; margin: var(--spacing-xl) 0; }
+        .track-status-item {
+            display: flex; gap: 16px; padding-bottom: 20px; position: relative;
+        }
+        .track-status-item::before {
+            content: ''; position: absolute; left: 9px; top: 24px; bottom: 0;
+            width: 1px; background: var(--color-gray-700);
+        }
+        .track-status-item:last-child::before { display: none; }
+        .track-status-dot {
+            width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+            border: 2px solid var(--color-gray-600); margin-top: 2px;
+        }
+        .track-status-item.completed .track-status-dot {
+            background: var(--color-white); border-color: var(--color-white);
+        }
+        .track-status-item.current .track-status-dot {
+            background: transparent; border-color: var(--color-white);
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+        }
+        .track-status-name { font-weight: 600; font-size: 14px; text-transform: capitalize; }
+        .track-status-time { font-size: 12px; color: var(--color-gray-500); margin-top: 2px; }
+        .track-shipping-info {
+            background: rgba(255,255,255,0.05); border: var(--border-thin);
+            padding: var(--spacing-md); margin-top: var(--spacing-md);
+        }
+        .track-shipping-info p { font-size: 13px; margin-bottom: 4px; }
+        .track-items { margin-top: var(--spacing-xl); }
+        .track-item {
+            display: flex; gap: 12px; padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .track-item-img { width: 50px; height: 50px; object-fit: cover; background: var(--color-gray-800); }
+        .track-item-name { font-weight: 600; font-size: 14px; }
+        .track-item-detail { font-size: 12px; color: var(--color-gray-500); }
+        .track-error { color: #ff6b6b; font-size: 13px; display: none; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div class="announcement-bar">
+        <span>Complimentary Shipping on All Orders Over ₹10,000</span>
+    </div>
+
+    <header class="header">
+        <div class="header__inner">
+            <a href="index.html" class="header__logo">
+                <img src="images/logo-white.png" alt="Luvior Paris" class="header__logo-img">
+            </a>
+            <nav class="header__nav">
+                <a href="index.html">Shop</a>
+                <a href="collections.html">Collections</a>
+                <a href="our-story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <div class="header__actions">
+                <div class="header__menu-toggle" aria-label="Menu"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="mobile-menu">
+        <a href="index.html">Shop</a>
+        <a href="collections.html">Collections</a>
+        <a href="our-story.html">Our Story</a>
+        <a href="journal.html">Journal</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+
+    <section class="section section--black" style="padding-top:var(--spacing-4xl);min-height:80vh">
+        <div class="track-container">
+            <div class="fade-up">
+                <p class="label" style="margin-bottom:var(--spacing-sm)">Order Tracking</p>
+                <h1 class="heading-lg" style="margin-bottom:var(--spacing-md)">Track Your Order</h1>
+                <p class="body-text" style="margin-bottom:var(--spacing-xl)">Enter your order number and the phone or email used during checkout.</p>
+
+                <form class="track-form" id="track-form">
+                    <input type="text" id="track-order-number" placeholder="Order Number (e.g. LV-260918-1234)" required>
+                    <input type="text" id="track-identifier" placeholder="Phone Number or Email" required>
+                    <button type="submit" class="btn" style="width:100%;justify-content:center">Track Order</button>
+                    <div class="track-error" id="track-error"></div>
+                </form>
+
+                <div class="track-result" id="track-result">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md)">
+                        <div>
+                            <p class="label" id="result-order-number"></p>
+                            <p class="body-text" id="result-order-date"></p>
+                        </div>
+                        <p style="font-size:20px;font-weight:600" id="result-total"></p>
+                    </div>
+
+                    <ul class="track-status-list" id="track-status-list"></ul>
+
+                    <div class="track-shipping-info" id="track-shipping-info" style="display:none">
+                        <p><strong>Courier:</strong> <span id="ship-info-courier"></span></p>
+                        <p><strong>Tracking Number:</strong> <span id="ship-info-tracking"></span></p>
+                        <p><strong>Expected Delivery:</strong> <span id="ship-info-delivery"></span></p>
+                    </div>
+
+                    <div class="track-items" id="track-items"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div style="text-align:center;padding:var(--spacing-md) 0">
+                <p class="footer__copyright">&copy; 2024 Luvior Paris. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script>
+        const statusFlow = ['new', 'confirmed', 'processing', 'packed', 'shipped', 'out_for_delivery', 'delivered'];
+        const statusLabels = {
+            new: 'Order Placed', confirmed: 'Order Confirmed', processing: 'Processing',
+            packed: 'Packed', ready_to_ship: 'Ready to Ship', shipped: 'Shipped',
+            in_transit: 'In Transit', out_for_delivery: 'Out for Delivery', delivered: 'Delivered',
+            cancelled: 'Cancelled', refund_requested: 'Refund Requested', refunded: 'Refunded'
+        };
+
+        document.getElementById('track-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errEl = document.getElementById('track-error');
+            const resultEl = document.getElementById('track-result');
+            errEl.style.display = 'none';
+            resultEl.style.display = 'none';
+
+            const orderNumber = document.getElementById('track-order-number').value.trim();
+            const identifier = document.getElementById('track-identifier').value.trim();
+
+            try {
+                const res = await fetch('/api/orders/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderNumber, identifier })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                document.getElementById('result-order-number').textContent = data.orderNumber;
+                document.getElementById('result-order-date').textContent = 'Placed ' + new Date(data.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('result-total').textContent = '₹' + data.total.toLocaleString('en-IN');
+
+                const currentIdx = statusFlow.indexOf(data.status);
+                const historyStatuses = (data.history || []).map(h => h.status);
+
+                const statusList = document.getElementById('track-status-list');
+                statusList.innerHTML = statusFlow.map((s, i) => {
+                    const historyEntry = data.history?.find(h => h.status === s);
+                    const isCompleted = i < currentIdx || (i === currentIdx && s === 'delivered');
+                    const isCurrent = i === currentIdx && s !== 'delivered';
+                    return `<li class="track-status-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                        <div class="track-status-dot"></div>
+                        <div>
+                            <div class="track-status-name">${statusLabels[s] || s}</div>
+                            ${historyEntry ? `<div class="track-status-time">${new Date(historyEntry.at).toLocaleString('en-IN')}</div>` : ''}
+                        </div>
+                    </li>`;
+                }).join('');
+
+                if (['cancelled', 'refund_requested', 'refunded'].includes(data.status)) {
+                    statusList.innerHTML += `<li class="track-status-item current">
+                        <div class="track-status-dot" style="border-color:#ff6b6b;background:#ff6b6b"></div>
+                        <div><div class="track-status-name" style="color:#ff6b6b">${statusLabels[data.status]}</div></div>
+                    </li>`;
+                }
+
+                const shipInfo = document.getElementById('track-shipping-info');
+                if (data.shipping) {
+                    shipInfo.style.display = 'block';
+                    document.getElementById('ship-info-courier').textContent = data.shipping.courier || '—';
+                    document.getElementById('ship-info-tracking').textContent = data.shipping.tracking || '—';
+                    document.getElementById('ship-info-delivery').textContent = data.shipping.estimatedDelivery
+                        ? new Date(data.shipping.estimatedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                        : '—';
+                } else {
+                    shipInfo.style.display = 'none';
+                }
+
+                const itemsEl = document.getElementById('track-items');
+                itemsEl.innerHTML = (data.items || []).map(item => `
+                    <div class="track-item">
+                        ${item.image ? `<img src="${item.image}" class="track-item-img">` : '<div class="track-item-img"></div>'}
+                        <div>
+                            <div class="track-item-name">${item.name}</div>
+                            <div class="track-item-detail">${item.variant || ''} · Qty: ${item.qty}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                resultEl.style.display = 'block';
+            } catch (err) {
+                errEl.textContent = err.message;
+                errEl.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
