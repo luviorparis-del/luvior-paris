@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact — Maison Noire</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Contact Maison Noire — customer care, enquiries, press and partnerships.">
+</head>
+<body>
+
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <span>Complimentary Shipping on All Orders Over $100</span>
+        <span>A More Beautiful Tomorrow</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header__inner">
+            <a href="index.html" class="header__logo">
+                <span class="header__logo-text">Maison Noire</span>
+                <span class="header__logo-sub">P&nbsp;&nbsp;A&nbsp;&nbsp;R&nbsp;&nbsp;I&nbsp;&nbsp;S</span>
+            </a>
+            <nav class="header__nav">
+                <a href="index.html">Shop</a>
+                <a href="collections.html">Collections</a>
+                <a href="our-story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact.html" class="active">Contact</a>
+            </nav>
+            <div class="header__actions">
+                <div class="header__icon" aria-label="Search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <div class="header__icon" aria-label="Cart" style="position:relative">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                    <span class="header__cart-count">0</span>
+                </div>
+                <div class="header__menu-toggle" aria-label="Menu"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="mobile-menu">
+        <a href="index.html">Shop</a>
+        <a href="collections.html">Collections</a>
+        <a href="our-story.html">Our Story</a>
+        <a href="journal.html">Journal</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+
+    <!-- SECTION 1 — Hero -->
+    <section class="hero" style="min-height:55vh">
+        <div class="hero__bg">
+            <div class="placeholder-image hero__bg-image" style="width:100%;height:100%"></div>
+            <div class="hero__bg-gradient" style="background:linear-gradient(to bottom,rgba(0,0,0,0.8) 0%,rgba(0,0,0,0.6) 100%)"></div>
+        </div>
+        <div class="hero__content" style="grid-template-columns:1fr;text-align:center;justify-items:center">
+            <div class="hero__text fade-up" style="text-align:center;max-width:600px;margin:0 auto">
+                <p class="hero__label">Contact Maison Noire</p>
+                <h1 class="hero__title">We&rsquo;d Love<br>to Hear From You</h1>
+                <p class="hero__subtitle" style="margin-left:auto;margin-right:auto">Questions about a fragrance, your order or Maison Noire? Our team is here to help.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2 — Contact Options -->
+    <section class="section section--black">
+        <div class="container">
+            <div class="contact-options fade-up">
+                <div class="contact-option">
+                    <h3 class="contact-option__title">Customer Care</h3>
+                    <p class="contact-option__text">For orders, shipping and returns.</p>
+                    <a href="mailto:support@maisonnoire.com" class="contact-option__email">support@maisonnoire.com</a>
+                </div>
+                <div class="contact-option">
+                    <h3 class="contact-option__title">General Enquiries</h3>
+                    <p class="contact-option__text">For general questions about Maison Noire.</p>
+                    <a href="mailto:hello@maisonnoire.com" class="contact-option__email">hello@maisonnoire.com</a>
+                </div>
+                <div class="contact-option">
+                    <h3 class="contact-option__title">Press &amp; Partnerships</h3>
+                    <p class="contact-option__text">For media, collaborations and business enquiries.</p>
+                    <a href="mailto:press@maisonnoire.com" class="contact-option__email">press@maisonnoire.com</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3 — Contact Form -->
+    <section class="section section--black" style="padding-top:0">
+        <div class="container container--narrow">
+            <div class="fade-up" style="text-align:center;margin-bottom:var(--spacing-2xl)">
+                <h2 class="heading-md" style="font-style:italic">Send Us a Message</h2>
+            </div>
+
+            <form class="contact-form fade-up" id="contact-form" novalidate>
+                <div class="contact-form__group">
+                    <label class="contact-form__label" for="firstName">First Name *</label>
+                    <input class="contact-form__input" type="text" id="firstName" name="firstName" placeholder="First name" required>
+                    <span class="contact-form__error">Please enter your first name.</span>
+                </div>
+                <div class="contact-form__group">
+                    <label class="contact-form__label" for="lastName">Last Name *</label>
+                    <input class="contact-form__input" type="text" id="lastName" name="lastName" placeholder="Last name" required>
+                    <span class="contact-form__error">Please enter your last name.</span>
+                </div>
+                <div class="contact-form__group">
+                    <label class="contact-form__label" for="email">Email *</label>
+                    <input class="contact-form__input" type="email" id="email" name="email" placeholder="your@email.com" required>
+                    <span class="contact-form__error">Please enter a valid email address.</span>
+                </div>
+                <div class="contact-form__group">
+                    <label class="contact-form__label" for="phone">Phone <span style="color:var(--color-gray-600)">(optional)</span></label>
+                    <input class="contact-form__input" type="tel" id="phone" name="phone" placeholder="+1 (000) 000-0000">
+                </div>
+                <div class="contact-form__group">
+                    <label class="contact-form__label" for="reason">Reason for Contact *</label>
+                    <select class="contact-form__select" id="reason" name="reason" required>
+                        <option value="" disabled selected>Select a reason</option>
+                        <option value="order">Order</option>
+                        <option value="shipping">Shipping</option>
+                        <option value="return">Return</option>
+                        <option value="product">Product Question</option>
+                        <option value="wholesale">Wholesale</option>
+                        <option value="press">Press</option>
+                        <option value="collaboration">Collaboration</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="contact-form__error">Please select a reason.</span>
+                </div>
+                <div class="contact-form__group">
+                    <label class="contact-form__label" for="orderNumber">Order Number <span style="color:var(--color-gray-600)">(optional)</span></label>
+                    <input class="contact-form__input" type="text" id="orderNumber" name="orderNumber" placeholder="#MN-000000">
+                </div>
+                <div class="contact-form__group contact-form__group--full">
+                    <label class="contact-form__label" for="message">Message *</label>
+                    <textarea class="contact-form__textarea" id="message" name="message" placeholder="Tell us how we can help..." required></textarea>
+                    <span class="contact-form__error">Please enter your message.</span>
+                </div>
+                <div class="contact-form__group contact-form__group--full" style="margin-top:var(--spacing-sm)">
+                    <button type="submit" class="btn" style="justify-content:center">Send Message <span class="arrow">&rarr;</span></button>
+                </div>
+            </form>
+
+            <div id="form-success" style="display:none;text-align:center;padding:var(--spacing-2xl) 0" class="fade-up">
+                <h3 class="heading-md" style="margin-bottom:var(--spacing-md)">Thank You</h3>
+                <p class="body-text">Your message has been received. We&rsquo;ll be in touch within 24-48 hours.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4 — FAQ Preview -->
+    <section class="section section--dark">
+        <div class="container container--narrow">
+            <div class="fade-up" style="text-align:center;margin-bottom:var(--spacing-2xl)">
+                <h2 class="heading-md" style="font-style:italic">Perhaps We Already Have the Answer</h2>
+            </div>
+
+            <div class="faq-list fade-up">
+                <div class="faq-item">
+                    <button class="faq-item__question">
+                        <span>What is the delivery time for international orders?</span>
+                        <span class="faq-item__icon">+</span>
+                    </button>
+                    <div class="faq-item__answer">
+                        <p>International orders typically arrive within 7-14 business days. Express shipping options are available at checkout for select destinations.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-item__question">
+                        <span>Can I return a fragrance if it doesn&rsquo;t suit me?</span>
+                        <span class="faq-item__icon">+</span>
+                    </button>
+                    <div class="faq-item__answer">
+                        <p>We accept returns within 30 days of purchase for unopened items in original packaging. For opened fragrances, please contact our customer care team.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-item__question">
+                        <span>Do you offer sample sizes?</span>
+                        <span class="faq-item__icon">+</span>
+                    </button>
+                    <div class="faq-item__answer">
+                        <p>Yes. Our Discovery Set includes 2ml samples of our four signature fragrances, beautifully presented in a Maison Noire gift box.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-item__question">
+                        <span>Are Maison Noire fragrances cruelty-free?</span>
+                        <span class="faq-item__icon">+</span>
+                    </button>
+                    <div class="faq-item__answer">
+                        <p>Absolutely. We never test on animals, and we work exclusively with suppliers who share our commitment to ethical practices.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-item__question">
+                        <span>How long do the fragrances last on skin?</span>
+                        <span class="faq-item__icon">+</span>
+                    </button>
+                    <div class="faq-item__answer">
+                        <p>Our Eau de Parfum formulations typically last 8-12 hours on skin, though longevity varies with skin type, climate, and the specific composition.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-item__question">
+                        <span>Do you offer wholesale or corporate gifting?</span>
+                        <span class="faq-item__icon">+</span>
+                    </button>
+                    <div class="faq-item__answer">
+                        <p>Yes. Please reach out to our partnerships team at press@maisonnoire.com with your requirements and we&rsquo;ll be happy to create a bespoke proposal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:var(--spacing-2xl)" class="fade-up">
+                <a href="#" class="btn--ghost" style="color:var(--color-gray-400)">View All FAQs <span class="arrow">&rarr;</span></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5 — Social -->
+    <section class="section section--black">
+        <div class="container" style="text-align:center">
+            <div class="fade-up">
+                <p class="label" style="margin-bottom:var(--spacing-md)">Follow Us</p>
+                <h2 class="heading-md" style="font-style:italic;margin-bottom:var(--spacing-xl)">Stay Close to Maison Noire</h2>
+
+                <div class="social-links" style="justify-content:center">
+                    <a href="#" class="social-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                        Instagram
+                    </a>
+                    <a href="#" class="social-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                        Facebook
+                    </a>
+                    <a href="#" class="social-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg>
+                        Pinterest
+                    </a>
+                    <a href="#" class="social-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+                        YouTube
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__top">
+                <div class="footer__brand">
+                    <div class="footer__logo-text">Maison Noire</div>
+                    <div class="footer__logo-sub">P&nbsp;&nbsp;A&nbsp;&nbsp;R&nbsp;&nbsp;I&nbsp;&nbsp;S</div>
+                    <p class="footer__brand-text">Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.</p>
+                </div>
+                <div>
+                    <h4 class="footer__column-title">Shop</h4>
+                    <div class="footer__links">
+                        <a href="collections.html">All Fragrances</a>
+                        <a href="collections.html#floral">Floral</a>
+                        <a href="collections.html#woody">Woody</a>
+                        <a href="collections.html#oriental">Oriental</a>
+                        <a href="collections.html#fresh">Fresh</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__column-title">Company</h4>
+                    <div class="footer__links">
+                        <a href="our-story.html">Our Story</a>
+                        <a href="journal.html">Journal</a>
+                        <a href="contact.html">Contact</a>
+                        <a href="#">Careers</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__column-title">Help</h4>
+                    <div class="footer__links">
+                        <a href="contact.html">Customer Care</a>
+                        <a href="#">Shipping</a>
+                        <a href="#">Returns</a>
+                        <a href="#">FAQ</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <nav class="footer__nav">
+                    <a href="index.html">Shop</a>
+                    <a href="collections.html">Collections</a>
+                    <a href="our-story.html">Our Story</a>
+                    <a href="journal.html">Journal</a>
+                    <a href="contact.html">Contact</a>
+                </nav>
+                <div class="footer__social">
+                    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                    <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+                    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a>
+                    <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg></a>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--spacing-xl);padding-top:var(--spacing-md);border-top:var(--border-thin);flex-wrap:wrap;gap:var(--spacing-md)">
+                <p class="footer__copyright">&copy; 2024 Maison Noire. All rights reserved.</p>
+                <div class="footer__legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Shipping</a>
+                    <a href="#">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+
+    <script src="js/common.js"></script>
+    <script src="js/contact.js"></script>
+</body>
+</html>

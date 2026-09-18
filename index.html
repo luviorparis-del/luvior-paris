@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maison Noire — Luxury Fragrances</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Maison Noire — Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.">
+</head>
+<body>
+
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <span>Complimentary Shipping on All Orders Over $100</span>
+        <span>A More Beautiful Tomorrow</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header__inner">
+            <a href="index.html" class="header__logo">
+                <span class="header__logo-text">Maison Noire</span>
+                <span class="header__logo-sub">P&nbsp;&nbsp;A&nbsp;&nbsp;R&nbsp;&nbsp;I&nbsp;&nbsp;S</span>
+            </a>
+
+            <nav class="header__nav">
+                <a href="index.html" class="active">Shop</a>
+                <a href="collections.html">Collections</a>
+                <a href="our-story.html">Our Story</a>
+                <a href="journal.html">Journal</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+
+            <div class="header__actions">
+                <div class="header__icon" aria-label="Search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </div>
+                <div class="header__icon" aria-label="Cart" style="position:relative">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+                    </svg>
+                    <span class="header__cart-count">0</span>
+                </div>
+                <div class="header__menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu">
+        <a href="index.html">Shop</a>
+        <a href="collections.html">Collections</a>
+        <a href="our-story.html">Our Story</a>
+        <a href="journal.html">Journal</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__bg">
+            <div class="placeholder-image hero__bg-image" style="width:100%;height:100%"></div>
+            <div class="hero__bg-gradient"></div>
+        </div>
+
+        <div class="hero__side-text hero__side-text--left">
+            Art / People / Fragrance / Forever
+        </div>
+
+        <div class="hero__content">
+            <div class="hero__text">
+                <p class="hero__label">Scents for a Deeper You</p>
+                <h1 class="hero__title">More Than<br>a Fragrance</h1>
+                <p class="hero__subtitle">Exquisite fragrances, crafted to evoke emotion, create memories, and linger beyond time.</p>
+                <a href="collections.html" class="btn">Discover the Collection <span class="arrow">&rarr;</span></a>
+            </div>
+            <div class="hero__image-container">
+                <div class="placeholder-image" style="width:320px;height:450px;border:1px solid rgba(255,255,255,0.1)">
+                    Le Solstice
+                </div>
+            </div>
+        </div>
+
+        <div class="hero__side-text hero__side-text--right">
+            Some Scents Stay With You Forever
+        </div>
+    </section>
+
+    <!-- Featured Fragrances -->
+    <section class="section section--black">
+        <div class="container">
+            <div class="section-header fade-up">
+                <h2 class="heading-md" style="font-style:italic">Featured Fragrances</h2>
+                <span class="section-header__line"></span>
+                <a href="collections.html" class="btn--ghost">Shop All <span class="arrow">&rarr;</span></a>
+            </div>
+
+            <div class="product-grid fade-up" id="featured-products">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Collection Categories -->
+    <section class="section section--black" style="padding-top:0">
+        <div class="container">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm)" class="fade-up" id="collection-cards">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Story Split -->
+    <section class="section--black">
+        <div class="split fade-up">
+            <div class="split__image">
+                <div class="placeholder-image" style="width:100%;height:100%;min-height:500px">Brand Photography</div>
+            </div>
+            <div class="split__text" style="padding:var(--spacing-3xl)">
+                <p class="label" style="margin-bottom:var(--spacing-md)">The Essence of Us</p>
+                <h2 class="heading-lg" style="margin-bottom:var(--spacing-md)">A Higher Form<br>of Self-Expression</h2>
+                <p class="body-text" style="margin-bottom:var(--spacing-xl)">Maison Noire is a modern fragrance house, creating extraordinary scents for those who seek more — more meaning, more beauty, more of themselves.</p>
+                <a href="our-story.html" class="btn" style="align-self:flex-start">Our Story <span class="arrow">&rarr;</span></a>
+            </div>
+        </div>
+        <!-- Quote -->
+        <div style="display:flex;justify-content:flex-end;padding:var(--spacing-xl) var(--spacing-lg)">
+            <div style="max-width:350px;text-align:right" class="fade-up">
+                <p style="font-family:var(--font-serif);font-size:1.3rem;font-style:italic;line-height:1.4;color:var(--color-gray-300);margin-bottom:var(--spacing-md)">&ldquo;Fragrance is the invisible signature of who you are.&rdquo;</p>
+                <p class="label">Maison Noire</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bestseller Spotlight -->
+    <section class="section section--dark">
+        <div class="container">
+            <div class="split fade-up" style="border:var(--border-thin)">
+                <div class="split__text">
+                    <p class="label" style="margin-bottom:var(--spacing-sm)">Our Bestseller</p>
+                    <h2 class="heading-lg" style="font-style:italic;margin-bottom:var(--spacing-md)">Le Solstice</h2>
+                    <p class="body-text" style="margin-bottom:var(--spacing-xl)">A captivating blend of saffron, amber, and soft leather. Bold. Sensual. Unforgettable.</p>
+                    <a href="#" class="btn" style="align-self:flex-start">Shop Now <span class="arrow">&rarr;</span></a>
+                </div>
+                <div class="split__image">
+                    <div class="placeholder-image" style="width:100%;height:100%;min-height:400px">Le Solstice Bottle</div>
+                </div>
+            </div>
+
+            <!-- Brand Pillars -->
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--spacing-lg);margin-top:var(--spacing-2xl)" class="fade-up">
+                <div style="display:flex;align-items:flex-start;gap:var(--spacing-sm)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--color-gray-400)"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                    <span style="font-size:0.75rem;color:var(--color-gray-400)">Premium, Ethically Sourced Ingredients</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:var(--spacing-sm)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--color-gray-400)"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
+                    <span style="font-size:0.75rem;color:var(--color-gray-400)">Long-Lasting Performance</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:var(--spacing-sm)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--color-gray-400)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="3" x2="16" y2="21"/></svg>
+                    <span style="font-size:0.75rem;color:var(--color-gray-400)">Luxury Gift Packaging</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:var(--spacing-sm)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--color-gray-400)"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    <span style="font-size:0.75rem;color:var(--color-gray-400)">Worldwide Shipping</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:var(--spacing-sm)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--color-gray-400)"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
+                    <span style="font-size:0.75rem;color:var(--color-gray-400)">A More Beautiful Tomorrow</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section section--black">
+        <div class="container">
+            <div class="testimonials fade-up">
+                <h2 class="testimonials__heading">What<br>Our Customers Say</h2>
+                <div class="testimonials__grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-card__stars">&starf;&starf;&starf;&starf;&starf;</div>
+                        <p class="testimonial-card__text">&ldquo;Absolutely mesmerizing. It feels like confidence in a bottle.&rdquo;</p>
+                        <p class="testimonial-card__author">Sophia L.</p>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-card__stars">&starf;&starf;&starf;&starf;&starf;</div>
+                        <p class="testimonial-card__text">&ldquo;The most beautiful fragrance I&rsquo;ve ever owned. Pure elegance.&rdquo;</p>
+                        <p class="testimonial-card__author">James T.</p>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-card__stars">&starf;&starf;&starf;&starf;&starf;</div>
+                        <p class="testimonial-card__text">&ldquo;Long-lasting, sophisticated, and truly unique.&rdquo;</p>
+                        <p class="testimonial-card__author">Emma R.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="section section--black" style="padding-top:0">
+        <div class="container">
+            <div class="newsletter fade-up">
+                <div>
+                    <p class="newsletter__label">Join the Maison Noire Circle</p>
+                    <h3 class="newsletter__title">Be the First to Know</h3>
+                </div>
+                <div class="newsletter__right">
+                    <p class="newsletter__text">Exclusive releases, private offers, and stories from our world.</p>
+                    <form class="newsletter__form" id="newsletter-form">
+                        <input type="email" class="newsletter__input" placeholder="Your email address" required>
+                        <button type="submit" class="newsletter__submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__top">
+                <div class="footer__brand">
+                    <div class="footer__logo-text">Maison Noire</div>
+                    <div class="footer__logo-sub">P&nbsp;&nbsp;A&nbsp;&nbsp;R&nbsp;&nbsp;I&nbsp;&nbsp;S</div>
+                    <p class="footer__brand-text">Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.</p>
+                </div>
+                <div>
+                    <h4 class="footer__column-title">Shop</h4>
+                    <div class="footer__links">
+                        <a href="collections.html">All Fragrances</a>
+                        <a href="collections.html#floral">Floral</a>
+                        <a href="collections.html#woody">Woody</a>
+                        <a href="collections.html#oriental">Oriental</a>
+                        <a href="collections.html#fresh">Fresh</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__column-title">Company</h4>
+                    <div class="footer__links">
+                        <a href="our-story.html">Our Story</a>
+                        <a href="journal.html">Journal</a>
+                        <a href="contact.html">Contact</a>
+                        <a href="#">Careers</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__column-title">Help</h4>
+                    <div class="footer__links">
+                        <a href="contact.html">Customer Care</a>
+                        <a href="#">Shipping</a>
+                        <a href="#">Returns</a>
+                        <a href="#">FAQ</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <nav class="footer__nav">
+                    <a href="index.html">Shop</a>
+                    <a href="collections.html">Collections</a>
+                    <a href="our-story.html">Our Story</a>
+                    <a href="journal.html">Journal</a>
+                    <a href="contact.html">Contact</a>
+                </nav>
+
+                <div class="footer__social">
+                    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                    <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+                    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a>
+                    <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg></a>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--spacing-xl);padding-top:var(--spacing-md);border-top:var(--border-thin);flex-wrap:wrap;gap:var(--spacing-md)">
+                <p class="footer__copyright">&copy; 2024 Maison Noire. All rights reserved.</p>
+                <div class="footer__legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Shipping</a>
+                    <a href="#">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"/>
+        </svg>
+    </button>
+
+    <script src="js/common.js"></script>
+</body>
+</html>
