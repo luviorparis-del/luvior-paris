@@ -1,24 +1,24 @@
 /* ============================================================
-   LUVIOR PARIS — Admin Panel SPA
+   LUVIOR PARIS — Admin Panel SPA (Direct Supabase)
    ============================================================ */
 
-const API = '';
 let currentPage = 'dashboard';
+let currentUser = null;
 
 // ---- Auth ----
 async function checkAuth() {
-  try {
-    const res = await fetch(`${API}/api/auth/me`);
-    if (!res.ok) throw new Error();
-    const { user } = await res.json();
-    if (user.role !== 'admin') throw new Error();
-    showAdmin(user);
-  } catch {
-    showLogin();
-  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return showLogin();
+
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+  if (!profile || profile.role !== 'admin') return showLogin();
+
+  currentUser = { email: session.user.email, name: profile.name || session.user.email, role: profile.role };
+  showAdmin(currentUser);
 }
 
 function showLogin() {
+  currentUser = null;
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('admin-shell').style.display = 'none';
 }
@@ -39,15 +39,17 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   const password = document.getElementById('login-password').value;
 
   try {
-    const res = await fetch(`${API}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    if (data.user.role !== 'admin') throw new Error('Access denied. Admin only.');
-    showAdmin(data.user);
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+    if (!profile || profile.role !== 'admin') {
+      await sb.auth.signOut();
+      throw new Error('Access denied. Admin only.');
+    }
+
+    currentUser = { email: data.user.email, name: profile.name || data.user.email, role: profile.role };
+    showAdmin(currentUser);
   } catch (err) {
     errEl.textContent = err.message;
     errEl.style.display = 'block';
@@ -55,7 +57,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 });
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
-  await fetch(`${API}/api/auth/logout`, { method: 'POST' });
+  await sb.auth.signOut();
   showLogin();
 });
 
@@ -63,8 +65,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', (e) => {
     e.preventDefault();
-    const page = item.dataset.page;
-    navigate(page);
+    navigate(item.dataset.page);
     closeSidebar();
   });
 });
@@ -123,7 +124,7 @@ document.getElementById('notifications-btn').addEventListener('click', () => {
 });
 
 document.getElementById('mark-all-read').addEventListener('click', async () => {
-  await fetch(`${API}/api/admin/notifications/read-all`, { method: 'PUT' });
+  await sb.from('notifications').update({ read: true }).eq('read', false);
   loadNotifications();
 });
 
@@ -136,19 +137,19 @@ document.addEventListener('click', (e) => {
 
 async function loadNotifications() {
   try {
-    const res = await fetch(`${API}/api/admin/notifications`);
-    const data = await res.json();
-    const unread = data.filter(n => !n.read).length;
+    const { data } = await sb.from('notifications').select('*').order('created_at', { ascending: false }).limit(20);
+    const items = data || [];
+    const unread = items.filter(n => !n.read).length;
     const badge = document.getElementById('notification-badge');
     badge.textContent = unread;
     badge.style.display = unread > 0 ? 'flex' : 'none';
 
     const list = document.getElementById('notification-list');
-    if (!data.length) {
+    if (!items.length) {
       list.innerHTML = '<div class="empty-state" style="padding:20px"><p>No notifications</p></div>';
       return;
     }
-    list.innerHTML = data.map(n => `
+    list.innerHTML = items.map(n => `
       <div class="notification-item ${n.read ? '' : 'unread'}" onclick="markNotificationRead(${n.id})">
         <div class="notification-item-title">${esc(n.title)}</div>
         <div class="notification-item-text">${esc(n.message || '')}</div>
@@ -159,48 +160,36 @@ async function loadNotifications() {
 }
 
 async function markNotificationRead(id) {
-  await fetch(`${API}/api/admin/notifications/${id}/read`, { method: 'PUT' });
+  await sb.from('notifications').update({ read: true }).eq('id', id);
   loadNotifications();
 }
 
 // ---- Helpers ----
 function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-
-function formatPrice(cents) { return '₹' + (cents / 100).toLocaleString('en-IN', { minimumFractionDigits: 0 }); }
-
-function formatPriceRaw(amount) { return '₹' + amount.toLocaleString('en-IN'); }
-
-function badge(status) {
-  return `<span class="badge badge-${(status || '').replace(/ /g, '_')}">${(status || '').replace(/_/g, ' ')}</span>`;
-}
-
+function formatPriceRaw(amount) { return '₹' + (amount || 0).toLocaleString('en-IN'); }
+function badge(status) { return `<span class="badge badge-${(status || '').replace(/ /g, '_')}">${(status || '').replace(/_/g, ' ')}</span>`; }
 function stockBadge(stock) {
   if (stock <= 0) return '<span class="badge badge-out">Out of Stock</span>';
   if (stock < 10) return '<span class="badge badge-low">Low Stock</span>';
   return '<span class="badge badge-in_stock">In Stock</span>';
 }
-
 function timeAgo(dateStr) {
   const d = new Date(dateStr);
-  const now = new Date();
-  const diff = (now - d) / 1000;
+  const diff = (Date.now() - d) / 1000;
   if (diff < 60) return 'Just now';
   if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
   if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
-
 function formatDate(dateStr) {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
-
 function loading() { return '<div class="loading"><div class="spinner"></div></div>'; }
 
 function showModal(title, bodyHtml, footerHtml) {
   const existing = document.querySelector('.modal-overlay');
   if (existing) existing.remove();
-
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
@@ -226,8 +215,11 @@ async function renderDashboard() {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/dashboard`);
-    const { stats, recentOrders, lowStockProducts } = await res.json();
+    const { data: stats, error: statsErr } = await sb.rpc('admin_dashboard_stats');
+    if (statsErr) throw statsErr;
+
+    const { data: recentOrders } = await sb.from('orders').select('*').order('created_at', { ascending: false }).limit(10);
+    const { data: lowStockProducts } = await sb.from('products').select('id, name, sku, stock').lt('stock', 10).gt('stock', 0).order('stock');
 
     el.innerHTML = `
       <div class="page-header">
@@ -236,7 +228,6 @@ async function renderDashboard() {
           <p class="page-subtitle">Welcome back. Here's your store overview.</p>
         </div>
       </div>
-
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">${stats.totalOrders}</div></div>
         <div class="stat-card"><div class="stat-label">Orders Today</div><div class="stat-value">${stats.todayOrders}</div></div>
@@ -251,20 +242,18 @@ async function renderDashboard() {
         <div class="stat-card"><div class="stat-label">Low Stock</div><div class="stat-value" style="color:var(--warning)">${stats.lowStockProducts}</div></div>
         <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-value">${stats.totalCustomers}</div></div>
       </div>
-
       <div class="quick-actions">
         <button class="btn btn-primary" onclick="navigate('products'); setTimeout(()=>document.getElementById('add-product-btn')?.click(),100)">+ Add Product</button>
         <button class="btn btn-outline" onclick="navigate('orders')">View Orders</button>
         <button class="btn btn-outline" onclick="navigate('inventory')">Manage Inventory</button>
       </div>
-
       <div class="card">
         <div class="card-header"><h3>Recent Orders</h3></div>
         <div class="table-wrap">
           <table class="mobile-cards">
             <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th></th></tr></thead>
             <tbody>
-              ${recentOrders.length ? recentOrders.map(o => `
+              ${(recentOrders || []).length ? recentOrders.map(o => `
                 <tr>
                   <td data-label="Order">${esc(o.order_number)}</td>
                   <td data-label="Customer">${esc(o.customer_name)}</td>
@@ -279,8 +268,7 @@ async function renderDashboard() {
           </table>
         </div>
       </div>
-
-      ${lowStockProducts.length ? `
+      ${(lowStockProducts || []).length ? `
       <div class="card" style="margin-top:16px">
         <div class="card-header"><h3>Low Stock Alert</h3></div>
         <div class="table-wrap">
@@ -288,21 +276,15 @@ async function renderDashboard() {
             <thead><tr><th>Product</th><th>SKU</th><th>Stock</th><th>Status</th></tr></thead>
             <tbody>
               ${lowStockProducts.map(p => `
-                <tr>
-                  <td>${esc(p.name)}</td>
-                  <td><code>${esc(p.sku)}</code></td>
-                  <td>${p.stock}</td>
-                  <td>${stockBadge(p.stock)}</td>
-                </tr>
+                <tr><td>${esc(p.name)}</td><td><code>${esc(p.sku)}</code></td><td>${p.stock}</td><td>${stockBadge(p.stock)}</td></tr>
               `).join('')}
             </tbody>
           </table>
         </div>
-      </div>
-      ` : ''}
+      </div>` : ''}
     `;
   } catch (err) {
-    el.innerHTML = `<div class="empty-state"><h3>Failed to load dashboard</h3><p>${esc(err.message)}</p></div>`;
+    el.innerHTML = `<div class="empty-state"><h3>Failed to load dashboard</h3><p>${esc(err.message || JSON.stringify(err))}</p></div>`;
   }
 }
 
@@ -316,8 +298,8 @@ async function renderProducts() {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/products`);
-    allProducts = await res.json();
+    const { data } = await sb.from('products').select('*, product_images(*)').order('created_at', { ascending: false });
+    allProducts = data || [];
 
     el.innerHTML = `
       <div class="page-header">
@@ -340,8 +322,8 @@ async function renderProducts() {
                   <td data-label="Status">${badge(p.status)}</td>
                   <td data-label="Actions">
                     <div class="table-actions">
-                      <button onclick="openProductForm(${p.id})" title="Edit">Edit</button>
-                      <button onclick="duplicateProduct(${p.id})" title="Duplicate">Copy</button>
+                      <button onclick="openProductForm(${p.id})">Edit</button>
+                      <button onclick="duplicateProduct(${p.id})">Copy</button>
                       <button onclick="toggleProductStatus(${p.id}, '${p.status}')">${p.status === 'active' ? 'Unpublish' : 'Publish'}</button>
                       <button onclick="deleteProduct(${p.id})" style="color:var(--danger)">Del</button>
                     </div>
@@ -354,7 +336,7 @@ async function renderProducts() {
       </div>
     `;
   } catch (err) {
-    el.innerHTML = `<div class="empty-state"><h3>Failed to load products</h3></div>`;
+    el.innerHTML = '<div class="empty-state"><h3>Failed to load products</h3></div>';
   }
 }
 
@@ -363,13 +345,13 @@ async function openProductForm(productId) {
   let collections = [];
 
   try {
-    const colRes = await fetch(`${API}/api/admin/collections`);
-    collections = await colRes.json();
+    const { data: colData } = await sb.from('collections').select('*').order('sort_order');
+    collections = colData || [];
   } catch {}
 
   if (productId) {
-    const res = await fetch(`${API}/api/admin/products/${productId}`);
-    product = await res.json();
+    const { data } = await sb.from('products').select('*, product_images(*), product_collections(collection_id)').eq('id', productId).single();
+    product = data;
   }
 
   const p = product || {};
@@ -459,7 +441,6 @@ async function openProductForm(productId) {
 
   const modal = showModal(productId ? 'Edit Product' : 'Add Product', body, footer);
 
-  // Auto-slug
   const nameInput = modal.querySelector('#pf-name');
   const slugInput = modal.querySelector('#pf-slug');
   if (!productId) {
@@ -468,23 +449,16 @@ async function openProductForm(productId) {
     });
   }
 
-  // Image upload
   if (productId) {
     const dropZone = modal.querySelector('#image-drop-zone');
     const fileInput = modal.querySelector('#image-upload-input');
-
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      uploadImages(productId, e.dataTransfer.files);
-    });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); uploadImages(productId, e.dataTransfer.files); });
     fileInput.addEventListener('change', () => uploadImages(productId, fileInput.files));
   }
 
-  // Save
   modal.querySelector('#save-product-btn').addEventListener('click', async () => {
     const payload = {
       name: nameInput.value,
@@ -509,23 +483,32 @@ async function openProductForm(productId) {
       new_arrival: modal.querySelector('#pf-new').checked,
       seo_title: modal.querySelector('#pf-seo-title').value,
       seo_description: modal.querySelector('#pf-seo-desc').value,
-      collections: [...modal.querySelectorAll('.pf-collection:checked')].map(c => parseInt(c.value))
+      updated_at: new Date().toISOString()
     };
 
-    if (!payload.name || !payload.sku || !payload.slug) {
-      alert('Name, SKU and Slug are required');
-      return;
-    }
+    if (!payload.name || !payload.sku || !payload.slug) { alert('Name, SKU and Slug are required'); return; }
 
     const btn = modal.querySelector('#save-product-btn');
     btn.disabled = true;
     btn.textContent = 'Saving...';
 
     try {
-      const url = productId ? `${API}/api/admin/products/${productId}` : `${API}/api/admin/products`;
-      const method = productId ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      let savedId = productId;
+      if (productId) {
+        const { error } = await sb.from('products').update(payload).eq('id', productId);
+        if (error) throw error;
+      } else {
+        const { data: inserted, error } = await sb.from('products').insert(payload).select().single();
+        if (error) throw error;
+        savedId = inserted.id;
+      }
+
+      const selectedCols = [...modal.querySelectorAll('.pf-collection:checked')].map(c => parseInt(c.value));
+      await sb.from('product_collections').delete().eq('product_id', savedId);
+      if (selectedCols.length) {
+        await sb.from('product_collections').insert(selectedCols.map(cid => ({ product_id: savedId, collection_id: cid })));
+      }
+
       modal.remove();
       renderProducts();
     } catch (err) {
@@ -537,21 +520,23 @@ async function openProductForm(productId) {
 }
 
 async function uploadImages(productId, files) {
-  const formData = new FormData();
-  for (const f of files) formData.append('images', f);
-
   try {
-    const res = await fetch(`${API}/api/admin/upload/multiple`, { method: 'POST', body: formData });
-    const uploaded = await res.json();
+    for (const file of files) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    for (const img of uploaded) {
-      await fetch(`${API}/api/admin/products/${productId}/images`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image_url: img.url, alt_text: img.originalName })
+      const { error: upErr } = await sb.storage.from('product-images').upload(filename, file, { contentType: file.type, upsert: false });
+      if (upErr) { alert('Upload failed: ' + upErr.message); continue; }
+
+      const { data: urlData } = sb.storage.from('product-images').getPublicUrl(filename);
+
+      await sb.from('product_images').insert({
+        product_id: productId,
+        image_url: urlData.publicUrl,
+        alt_text: file.name,
+        sort_order: Date.now()
       });
     }
-
     openProductForm(productId);
   } catch (err) {
     alert('Upload failed: ' + err.message);
@@ -559,38 +544,43 @@ async function uploadImages(productId, files) {
 }
 
 async function setPrimaryImage(productId, imageId) {
-  await fetch(`${API}/api/admin/products/${productId}/images/${imageId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ is_primary: true, sort_order: 0 })
-  });
+  await sb.from('product_images').update({ is_primary: false }).eq('product_id', productId);
+  await sb.from('product_images').update({ is_primary: true, sort_order: 0 }).eq('id', imageId);
   openProductForm(productId);
 }
 
 async function deleteImage(productId, imageId) {
   if (!confirm('Delete this image?')) return;
-  await fetch(`${API}/api/admin/products/${productId}/images/${imageId}`, { method: 'DELETE' });
+  const { data: img } = await sb.from('product_images').select('image_url').eq('id', imageId).single();
+  if (img) {
+    const path = img.image_url.split('/product-images/')[1];
+    if (path) await sb.storage.from('product-images').remove([path]);
+  }
+  await sb.from('product_images').delete().eq('id', imageId);
   openProductForm(productId);
 }
 
 async function duplicateProduct(id) {
-  await fetch(`${API}/api/admin/products/${id}/duplicate`, { method: 'POST' });
+  const { data: p } = await sb.from('products').select('*').eq('id', id).single();
+  if (!p) return;
+  const { id: _, created_at, updated_at, ...rest } = p;
+  rest.name += ' (Copy)';
+  rest.slug += '-copy';
+  rest.sku += '-COPY';
+  rest.status = 'draft';
+  await sb.from('products').insert(rest);
   renderProducts();
 }
 
 async function toggleProductStatus(id, current) {
   const newStatus = current === 'active' ? 'draft' : 'active';
-  await fetch(`${API}/api/admin/products/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: newStatus })
-  });
+  await sb.from('products').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id);
   renderProducts();
 }
 
 async function deleteProduct(id) {
   if (!confirm('Delete this product? This cannot be undone.')) return;
-  await fetch(`${API}/api/admin/products/${id}`, { method: 'DELETE' });
+  await sb.from('products').delete().eq('id', id);
   renderProducts();
 }
 
@@ -602,8 +592,7 @@ async function renderCollections() {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/collections`);
-    const collections = await res.json();
+    const { data: collections } = await sb.from('collections').select('*, product_collections(product_id)').order('sort_order');
 
     el.innerHTML = `
       <div class="page-header">
@@ -615,7 +604,7 @@ async function renderCollections() {
           <table class="mobile-cards">
             <thead><tr><th>Name</th><th>Subtitle</th><th>Products</th><th>Status</th><th>Order</th><th>Actions</th></tr></thead>
             <tbody>
-              ${collections.map(c => `
+              ${(collections || []).map(c => `
                 <tr>
                   <td data-label="Name"><strong>${esc(c.name)}</strong></td>
                   <td data-label="Subtitle">${esc(c.subtitle || '')}</td>
@@ -643,8 +632,8 @@ async function renderCollections() {
 async function openCollectionForm(id) {
   let c = {};
   if (id) {
-    const res = await fetch(`${API}/api/admin/collections/${id}`);
-    c = await res.json();
+    const { data } = await sb.from('collections').select('*').eq('id', id).single();
+    c = data || {};
   }
 
   const body = `
@@ -663,12 +652,10 @@ async function openCollectionForm(id) {
     </div>
   `;
 
-  const footer = `
+  const modal = showModal(id ? 'Edit Collection' : 'Add Collection', body, `
     <button class="btn btn-outline" onclick="document.querySelector('.modal-overlay').remove()">Cancel</button>
     <button class="btn btn-primary" id="save-collection-btn">Save</button>
-  `;
-
-  const modal = showModal(id ? 'Edit Collection' : 'Add Collection', body, footer);
+  `);
 
   if (!id) {
     modal.querySelector('#cf-name').addEventListener('input', function() {
@@ -686,12 +673,15 @@ async function openCollectionForm(id) {
       sort_order: parseInt(modal.querySelector('#cf-order').value) || 0,
       status: modal.querySelector('#cf-status').value
     };
-
     if (!payload.name || !payload.slug) { alert('Name and Slug required'); return; }
 
-    const url = id ? `${API}/api/admin/collections/${id}` : `${API}/api/admin/collections`;
-    const res = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+    if (id) {
+      const { error } = await sb.from('collections').update(payload).eq('id', id);
+      if (error) { alert(error.message); return; }
+    } else {
+      const { error } = await sb.from('collections').insert(payload);
+      if (error) { alert(error.message); return; }
+    }
     modal.remove();
     renderCollections();
   });
@@ -699,7 +689,7 @@ async function openCollectionForm(id) {
 
 async function deleteCollection(id) {
   if (!confirm('Delete this collection?')) return;
-  await fetch(`${API}/api/admin/collections/${id}`, { method: 'DELETE' });
+  await sb.from('collections').delete().eq('id', id);
   renderCollections();
 }
 
@@ -711,19 +701,18 @@ async function renderInventory() {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/inventory`);
-    const products = await res.json();
+    const { data: products } = await sb.from('products').select('id, name, sku, stock, status').order('stock');
 
     el.innerHTML = `
       <div class="page-header">
-        <div><h1 class="page-title">Inventory</h1><p class="page-subtitle">${products.length} products</p></div>
+        <div><h1 class="page-title">Inventory</h1><p class="page-subtitle">${(products || []).length} products</p></div>
       </div>
       <div class="card">
         <div class="table-wrap">
           <table class="mobile-cards">
             <thead><tr><th>Product</th><th>SKU</th><th>Stock</th><th>Status</th><th>Update</th></tr></thead>
             <tbody>
-              ${products.map(p => `
+              ${(products || []).map(p => `
                 <tr>
                   <td data-label="Product">${esc(p.name)}</td>
                   <td data-label="SKU"><code>${esc(p.sku)}</code></td>
@@ -744,11 +733,7 @@ async function renderInventory() {
 
 async function updateStock(id) {
   const stock = parseInt(document.getElementById(`stock-${id}`).value);
-  await fetch(`${API}/api/admin/inventory/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ stock })
-  });
+  await sb.from('products').update({ stock, updated_at: new Date().toISOString() }).eq('id', id);
   renderInventory();
 }
 
@@ -761,20 +746,19 @@ async function renderOrders() {
   const el = document.getElementById('page-content');
   el.innerHTML = loading();
 
-  const params = new URLSearchParams();
-  if (orderFilter !== 'all') params.set('status', orderFilter);
-  const searchVal = document.getElementById('global-search')?.value;
-  if (searchVal) params.set('search', searchVal);
-
   try {
-    const res = await fetch(`${API}/api/admin/orders?${params}`);
-    const orders = await res.json();
+    let query = sb.from('orders').select('*, shipments(status)').order('created_at', { ascending: false });
+    if (orderFilter !== 'all') query = query.eq('order_status', orderFilter);
 
+    const searchVal = document.getElementById('global-search')?.value;
+    if (searchVal) query = query.or(`order_number.ilike.%${searchVal}%,customer_name.ilike.%${searchVal}%,phone.ilike.%${searchVal}%`);
+
+    const { data: orders } = await query;
     const filters = ['all','new','confirmed','processing','packed','shipped','delivered','cancelled','refunded'];
 
     el.innerHTML = `
       <div class="page-header">
-        <div><h1 class="page-title">Orders</h1><p class="page-subtitle">${orders.length} orders</p></div>
+        <div><h1 class="page-title">Orders</h1><p class="page-subtitle">${(orders || []).length} orders</p></div>
       </div>
       <div class="filter-bar">
         ${filters.map(f => `<button class="filter-btn ${orderFilter === f ? 'active' : ''}" onclick="orderFilter='${f}';renderOrders()">${f === 'all' ? 'All' : f.replace(/_/g,' ')}</button>`).join('')}
@@ -787,7 +771,7 @@ async function renderOrders() {
           <table class="mobile-cards">
             <thead><tr><th>Order</th><th>Customer</th><th>Phone</th><th>Amount</th><th>Payment</th><th>Status</th><th>Shipping</th><th>Date</th><th></th></tr></thead>
             <tbody>
-              ${orders.length ? orders.map(o => `
+              ${(orders || []).length ? orders.map(o => `
                 <tr>
                   <td data-label="Order"><strong>${esc(o.order_number)}</strong></td>
                   <td data-label="Customer">${esc(o.customer_name)}</td>
@@ -818,10 +802,13 @@ async function viewOrder(id) {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/orders/${id}`);
-    const o = await res.json();
-    const ship = o.shipments?.[0] || {};
-    const history = (o.order_status_history || []).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    const { data: o } = await sb.from('orders').select('*').eq('id', id).single();
+    const { data: items } = await sb.from('order_items').select('*').eq('order_id', id);
+    const { data: history } = await sb.from('order_status_history').select('*').eq('order_id', id).order('created_at');
+    const { data: shipments } = await sb.from('shipments').select('*').eq('order_id', id);
+    const ship = shipments?.[0] || {};
+    o.order_items = items || [];
+    o.order_status_history = history || [];
 
     const orderStatuses = ['new','confirmed','processing','packed','ready_to_ship','shipped','in_transit','out_for_delivery','delivered','cancelled','refund_requested','refunded'];
     const payStatuses = ['pending','paid','failed','refunded','partially_refunded'];
@@ -834,19 +821,14 @@ async function viewOrder(id) {
           <h1 class="page-title">Order ${esc(o.order_number)}</h1>
           <p class="page-subtitle">Placed ${formatDate(o.created_at)}</p>
         </div>
-        <div class="btn-group">
-          ${badge(o.order_status)}
-          ${badge(o.payment_status)}
-        </div>
+        <div class="btn-group">${badge(o.order_status)} ${badge(o.payment_status)}</div>
       </div>
-
       <div class="order-detail-grid">
         <div>
-          <!-- Order Items -->
           <div class="card detail-section">
             <div class="card-header"><h3>Products</h3></div>
             <div class="card-body">
-              ${(o.order_items || []).map(item => `
+              ${o.order_items.map(item => `
                 <div class="order-item">
                   ${item.product_image ? `<img src="${esc(item.product_image)}" class="order-item-img">` : '<div class="order-item-img"></div>'}
                   <div class="order-item-info">
@@ -864,13 +846,11 @@ async function viewOrder(id) {
               </div>
             </div>
           </div>
-
-          <!-- Status History -->
           <div class="card detail-section">
             <div class="card-header"><h3>Order Timeline</h3></div>
             <div class="card-body">
               <ul class="timeline">
-                ${history.map(h => `
+                ${o.order_status_history.map(h => `
                   <li class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
@@ -883,8 +863,6 @@ async function viewOrder(id) {
               </ul>
             </div>
           </div>
-
-          <!-- Admin Notes -->
           <div class="card detail-section">
             <div class="card-header"><h3>Admin Notes</h3></div>
             <div class="card-body">
@@ -893,27 +871,19 @@ async function viewOrder(id) {
             </div>
           </div>
         </div>
-
         <div>
-          <!-- Update Status -->
           <div class="card detail-section">
             <div class="card-header"><h3>Update Status</h3></div>
             <div class="card-body">
-              <div class="form-group">
-                <label>Order Status</label>
+              <div class="form-group"><label>Order Status</label>
                 <select class="status-select" id="order-status-select" style="width:100%">
                   ${orderStatuses.map(s => `<option value="${s}" ${o.order_status === s ? 'selected' : ''}>${s.replace(/_/g,' ')}</option>`).join('')}
                 </select>
               </div>
-              <div class="form-group">
-                <label>Note</label>
-                <input id="status-note" placeholder="Optional note">
-              </div>
+              <div class="form-group"><label>Note</label><input id="status-note" placeholder="Optional note"></div>
               <button class="btn btn-primary btn-block btn-sm" onclick="updateOrderStatus(${o.id})">Update Order Status</button>
             </div>
           </div>
-
-          <!-- Customer -->
           <div class="card detail-section">
             <div class="card-header"><h3>Customer</h3></div>
             <div class="card-body">
@@ -922,8 +892,6 @@ async function viewOrder(id) {
               <div class="detail-row"><span class="label">Email</span><span class="value">${esc(o.email || '—')}</span></div>
             </div>
           </div>
-
-          <!-- Shipping Address -->
           <div class="card detail-section">
             <div class="card-header"><h3>Shipping Address</h3></div>
             <div class="card-body">
@@ -938,8 +906,6 @@ async function viewOrder(id) {
               </p>
             </div>
           </div>
-
-          <!-- Payment -->
           <div class="card detail-section">
             <div class="card-header"><h3>Payment</h3></div>
             <div class="card-body">
@@ -948,8 +914,7 @@ async function viewOrder(id) {
               ${o.transaction_id ? `<div class="detail-row"><span class="label">Transaction</span><span class="value">${esc(o.transaction_id)}</span></div>` : ''}
               ${o.paid_at ? `<div class="detail-row"><span class="label">Paid At</span><span class="value">${formatDate(o.paid_at)}</span></div>` : ''}
               <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)">
-                <div class="form-group">
-                  <label>Payment Status</label>
+                <div class="form-group"><label>Payment Status</label>
                   <select id="pay-status" class="status-select" style="width:100%">
                     ${payStatuses.map(s => `<option value="${s}" ${o.payment_status === s ? 'selected' : ''}>${s.replace(/_/g,' ')}</option>`).join('')}
                   </select>
@@ -962,8 +927,6 @@ async function viewOrder(id) {
               </div>
             </div>
           </div>
-
-          <!-- Shipping -->
           <div class="card detail-section">
             <div class="card-header"><h3>Shipping</h3></div>
             <div class="card-body">
@@ -977,8 +940,7 @@ async function viewOrder(id) {
                 <div class="form-group"><label>Tracking Number</label><input id="ship-tracking" value="${esc(ship.tracking_number || '')}"></div>
                 <div class="form-group"><label>Est. Delivery</label><input type="date" id="ship-delivery" value="${ship.estimated_delivery || ''}"></div>
                 <button class="btn btn-sm btn-outline btn-block" onclick="saveShipping(${o.id})" style="margin-bottom:8px">Save Shipping Details</button>
-                <div class="form-group">
-                  <label>Shipping Status</label>
+                <div class="form-group"><label>Shipping Status</label>
                   <select id="ship-status" class="status-select" style="width:100%">
                     ${shipStatuses.map(s => `<option value="${s}" ${(ship.status || 'not_ready') === s ? 'selected' : ''}>${s.replace(/_/g,' ')}</option>`).join('')}
                   </select>
@@ -998,11 +960,8 @@ async function viewOrder(id) {
 async function updateOrderStatus(orderId) {
   const status = document.getElementById('order-status-select').value;
   const note = document.getElementById('status-note').value;
-  await fetch(`${API}/api/admin/orders/${orderId}/status`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status, note })
-  });
+  await sb.from('orders').update({ order_status: status, updated_at: new Date().toISOString() }).eq('id', orderId);
+  await sb.from('order_status_history').insert({ order_id: orderId, status, note: note || null, created_by: currentUser?.email });
   viewOrder(orderId);
 }
 
@@ -1010,47 +969,54 @@ async function updatePayment(orderId) {
   const payload = {
     payment_status: document.getElementById('pay-status').value,
     payment_method: document.getElementById('pay-method').value,
-    transaction_id: document.getElementById('pay-txn').value
+    transaction_id: document.getElementById('pay-txn').value,
+    updated_at: new Date().toISOString()
   };
-  await fetch(`${API}/api/admin/orders/${orderId}/payment`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  if (payload.payment_status === 'paid' && !payload.paid_at) payload.paid_at = new Date().toISOString();
+  await sb.from('orders').update(payload).eq('id', orderId);
   viewOrder(orderId);
 }
 
 async function saveShipping(orderId) {
   const payload = {
+    order_id: orderId,
     courier_name: document.getElementById('ship-courier').value,
     tracking_number: document.getElementById('ship-tracking').value,
-    estimated_delivery: document.getElementById('ship-delivery').value || null
+    estimated_delivery: document.getElementById('ship-delivery').value || null,
+    updated_at: new Date().toISOString()
   };
-  await fetch(`${API}/api/admin/shipments/${orderId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  const { data: existing } = await sb.from('shipments').select('id').eq('order_id', orderId).single();
+  if (existing) {
+    await sb.from('shipments').update(payload).eq('order_id', orderId);
+  } else {
+    await sb.from('shipments').insert(payload);
+  }
   viewOrder(orderId);
 }
 
 async function updateShippingStatus(orderId) {
   const status = document.getElementById('ship-status').value;
-  await fetch(`${API}/api/admin/shipments/${orderId}/status`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status })
-  });
+  const { data: existing } = await sb.from('shipments').select('id').eq('order_id', orderId).single();
+  const shipUpdate = { status, updated_at: new Date().toISOString() };
+  if (status === 'shipped') shipUpdate.shipped_at = new Date().toISOString();
+  if (status === 'delivered') shipUpdate.delivered_at = new Date().toISOString();
+
+  if (existing) {
+    await sb.from('shipments').update(shipUpdate).eq('order_id', orderId);
+    await sb.from('shipping_status_history').insert({ shipment_id: existing.id, status });
+  }
+
+  const statusMap = { shipped: 'shipped', in_transit: 'in_transit', out_for_delivery: 'out_for_delivery', delivered: 'delivered' };
+  if (statusMap[status]) {
+    await sb.from('orders').update({ order_status: statusMap[status], updated_at: new Date().toISOString() }).eq('id', orderId);
+    await sb.from('order_status_history').insert({ order_id: orderId, status: statusMap[status], note: 'Auto-synced from shipping status', created_by: 'system' });
+  }
   viewOrder(orderId);
 }
 
 async function saveOrderNotes(orderId) {
   const notes = document.getElementById('admin-notes').value;
-  await fetch(`${API}/api/admin/orders/${orderId}/notes`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ admin_notes: notes })
-  });
+  await sb.from('orders').update({ admin_notes: notes }).eq('id', orderId);
   alert('Notes saved');
 }
 
@@ -1062,8 +1028,18 @@ async function renderCustomers() {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/customers`);
-    const customers = await res.json();
+    const { data: profiles } = await sb.from('profiles').select('*').eq('role', 'customer');
+    const { data: allOrders } = await sb.from('orders').select('created_by, total, created_at');
+
+    const customers = (profiles || []).map(p => {
+      const userOrders = (allOrders || []).filter(o => o.created_by === p.id);
+      return {
+        ...p,
+        orderCount: userOrders.length,
+        totalSpend: userOrders.reduce((s, o) => s + (o.total || 0), 0),
+        lastOrderDate: userOrders.length ? userOrders.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0].created_at : null
+      };
+    });
 
     el.innerHTML = `
       <div class="page-header">
@@ -1099,18 +1075,18 @@ async function viewCustomer(id) {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/customers/${id}`);
-    const c = await res.json();
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', id).single();
+    const { data: orders } = await sb.from('orders').select('*').eq('created_by', id).order('created_at', { ascending: false });
+    const { data: addresses } = await sb.from('addresses').select('*').eq('customer_id', id);
 
     el.innerHTML = `
       <div class="page-header">
         <div>
           <button class="btn btn-sm btn-outline" onclick="renderCustomers()" style="margin-bottom:8px">&larr; Back</button>
-          <h1 class="page-title">${esc(c.name || 'Guest')}</h1>
-          <p class="page-subtitle">${esc(c.email)}</p>
+          <h1 class="page-title">${esc(profile.name || 'Guest')}</h1>
+          <p class="page-subtitle">${esc(profile.email)}</p>
         </div>
       </div>
-
       <div class="order-detail-grid">
         <div>
           <div class="card detail-section">
@@ -1119,7 +1095,7 @@ async function viewCustomer(id) {
               <table>
                 <thead><tr><th>Order</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th></th></tr></thead>
                 <tbody>
-                  ${(c.orders || []).map(o => `
+                  ${(orders || []).map(o => `
                     <tr>
                       <td>${esc(o.order_number)}</td>
                       <td>${formatPriceRaw(o.total)}</td>
@@ -1138,7 +1114,7 @@ async function viewCustomer(id) {
           <div class="card detail-section">
             <div class="card-header"><h3>Addresses</h3></div>
             <div class="card-body">
-              ${(c.addresses || []).length ? c.addresses.map(a => `
+              ${(addresses || []).length ? addresses.map(a => `
                 <div style="padding:8px 0;border-bottom:1px solid var(--border-light)">
                   <strong>${esc(a.label || 'Address')}</strong>${a.is_default ? ' (Default)' : ''}<br>
                   <span style="font-size:12px;color:var(--text-secondary)">
@@ -1164,8 +1140,7 @@ async function renderContent() {
   el.innerHTML = loading();
 
   try {
-    const res = await fetch(`${API}/api/admin/content`);
-    const items = await res.json();
+    const { data: items } = await sb.from('site_content').select('*').order('key');
 
     el.innerHTML = `
       <div class="page-header">
@@ -1173,14 +1148,14 @@ async function renderContent() {
       </div>
       <div class="card">
         <div class="card-body">
-          ${items.length ? items.map(item => `
+          ${(items || []).length ? items.map(item => `
             <div style="padding:16px 0;border-bottom:1px solid var(--border-light)">
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <div>
                   <strong>${esc(item.key)}</strong>
                   <p style="font-size:12px;color:var(--text-secondary);margin-top:2px">Last updated: ${formatDate(item.updated_at)}</p>
                 </div>
-                <button class="btn btn-sm btn-outline" onclick="editContent('${esc(item.key)}', ${JSON.stringify(JSON.stringify(item.value)).replace(/'/g, "\\'")})">Edit</button>
+                <button class="btn btn-sm btn-outline" onclick='editContent(${JSON.stringify(item.key)}, ${JSON.stringify(JSON.stringify(item.value))})'>Edit</button>
               </div>
               <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:11px;margin-top:8px;overflow-x:auto">${esc(JSON.stringify(item.value, null, 2))}</pre>
             </div>
@@ -1195,33 +1170,24 @@ async function renderContent() {
 
 function editContent(key, valueStr) {
   const body = `
-    <div class="form-group">
-      <label>Key</label>
-      <input value="${esc(key)}" disabled>
-    </div>
-    <div class="form-group">
-      <label>Value (JSON)</label>
+    <div class="form-group"><label>Key</label><input value="${esc(key)}" disabled></div>
+    <div class="form-group"><label>Value (JSON)</label>
       <textarea id="content-value" rows="10" style="font-family:monospace;font-size:12px">${esc(typeof valueStr === 'string' ? valueStr : JSON.stringify(JSON.parse(valueStr), null, 2))}</textarea>
     </div>
   `;
-
   const modal = showModal('Edit Content: ' + key, body, `
     <button class="btn btn-outline" onclick="document.querySelector('.modal-overlay').remove()">Cancel</button>
     <button class="btn btn-primary" id="save-content-btn">Save</button>
   `);
-
   modal.querySelector('#save-content-btn').addEventListener('click', async () => {
     try {
       const value = JSON.parse(modal.querySelector('#content-value').value);
-      await fetch(`${API}/api/admin/content/${key}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value })
-      });
+      const { error } = await sb.from('site_content').update({ value, updated_at: new Date().toISOString() }).eq('key', key);
+      if (error) throw error;
       modal.remove();
       renderContent();
     } catch (err) {
-      alert('Invalid JSON: ' + err.message);
+      alert('Error: ' + err.message);
     }
   });
 }
@@ -1231,17 +1197,10 @@ function editContent(key, valueStr) {
 // ============================================================
 function renderSettings() {
   document.getElementById('page-content').innerHTML = `
-    <div class="page-header">
-      <div><h1 class="page-title">Settings</h1></div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <div class="empty-state">
-          <h3>Store Settings</h3>
-          <p>Store configuration coming soon. Currently managed through Content section and database.</p>
-        </div>
-      </div>
-    </div>
+    <div class="page-header"><div><h1 class="page-title">Settings</h1></div></div>
+    <div class="card"><div class="card-body">
+      <div class="empty-state"><h3>Store Settings</h3><p>Store configuration coming soon. Currently managed through Content section and database.</p></div>
+    </div></div>
   `;
 }
 

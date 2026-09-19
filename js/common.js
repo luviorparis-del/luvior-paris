@@ -1,235 +1,78 @@
 /* ============================================================
-   MAISON NOIRE — Shared Logic
+   LUVIOR PARIS — Shared Logic (Supabase Direct)
    ============================================================ */
 
-// --- Product Data ---
-const PRODUCTS = [
-    {
-        id: 1,
-        name: "L'Ombre",
-        notes: "Bergamot · Iris · Musk",
-        price: 185.00,
-        rating: 4.8,
-        reviews: 128,
-        category: "floral",
-        badge: "",
-        image: null
-    },
-    {
-        id: 2,
-        name: "Le Solstice",
-        notes: "Saffron · Leather · Amber",
-        price: 195.00,
-        rating: 4.9,
-        reviews: 247,
-        category: "oriental",
-        badge: "bestseller",
-        image: null
-    },
-    {
-        id: 3,
-        name: "Fleur Noire",
-        notes: "Black Rose · Vanilla · Patchouli",
-        price: 180.00,
-        rating: 4.7,
-        reviews: 96,
-        category: "floral",
-        badge: "",
-        image: null
-    },
-    {
-        id: 4,
-        name: "Cèdre",
-        notes: "Cedarwood · Vetiver · Tonka",
-        price: 175.00,
-        rating: 4.6,
-        reviews: 112,
-        category: "woody",
-        badge: "",
-        image: null
-    },
-    {
-        id: 5,
-        name: "Nuit Dorée",
-        notes: "Oud · Amber · Sandalwood",
-        price: 210.00,
-        rating: 4.9,
-        reviews: 184,
-        category: "oriental",
-        badge: "new",
-        image: null
-    },
-    {
-        id: 6,
-        name: "Jardin Secret",
-        notes: "Jasmine · Peony · White Musk",
-        price: 165.00,
-        rating: 4.5,
-        reviews: 73,
-        category: "floral",
-        badge: "",
-        image: null
-    },
-    {
-        id: 7,
-        name: "Bois Sacré",
-        notes: "Sandalwood · Cardamom · Moss",
-        price: 190.00,
-        rating: 4.7,
-        reviews: 159,
-        category: "woody",
-        badge: "",
-        image: null
-    },
-    {
-        id: 8,
-        name: "Eau Première",
-        notes: "Bergamot · Sea Salt · White Cedar",
-        price: 155.00,
-        rating: 4.6,
-        reviews: 88,
-        category: "fresh",
-        badge: "new",
-        image: null
-    },
-    {
-        id: 9,
-        name: "Cuir Velours",
-        notes: "Leather · Tobacco · Vanilla",
-        price: 205.00,
-        rating: 4.8,
-        reviews: 201,
-        category: "oriental",
-        badge: "bestseller",
-        image: null
-    },
-    {
-        id: 10,
-        name: "Aube Claire",
-        notes: "Citrus · Green Tea · Bamboo",
-        price: 150.00,
-        rating: 4.4,
-        reviews: 64,
-        category: "fresh",
-        badge: "",
-        image: null
-    },
-    {
-        id: 11,
-        name: "Velvet Noir",
-        notes: "Black Orchid · Musk · Praline",
-        price: 200.00,
-        rating: 4.8,
-        reviews: 176,
-        category: "oriental",
-        badge: "",
-        image: null
-    },
-    {
-        id: 12,
-        name: "Forêt Profonde",
-        notes: "Pine · Birch · Amber Resin",
-        price: 185.00,
-        rating: 4.6,
-        reviews: 91,
-        category: "woody",
-        badge: "",
-        image: null
-    }
-];
+const SUPABASE_URL = 'https://jvsudlhnnykpidyavxuq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c3VkbGhubnlrcGlkeWF2eHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjE2MjgsImV4cCI6MjEwNTI5NzYyOH0.4URWWpEe-jQ34MkvrqCW0p3PlmAGRimCYAo1_ohejdc';
 
-const COLLECTIONS = [
-    {
-        id: "floral",
-        name: "Floral",
-        subtitle: "Delicate Yet Bold",
-        description: "Rose, jasmine, iris and luminous floral accords."
-    },
-    {
-        id: "woody",
-        name: "Woody",
-        subtitle: "Earthy & Refined",
-        description: "Cedarwood, sandalwood, vetiver and warm woods."
-    },
-    {
-        id: "oriental",
-        name: "Oriental",
-        subtitle: "Rich & Evocative",
-        description: "Amber, spice, resin, vanilla and deep sensual notes."
-    },
-    {
-        id: "fresh",
-        name: "Fresh",
-        subtitle: "Clean & Timeless",
-        description: "Citrus, bergamot, aquatic notes and crisp aromatics."
-    }
-];
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let PRODUCTS = [];
+let COLLECTIONS = [];
 
 const JOURNAL_ARTICLES = [
-    {
-        id: 1,
-        category: "The Art of Fragrance",
-        title: "Why Scent Becomes Memory",
-        description: "The science and poetry behind how fragrance anchors itself to our most vivid recollections.",
-        date: "Sep 12, 2024",
-        readTime: "6 min read",
-        featured: true
-    },
-    {
-        id: 2,
-        category: "Ingredients",
-        title: "The Art of Layering Fragrance",
-        description: "How to combine scents for a signature that is uniquely yours.",
-        date: "Aug 28, 2024",
-        readTime: "5 min read",
-        featured: false
-    },
-    {
-        id: 3,
-        category: "Craftsmanship",
-        title: "Inside the World of Oud",
-        description: "One of the rarest and most prized ingredients in perfumery.",
-        date: "Aug 15, 2024",
-        readTime: "7 min read",
-        featured: false
-    },
-    {
-        id: 4,
-        category: "Ingredients",
-        title: "Why Bergamot Opens So Many Iconic Scents",
-        description: "The citrus note that defines the opening of modern perfumery.",
-        date: "Jul 30, 2024",
-        readTime: "4 min read",
-        featured: false
-    },
-    {
-        id: 5,
-        category: "Behind the Brand",
-        title: "From Flower to Fragrance",
-        description: "The journey of a single ingredient from harvest to bottle.",
-        date: "Jul 18, 2024",
-        readTime: "8 min read",
-        featured: false
-    },
-    {
-        id: 6,
-        category: "Culture",
-        title: "The Ritual of Choosing a Signature Scent",
-        description: "Why your fragrance choice says more about you than you think.",
-        date: "Jul 5, 2024",
-        readTime: "5 min read",
-        featured: false
-    },
-    {
-        id: 7,
-        category: "Places",
-        title: "Places That Inspire Luvior Paris",
-        description: "From Grasse to Kyoto — the landscapes that shape our fragrances.",
-        date: "Jun 22, 2024",
-        readTime: "6 min read",
-        featured: false
-    }
+    { id: 1, category: "The Art of Fragrance", title: "Why Scent Becomes Memory", description: "The science and poetry behind how fragrance anchors itself to our most vivid recollections.", date: "Sep 12, 2024", readTime: "6 min read", featured: true },
+    { id: 2, category: "Ingredients", title: "The Art of Layering Fragrance", description: "How to combine scents for a signature that is uniquely yours.", date: "Aug 28, 2024", readTime: "5 min read", featured: false },
+    { id: 3, category: "Craftsmanship", title: "Inside the World of Oud", description: "One of the rarest and most prized ingredients in perfumery.", date: "Aug 15, 2024", readTime: "7 min read", featured: false },
+    { id: 4, category: "Ingredients", title: "Why Bergamot Opens So Many Iconic Scents", description: "The citrus note that defines the opening of modern perfumery.", date: "Jul 30, 2024", readTime: "4 min read", featured: false },
+    { id: 5, category: "Behind the Brand", title: "From Flower to Fragrance", description: "The journey of a single ingredient from harvest to bottle.", date: "Jul 18, 2024", readTime: "8 min read", featured: false },
+    { id: 6, category: "Culture", title: "The Ritual of Choosing a Signature Scent", description: "Why your fragrance choice says more about you than you think.", date: "Jul 5, 2024", readTime: "5 min read", featured: false },
+    { id: 7, category: "Places", title: "Places That Inspire Luvior Paris", description: "From Grasse to Kyoto — the landscapes that shape our fragrances.", date: "Jun 22, 2024", readTime: "6 min read", featured: false }
 ];
+
+async function loadProducts() {
+    try {
+        const { data } = await sb.from('products').select('*, product_images(*)').eq('status', 'active').order('created_at', { ascending: false });
+        PRODUCTS = (data || []).map(p => {
+            const primary = p.product_images?.find(i => i.is_primary) || p.product_images?.[0];
+            return {
+                id: p.id,
+                name: p.name,
+                slug: p.slug,
+                notes: [p.top_notes, p.heart_notes, p.base_notes].filter(Boolean).join(' · ') || '',
+                price: p.price || 0,
+                compare_price: p.compare_price,
+                rating: 4.7,
+                reviews: Math.floor(Math.random() * 200) + 50,
+                category: p.fragrance_family || p.category || '',
+                badge: p.new_arrival ? 'new' : (p.bestseller ? 'bestseller' : ''),
+                image: primary?.image_url || null,
+                short_description: p.short_description,
+                volume: p.volume,
+                concentration: p.concentration
+            };
+        });
+    } catch { }
+}
+
+async function loadCollections() {
+    try {
+        const { data } = await sb.from('collections').select('*').eq('status', 'active').order('sort_order');
+        if (data && data.length) {
+            COLLECTIONS = data.map(c => ({
+                id: c.slug || c.id,
+                name: c.name,
+                subtitle: c.subtitle || '',
+                description: c.description || '',
+                image_url: c.image_url
+            }));
+        } else {
+            COLLECTIONS = [
+                { id: "floral", name: "Floral", subtitle: "Delicate Yet Bold", description: "Rose, jasmine, iris and luminous floral accords." },
+                { id: "woody", name: "Woody", subtitle: "Earthy & Refined", description: "Cedarwood, sandalwood, vetiver and warm woods." },
+                { id: "oriental", name: "Oriental", subtitle: "Rich & Evocative", description: "Amber, spice, resin, vanilla and deep sensual notes." },
+                { id: "fresh", name: "Fresh", subtitle: "Clean & Timeless", description: "Citrus, bergamot, aquatic notes and crisp aromatics." }
+            ];
+        }
+    } catch {
+        COLLECTIONS = [
+            { id: "floral", name: "Floral", subtitle: "Delicate Yet Bold", description: "Rose, jasmine, iris and luminous floral accords." },
+            { id: "woody", name: "Woody", subtitle: "Earthy & Refined", description: "Cedarwood, sandalwood, vetiver and warm woods." },
+            { id: "oriental", name: "Oriental", subtitle: "Rich & Evocative", description: "Amber, spice, resin, vanilla and deep sensual notes." },
+            { id: "fresh", name: "Fresh", subtitle: "Clean & Timeless", description: "Citrus, bergamot, aquatic notes and crisp aromatics." }
+        ];
+    }
+}
 
 // --- Cart ---
 let cart = [];
@@ -271,7 +114,9 @@ function createProductCard(product) {
     if (product.badge) card.dataset.badge = product.badge;
     card.innerHTML = `
         <div class="product-card__image">
-            <div class="placeholder-image" style="width:100%;height:100%">${product.name}</div>
+            ${product.image
+                ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover">`
+                : `<div class="placeholder-image" style="width:100%;height:100%">${product.name}</div>`}
             <div class="product-card__wishlist">
                 <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
             </div>
@@ -279,7 +124,7 @@ function createProductCard(product) {
         <h3 class="product-card__name">${product.name}</h3>
         <p class="product-card__notes">${product.notes}</p>
         <div class="product-card__bottom">
-            <span class="product-card__price">$${product.price.toFixed(2)}</span>
+            <span class="product-card__price">₹${(product.price || 0).toLocaleString('en-IN')}</span>
             <span class="product-card__rating">
                 <span class="stars">${renderStars(product.rating)}</span>
                 (${product.reviews})
@@ -295,7 +140,9 @@ function createCollectionCard(collection) {
     card.className = 'collection-card';
     card.innerHTML = `
         <div class="collection-card__image">
-            <div class="placeholder-image" style="width:100%;height:100%">${collection.name}</div>
+            ${collection.image_url
+                ? `<img src="${collection.image_url}" alt="${collection.name}" style="width:100%;height:100%;object-fit:cover">`
+                : `<div class="placeholder-image" style="width:100%;height:100%">${collection.name}</div>`}
         </div>
         <div class="collection-card__overlay"></div>
         <div class="collection-card__content">
@@ -434,15 +281,19 @@ function initFAQ() {
 }
 
 // --- Populate Homepage ---
-function initHomepage() {
+async function initHomepage() {
     const featuredGrid = document.getElementById('featured-products');
-    if (featuredGrid) {
-        PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
-    }
-
     const collectionCards = document.getElementById('collection-cards');
-    if (collectionCards) {
-        COLLECTIONS.forEach(c => collectionCards.appendChild(createCollectionCard(c)));
+
+    if (featuredGrid || collectionCards) {
+        await Promise.all([loadProducts(), loadCollections()]);
+
+        if (featuredGrid) {
+            PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
+        }
+        if (collectionCards) {
+            COLLECTIONS.forEach(c => collectionCards.appendChild(createCollectionCard(c)));
+        }
     }
 }
 

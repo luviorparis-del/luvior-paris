@@ -130,6 +130,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/common.js"></script>
     <script>
         const statusFlow = ['new', 'confirmed', 'processing', 'packed', 'shipped', 'out_for_delivery', 'delivered'];
@@ -151,20 +152,18 @@
             const identifier = document.getElementById('track-identifier').value.trim();
 
             try {
-                const res = await fetch('/api/orders/track', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderNumber, identifier })
+                const { data, error } = await sb.rpc('track_order', {
+                    p_order_number: orderNumber,
+                    p_identifier: identifier
                 });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
+                if (error) throw new Error(error.message);
+                if (!data) throw new Error('Order not found. Please check your details.');
 
                 document.getElementById('result-order-number').textContent = data.orderNumber;
                 document.getElementById('result-order-date').textContent = 'Placed ' + new Date(data.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
                 document.getElementById('result-total').textContent = '₹' + data.total.toLocaleString('en-IN');
 
                 const currentIdx = statusFlow.indexOf(data.status);
-                const historyStatuses = (data.history || []).map(h => h.status);
 
                 const statusList = document.getElementById('track-status-list');
                 statusList.innerHTML = statusFlow.map((s, i) => {

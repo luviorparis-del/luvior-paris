@@ -1,5 +1,6 @@
-/* Collections Page Logic */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await Promise.all([loadProducts(), loadCollections()]);
+
     const familyCards = document.getElementById('family-cards');
     if (familyCards) {
         COLLECTIONS.forEach(c => {
@@ -14,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
         PRODUCTS.forEach(p => allProducts.appendChild(createProductCard(p)));
     }
 
-    // Filter logic
     const filterBar = document.getElementById('filter-bar');
     if (filterBar && allProducts) {
         filterBar.addEventListener('click', (e) => {
@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle hash-based filter activation
     const hash = window.location.hash.replace('#', '');
     if (hash && filterBar) {
         const targetBtn = filterBar.querySelector(`[data-filter="${hash}"]`);
