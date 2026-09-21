@@ -1371,9 +1371,12 @@ function initHeroSlideAdmin() {
 
   // Active toggles
   document.querySelectorAll('.slide-active-toggle').forEach(cb => {
-    cb.addEventListener('change', () => {
+    cb.addEventListener('change', async () => {
       const idx = parseInt(cb.dataset.idx);
-      if (heroConfig.slides[idx]) heroConfig.slides[idx].active = cb.checked;
+      if (heroConfig.slides[idx]) {
+        heroConfig.slides[idx].active = cb.checked;
+        await saveHeroConfig();
+      }
     });
   });
 
@@ -1420,9 +1423,7 @@ function initHeroSlideAdmin() {
         try {
           const url = await uploadHeroToStorage(input.files[0], 'slide');
           heroConfig.slides[idx].image_url = url;
-          status.textContent = 'Replaced! Click Save & Publish to apply.';
-          status.style.color = 'var(--success, #4caf50)';
-          renderContent();
+          await saveHeroConfig();
         } catch (err) {
           status.textContent = 'Error: ' + err.message;
           status.style.color = 'var(--danger)';
@@ -1446,9 +1447,7 @@ function initHeroSlideAdmin() {
         try {
           const url = await uploadHeroToStorage(input.files[0], 'mobile');
           heroConfig.slides[idx].mobile_image_url = url;
-          status.textContent = 'Mobile image set! Click Save & Publish to apply.';
-          status.style.color = 'var(--success, #4caf50)';
-          renderContent();
+          await saveHeroConfig();
         } catch (err) {
           status.textContent = 'Error: ' + err.message;
           status.style.color = 'var(--danger)';
@@ -1460,10 +1459,10 @@ function initHeroSlideAdmin() {
 
   // Remove mobile image
   document.querySelectorAll('.slide-remove-mobile-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const idx = parseInt(btn.dataset.idx);
       heroConfig.slides[idx].mobile_image_url = null;
-      renderContent();
+      await saveHeroConfig();
     });
   });
 
@@ -1510,7 +1509,7 @@ function initSlideDragDrop() {
       const [moved] = heroConfig.slides.splice(fromIdx, 1);
       heroConfig.slides.splice(toIdx, 0, moved);
       heroConfig.slides.forEach((s, i) => s.sort_order = i);
-      renderContent();
+      saveHeroConfig();
     });
   });
 }
@@ -1529,9 +1528,7 @@ async function addHeroSlide(file) {
       active: true,
       sort_order: heroConfig.slides.length
     });
-    status.textContent = 'Slide added! Click Save & Publish to apply.';
-    status.style.color = 'var(--success, #4caf50)';
-    renderContent();
+    await saveHeroConfig();
   } catch (err) {
     status.textContent = 'Error: ' + err.message;
     status.style.color = 'var(--danger)';
