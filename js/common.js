@@ -458,20 +458,53 @@ function initFAQ() {
     });
 }
 
+/* === Hero Image from Supabase === */
+async function loadHeroImage() {
+    const heroImg = document.getElementById('hero-bg-img');
+    if (!heroImg) return;
+
+    try {
+        const { data } = await sb.from('site_content').select('value').eq('key', 'hero_banner').single();
+        if (!data || !data.value) return;
+
+        const config = data.value;
+        const imageUrl = config.image_url;
+        if (!imageUrl) return;
+
+        const overlay = heroImg.parentElement.querySelector('.hero__bg-gradient--center');
+        if (config.overlay_opacity != null && overlay) {
+            const op = Math.min(Math.max(config.overlay_opacity, 0), 1);
+            overlay.style.background = `radial-gradient(ellipse at center, rgba(0,0,0,${op * 0.4}) 0%, rgba(0,0,0,${op}) 100%)`;
+        }
+
+        if (config.image_position && heroImg) {
+            heroImg.style.objectPosition = config.image_position;
+        }
+
+        heroImg.onload = () => heroImg.classList.add('loaded');
+        heroImg.onerror = () => {};
+        heroImg.src = imageUrl;
+        heroImg.alt = 'Luvior Paris Hero';
+    } catch {}
+}
+
 /* === Populate Homepage === */
 async function initHomepage() {
     const featuredGrid = document.getElementById('featured-products');
     const collectionCards = document.getElementById('collection-cards');
+    const heroImg = document.getElementById('hero-bg-img');
 
-    if (featuredGrid || collectionCards) {
-        await Promise.all([loadProducts(), loadCollections()]);
+    const tasks = [];
+    if (featuredGrid || collectionCards) tasks.push(loadProducts(), loadCollections());
+    if (heroImg) tasks.push(loadHeroImage());
 
-        if (featuredGrid) {
-            PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
-        }
-        if (collectionCards) {
-            COLLECTIONS.forEach(c => collectionCards.appendChild(createCollectionCard(c)));
-        }
+    await Promise.all(tasks);
+
+    if (featuredGrid) {
+        PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
+    }
+    if (collectionCards) {
+        COLLECTIONS.forEach(c => collectionCards.appendChild(createCollectionCard(c)));
     }
 }
 

@@ -1135,36 +1135,280 @@ async function viewCustomer(id) {
 // ============================================================
 // CONTENT
 // ============================================================
+let heroConfig = null;
+
 async function renderContent() {
   const el = document.getElementById('page-content');
   el.innerHTML = loading();
 
   try {
-    const { data: items } = await sb.from('site_content').select('*').order('key');
+    const { data: heroRow } = await sb.from('site_content').select('*').eq('key', 'hero_banner').single();
+    heroConfig = heroRow?.value || {};
 
     el.innerHTML = `
       <div class="page-header">
         <div><h1 class="page-title">Website Content</h1><p class="page-subtitle">Manage dynamic content for the public website</p></div>
       </div>
-      <div class="card">
+
+      <!-- Hero Banner Management -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="card-header"><h3>Homepage Hero Banner</h3></div>
         <div class="card-body">
-          ${(items || []).length ? items.map(item => `
-            <div style="padding:16px 0;border-bottom:1px solid var(--border-light)">
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <div>
-                  <strong>${esc(item.key)}</strong>
-                  <p style="font-size:12px;color:var(--text-secondary);margin-top:2px">Last updated: ${formatDate(item.updated_at)}</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+            <!-- Current Preview -->
+            <div>
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Desktop Preview</h4>
+              <div id="hero-preview-desktop" style="position:relative;width:100%;aspect-ratio:16/9;background:#111;border:1px solid var(--border);border-radius:4px;overflow:hidden">
+                ${heroConfig.image_url
+                  ? `<img src="${esc(heroConfig.image_url)}" style="width:100%;height:100%;object-fit:cover;opacity:0.5;object-position:${esc(heroConfig.image_position || 'center center')}">`
+                  : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:13px">No hero image set</div>'}
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">
+                  <div>
+                    <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px">Scents for a Deeper You</p>
+                    <p style="font-size:24px;font-weight:300;color:#fff;font-family:serif">More Than a Fragrance</p>
+                  </div>
                 </div>
-                <button class="btn btn-sm btn-outline" onclick='editContent(${JSON.stringify(item.key)}, ${JSON.stringify(JSON.stringify(item.value))})'>Edit</button>
               </div>
-              <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:11px;margin-top:8px;overflow-x:auto">${esc(JSON.stringify(item.value, null, 2))}</pre>
             </div>
-          `).join('') : '<div class="empty-state"><p>No content entries yet</p></div>'}
+            <div>
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Mobile Preview</h4>
+              <div id="hero-preview-mobile" style="position:relative;width:200px;aspect-ratio:9/16;background:#111;border:1px solid var(--border);border-radius:4px;overflow:hidden">
+                ${heroConfig.mobile_image_url || heroConfig.image_url
+                  ? `<img src="${esc(heroConfig.mobile_image_url || heroConfig.image_url)}" style="width:100%;height:100%;object-fit:cover;opacity:0.5;object-position:${esc(heroConfig.image_position || 'center center')}">`
+                  : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:11px">No image</div>'}
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px">
+                  <div>
+                    <p style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px">Scents for a Deeper You</p>
+                    <p style="font-size:14px;font-weight:300;color:#fff;font-family:serif">More Than a Fragrance</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border-light)">
+            <h4 style="font-size:14px;font-weight:600;margin-bottom:16px">Upload / Replace Hero Image</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Desktop Hero Image</label>
+                <div class="image-upload-zone" id="hero-upload-zone" style="cursor:pointer">
+                  <p>Click or drag to upload hero image (JPEG, PNG, WebP — max 10MB)</p>
+                  <input type="file" id="hero-upload-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Mobile Hero Image (optional)</label>
+                <div class="image-upload-zone" id="hero-mobile-upload-zone" style="cursor:pointer">
+                  <p>Click or drag for separate mobile image</p>
+                  <input type="file" id="hero-mobile-upload-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-top:16px">
+              <div class="form-group">
+                <label>Image Position / Focal Point</label>
+                <select id="hero-position">
+                  <option value="center center" ${(heroConfig.image_position || 'center center') === 'center center' ? 'selected' : ''}>Center</option>
+                  <option value="center top" ${heroConfig.image_position === 'center top' ? 'selected' : ''}>Top</option>
+                  <option value="center bottom" ${heroConfig.image_position === 'center bottom' ? 'selected' : ''}>Bottom</option>
+                  <option value="left center" ${heroConfig.image_position === 'left center' ? 'selected' : ''}>Left</option>
+                  <option value="right center" ${heroConfig.image_position === 'right center' ? 'selected' : ''}>Right</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Dark Overlay Intensity: <span id="overlay-value">${Math.round((heroConfig.overlay_opacity || 0.7) * 100)}%</span></label>
+                <input type="range" id="hero-overlay" min="0" max="100" value="${Math.round((heroConfig.overlay_opacity || 0.7) * 100)}" style="width:100%">
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:20px">
+              <button class="btn btn-primary" id="hero-save-btn">Save & Publish</button>
+              ${heroConfig.image_url ? '<button class="btn btn-outline" id="hero-remove-btn" style="color:var(--danger)">Remove Hero Image</button>' : ''}
+            </div>
+            <p id="hero-status" style="font-size:12px;color:var(--text-secondary);margin-top:8px"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Content Entries -->
+      <div class="card">
+        <div class="card-header"><h3>Other Content</h3></div>
+        <div class="card-body" id="other-content-list">
+          ${loading()}
         </div>
       </div>
     `;
+
+    loadOtherContent();
+    initHeroUpload();
+  } catch (err) {
+    el.innerHTML = `<div class="empty-state"><h3>Failed to load content</h3><p>${esc(err.message || '')}</p></div>`;
+  }
+}
+
+async function loadOtherContent() {
+  const container = document.getElementById('other-content-list');
+  if (!container) return;
+  try {
+    const { data: items } = await sb.from('site_content').select('*').neq('key', 'hero_banner').order('key');
+    if (!items || !items.length) {
+      container.innerHTML = '<p style="color:var(--text-secondary)">No other content entries</p>';
+      return;
+    }
+    container.innerHTML = items.map(item => `
+      <div style="padding:16px 0;border-bottom:1px solid var(--border-light)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong>${esc(item.key)}</strong>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:2px">Last updated: ${formatDate(item.updated_at)}</p>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick='editContent(${JSON.stringify(item.key)}, ${JSON.stringify(JSON.stringify(item.value))})'>Edit</button>
+        </div>
+        <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:11px;margin-top:8px;overflow-x:auto">${esc(JSON.stringify(item.value, null, 2))}</pre>
+      </div>
+    `).join('');
   } catch {
-    el.innerHTML = '<div class="empty-state"><h3>Failed to load content</h3></div>';
+    container.innerHTML = '<p style="color:var(--text-secondary)">Failed to load</p>';
+  }
+}
+
+function initHeroUpload() {
+  const zone = document.getElementById('hero-upload-zone');
+  const input = document.getElementById('hero-upload-input');
+  const mobileZone = document.getElementById('hero-mobile-upload-zone');
+  const mobileInput = document.getElementById('hero-mobile-upload-input');
+  const overlaySlider = document.getElementById('hero-overlay');
+  const overlayLabel = document.getElementById('overlay-value');
+
+  if (zone && input) {
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); handleHeroFile(e.dataTransfer.files[0], 'desktop'); });
+    input.addEventListener('change', () => { if (input.files[0]) handleHeroFile(input.files[0], 'desktop'); });
+  }
+
+  if (mobileZone && mobileInput) {
+    mobileZone.addEventListener('click', () => mobileInput.click());
+    mobileZone.addEventListener('dragover', e => { e.preventDefault(); mobileZone.classList.add('dragover'); });
+    mobileZone.addEventListener('dragleave', () => mobileZone.classList.remove('dragover'));
+    mobileZone.addEventListener('drop', e => { e.preventDefault(); mobileZone.classList.remove('dragover'); handleHeroFile(e.dataTransfer.files[0], 'mobile'); });
+    mobileInput.addEventListener('change', () => { if (mobileInput.files[0]) handleHeroFile(mobileInput.files[0], 'mobile'); });
+  }
+
+  if (overlaySlider && overlayLabel) {
+    overlaySlider.addEventListener('input', () => { overlayLabel.textContent = overlaySlider.value + '%'; });
+  }
+
+  document.getElementById('hero-save-btn')?.addEventListener('click', saveHeroConfig);
+  document.getElementById('hero-remove-btn')?.addEventListener('click', removeHeroImage);
+}
+
+let pendingHeroFile = null;
+let pendingMobileFile = null;
+
+async function handleHeroFile(file, type) {
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { alert('File too large. Max 10MB.'); return; }
+  const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!allowed.includes(file.type)) { alert('Only JPEG, PNG, WebP allowed.'); return; }
+
+  const status = document.getElementById('hero-status');
+  if (status) status.textContent = `${type === 'mobile' ? 'Mobile' : 'Desktop'} image selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+
+  if (type === 'mobile') {
+    pendingMobileFile = file;
+    const zone = document.getElementById('hero-mobile-upload-zone');
+    if (zone) zone.querySelector('p').textContent = `Selected: ${file.name}`;
+  } else {
+    pendingHeroFile = file;
+    const zone = document.getElementById('hero-upload-zone');
+    if (zone) zone.querySelector('p').textContent = `Selected: ${file.name}`;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = document.querySelector('#hero-preview-desktop img');
+      if (preview) preview.src = e.target.result;
+      else {
+        const container = document.getElementById('hero-preview-desktop');
+        const noImg = container?.querySelector('div');
+        if (noImg) noImg.remove();
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:0.5';
+        container?.prepend(img);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+async function uploadHeroToStorage(file, prefix) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const filename = `hero/${prefix}-${Date.now()}.${ext}`;
+  const { error: upErr } = await sb.storage.from('hero-images').upload(filename, file, { contentType: file.type, upsert: false });
+  if (upErr) throw new Error('Upload failed: ' + upErr.message);
+  const { data: urlData } = sb.storage.from('hero-images').getPublicUrl(filename);
+  return urlData.publicUrl;
+}
+
+async function saveHeroConfig() {
+  const btn = document.getElementById('hero-save-btn');
+  const status = document.getElementById('hero-status');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  status.textContent = '';
+
+  try {
+    const config = { ...heroConfig };
+    config.image_position = document.getElementById('hero-position')?.value || 'center center';
+    config.overlay_opacity = (parseInt(document.getElementById('hero-overlay')?.value) || 70) / 100;
+
+    if (pendingHeroFile) {
+      status.textContent = 'Uploading desktop image...';
+      config.image_url = await uploadHeroToStorage(pendingHeroFile, 'desktop');
+      pendingHeroFile = null;
+    }
+
+    if (pendingMobileFile) {
+      status.textContent = 'Uploading mobile image...';
+      config.mobile_image_url = await uploadHeroToStorage(pendingMobileFile, 'mobile');
+      pendingMobileFile = null;
+    }
+
+    const { data: existing } = await sb.from('site_content').select('id').eq('key', 'hero_banner').single();
+    if (existing) {
+      const { error } = await sb.from('site_content').update({ value: config, updated_at: new Date().toISOString() }).eq('key', 'hero_banner');
+      if (error) throw error;
+    } else {
+      const { error } = await sb.from('site_content').insert({ key: 'hero_banner', value: config, updated_at: new Date().toISOString() });
+      if (error) throw error;
+    }
+
+    heroConfig = config;
+    status.textContent = 'Hero banner saved and published!';
+    status.style.color = 'var(--success, #4caf50)';
+    setTimeout(() => renderContent(), 1500);
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.style.color = 'var(--danger)';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save & Publish';
+  }
+}
+
+async function removeHeroImage() {
+  if (!confirm('Remove hero image? The hero section will show a plain black background.')) return;
+  try {
+    const config = { ...heroConfig };
+    delete config.image_url;
+    delete config.mobile_image_url;
+    await sb.from('site_content').update({ value: config, updated_at: new Date().toISOString() }).eq('key', 'hero_banner');
+    heroConfig = config;
+    renderContent();
+  } catch (err) {
+    alert('Error: ' + err.message);
   }
 }
 
