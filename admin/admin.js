@@ -1379,12 +1379,30 @@ function initHeroSlideAdmin() {
 
   // Delete buttons
   document.querySelectorAll('.slide-delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const idx = parseInt(btn.dataset.idx);
       if (!confirm('Delete this slide?')) return;
-      heroConfig.slides.splice(idx, 1);
+      const deleted = heroConfig.slides.splice(idx, 1)[0];
       heroConfig.slides.forEach((s, i) => s.sort_order = i);
-      renderContent();
+      const status = document.getElementById('hero-status');
+      status.textContent = 'Deleting slide...';
+      status.style.color = '';
+      try {
+        if (deleted && deleted.image_url) {
+          const path = deleted.image_url.split('/hero-images/').pop();
+          if (path) await sb.storage.from('hero-images').remove([path]);
+        }
+        if (deleted && deleted.mobile_image_url) {
+          const mpath = deleted.mobile_image_url.split('/hero-images/').pop();
+          if (mpath) await sb.storage.from('hero-images').remove([mpath]);
+        }
+      } catch {}
+      try {
+        await saveHeroConfig();
+      } catch (err) {
+        status.textContent = 'Error saving: ' + err.message;
+        status.style.color = 'var(--danger)';
+      }
     });
   });
 

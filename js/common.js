@@ -571,7 +571,9 @@ async function loadHeroImage() {
                 imgs[heroCurrentSlide].classList.add('active');
             }, interval);
         }
-    } catch {}
+    } catch (err) {
+        console.error('Hero slideshow load failed:', err);
+    }
 }
 
 /* === Populate Homepage === */
