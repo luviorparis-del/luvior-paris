@@ -458,10 +458,14 @@ function initFAQ() {
     });
 }
 
-/* === Hero Image from Supabase === */
+/* === Hero Slideshow from Supabase === */
+let heroSlideTimer = null;
+let heroCurrentSlide = 0;
+let heroSlides = [];
+
 async function loadHeroImage() {
-    const heroImg = document.getElementById('hero-bg-img');
-    if (!heroImg) return;
+    const slideshowEl = document.getElementById('hero-slideshow');
+    if (!slideshowEl) return;
 
     try {
         const { data } = await sb.from('site_content').select('value').eq('key', 'hero_banner').single();
@@ -500,24 +504,69 @@ async function loadHeroImage() {
             }
         }
 
-        // Hero background image
-        const imageUrl = config.image_url;
-        if (!imageUrl) return;
-
-        const overlay = heroImg.parentElement.querySelector('.hero__bg-gradient--center');
+        // Overlay
+        const overlay = document.querySelector('.hero__bg-gradient--center');
         if (config.overlay_opacity != null && overlay) {
             const op = Math.min(Math.max(config.overlay_opacity, 0), 1);
             overlay.style.background = `radial-gradient(ellipse at center, rgba(0,0,0,${op * 0.4}) 0%, rgba(0,0,0,${op}) 100%)`;
         }
 
-        if (config.image_position && heroImg) {
-            heroImg.style.objectPosition = config.image_position;
+        // Build slides array — backward compatible with single image_url
+        const slides = config.slides || [];
+        const activeSlides = slides.filter(s => s.active !== false).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+        // Fallback: old single-image config
+        if (!activeSlides.length && config.image_url) {
+            activeSlides.push({ image_url: config.image_url, mobile_image_url: config.mobile_image_url });
         }
 
-        heroImg.onload = () => heroImg.classList.add('loaded');
-        heroImg.onerror = () => {};
-        heroImg.src = imageUrl;
-        heroImg.alt = 'Luvior Paris Hero';
+        if (!activeSlides.length) return;
+
+        heroSlides = activeSlides;
+        const isMobile = window.innerWidth <= 768;
+        const imgPosition = config.image_position || 'center center';
+        const transitionDuration = (config.transition_duration || 1) * 1000;
+
+        // Set transition duration from config
+        slideshowEl.querySelectorAll('img').forEach(img => {
+            img.style.transitionDuration = transitionDuration + 'ms';
+        });
+
+        // Create first slide immediately
+        const firstUrl = isMobile && heroSlides[0].mobile_image_url ? heroSlides[0].mobile_image_url : heroSlides[0].image_url;
+        const firstImg = document.createElement('img');
+        firstImg.style.objectPosition = imgPosition;
+        firstImg.style.transitionDuration = transitionDuration + 'ms';
+        firstImg.alt = 'Luvior Paris Hero';
+        firstImg.onload = () => firstImg.classList.add('active');
+        firstImg.src = firstUrl;
+        slideshowEl.appendChild(firstImg);
+        heroCurrentSlide = 0;
+
+        // Preload remaining slides
+        for (let i = 1; i < heroSlides.length; i++) {
+            const url = isMobile && heroSlides[i].mobile_image_url ? heroSlides[i].mobile_image_url : heroSlides[i].image_url;
+            const img = document.createElement('img');
+            img.style.objectPosition = imgPosition;
+            img.style.transitionDuration = transitionDuration + 'ms';
+            img.alt = 'Luvior Paris Hero';
+            img.src = url;
+            slideshowEl.appendChild(img);
+        }
+
+        // Start auto slideshow if enabled and multiple slides
+        const autoEnabled = config.auto_slideshow !== false;
+        const interval = (config.slide_interval || 5) * 1000;
+
+        if (autoEnabled && heroSlides.length > 1) {
+            heroSlideTimer = setInterval(() => {
+                const imgs = slideshowEl.querySelectorAll('img');
+                if (!imgs.length) return;
+                imgs[heroCurrentSlide].classList.remove('active');
+                heroCurrentSlide = (heroCurrentSlide + 1) % imgs.length;
+                imgs[heroCurrentSlide].classList.add('active');
+            }, interval);
+        }
     } catch {}
 }
 
@@ -525,11 +574,11 @@ async function loadHeroImage() {
 async function initHomepage() {
     const featuredGrid = document.getElementById('featured-products');
     const collectionCards = document.getElementById('collection-cards');
-    const heroImg = document.getElementById('hero-bg-img');
+    const heroSlideshow = document.getElementById('hero-slideshow');
 
     const tasks = [];
     if (featuredGrid || collectionCards) tasks.push(loadProducts(), loadCollections());
-    if (heroImg) tasks.push(loadHeroImage());
+    if (heroSlideshow) tasks.push(loadHeroImage());
 
     await Promise.all(tasks);
 
