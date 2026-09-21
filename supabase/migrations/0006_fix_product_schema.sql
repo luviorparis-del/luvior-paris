@@ -5,6 +5,55 @@
 -- Does NOT drop tables or delete data
 -- ============================================================
 
+-- ============================================================
+-- COLLECTIONS TABLE (needed before product_collections FK)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS collections (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  subtitle TEXT DEFAULT '',
+  description TEXT DEFAULT '',
+  image_url TEXT DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'active',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  CREATE POLICY "collections: public reads active" ON collections FOR SELECT
+    USING (status = 'active' OR is_admin());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "collections: admin inserts" ON collections FOR INSERT
+    WITH CHECK (is_admin());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "collections: admin updates" ON collections FOR UPDATE
+    USING (is_admin());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "collections: admin deletes" ON collections FOR DELETE
+    USING (is_admin());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- Seed default collections
+INSERT INTO collections (slug, name, subtitle, description, sort_order) VALUES
+  ('floral', 'Floral', 'Delicate Yet Bold', 'Rose, jasmine, iris and luminous floral accords.', 1),
+  ('woody', 'Woody', 'Earthy & Refined', 'Cedarwood, sandalwood, vetiver and warm woods.', 2),
+  ('oriental', 'Oriental', 'Rich & Evocative', 'Amber, spice, resin, vanilla and deep sensual notes.', 3),
+  ('fresh', 'Fresh', 'Clean & Timeless', 'Citrus, bergamot, aquatic notes and crisp aromatics.', 4)
+ON CONFLICT (slug) DO NOTHING;
+
+-- ============================================================
+-- PRODUCT COLUMNS
+-- ============================================================
+
 -- Core product columns
 ALTER TABLE products ADD COLUMN IF NOT EXISTS slug TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS sku TEXT;

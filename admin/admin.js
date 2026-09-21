@@ -530,7 +530,11 @@ async function openProductForm(productId) {
       updated_at: new Date().toISOString()
     };
 
-    if (!payload.name || !payload.sku || !payload.slug) { alert('Name, SKU and Slug are required'); return; }
+    if (!payload.name || !payload.sku || !payload.slug) {
+      const status = modal.querySelector('#pf-image-status');
+      if (status) { status.textContent = 'Name, SKU and Slug are required'; status.style.color = 'var(--danger)'; }
+      return;
+    }
 
     const btn = modal.querySelector('#save-product-btn');
     btn.disabled = true;
@@ -591,7 +595,7 @@ async function uploadImages(productId, files) {
       const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
       const { error: upErr } = await sb.storage.from('product-images').upload(filename, file, { contentType: file.type, upsert: false });
-      if (upErr) { alert('Upload failed: ' + upErr.message); continue; }
+      if (upErr) { console.error('Upload failed:', upErr.message); continue; }
 
       const { data: urlData } = sb.storage.from('product-images').getPublicUrl(filename);
 
@@ -604,7 +608,7 @@ async function uploadImages(productId, files) {
     }
     openProductForm(productId);
   } catch (err) {
-    alert('Upload failed: ' + err.message);
+    console.error('Upload failed:', err.message);
   }
 }
 

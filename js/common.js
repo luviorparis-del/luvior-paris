@@ -42,7 +42,7 @@ async function loadProducts() {
                 concentration: p.concentration
             };
         });
-    } catch { }
+    } catch (err) { console.error('Failed to load products:', err); }
 }
 
 async function loadCollections() {
