@@ -1164,8 +1164,8 @@ async function renderContent() {
                   : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:13px">No hero image set</div>'}
                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">
                   <div>
-                    <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px">Scents for a Deeper You</p>
-                    <p style="font-size:24px;font-weight:300;color:#fff;font-family:serif">More Than a Fragrance</p>
+                    <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px">${esc(heroConfig.label || 'Scents for a Deeper You')}</p>
+                    <p style="font-size:24px;font-weight:300;color:#fff;font-family:serif">${esc(heroConfig.heading || 'More Than a Fragrance')}</p>
                   </div>
                 </div>
               </div>
@@ -1178,8 +1178,8 @@ async function renderContent() {
                   : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:11px">No image</div>'}
                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px">
                   <div>
-                    <p style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px">Scents for a Deeper You</p>
-                    <p style="font-size:14px;font-weight:300;color:#fff;font-family:serif">More Than a Fragrance</p>
+                    <p style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px">${esc(heroConfig.label || 'Scents for a Deeper You')}</p>
+                    <p style="font-size:14px;font-weight:300;color:#fff;font-family:serif">${esc(heroConfig.heading || 'More Than a Fragrance')}</p>
                   </div>
                 </div>
               </div>
@@ -1219,6 +1219,46 @@ async function renderContent() {
               <div class="form-group">
                 <label>Dark Overlay Intensity: <span id="overlay-value">${Math.round((heroConfig.overlay_opacity || 0.7) * 100)}%</span></label>
                 <input type="range" id="hero-overlay" min="0" max="100" value="${Math.round((heroConfig.overlay_opacity || 0.7) * 100)}" style="width:100%">
+              </div>
+            </div>
+
+            <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border-light)">
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:16px">Hero Text Content</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Label (small text above heading)</label>
+                  <input type="text" id="hero-text-label" value="${esc(heroConfig.label || '')}" placeholder="e.g. Scents for a Deeper You">
+                </div>
+                <div class="form-group">
+                  <label>Heading</label>
+                  <input type="text" id="hero-text-heading" value="${esc(heroConfig.heading || '')}" placeholder="e.g. More Than a Fragrance">
+                </div>
+              </div>
+              <div class="form-row" style="margin-top:12px">
+                <div class="form-group">
+                  <label>Subheading / Description</label>
+                  <input type="text" id="hero-text-subheading" value="${esc(heroConfig.subheading || '')}" placeholder="e.g. Exquisite fragrances, crafted to evoke emotion...">
+                </div>
+              </div>
+              <div class="form-row" style="margin-top:12px">
+                <div class="form-group">
+                  <label>CTA Button Text</label>
+                  <input type="text" id="hero-text-cta" value="${esc(heroConfig.cta_text || '')}" placeholder="e.g. Discover the Collection">
+                </div>
+                <div class="form-group">
+                  <label>CTA Button Link</label>
+                  <input type="text" id="hero-text-cta-link" value="${esc(heroConfig.cta_link || '')}" placeholder="e.g. collections.html">
+                </div>
+              </div>
+              <div class="form-row" style="margin-top:12px">
+                <div class="form-group">
+                  <label>Hero Content Position</label>
+                  <select id="hero-content-align">
+                    <option value="centered" ${(heroConfig.content_align || 'centered') === 'centered' ? 'selected' : ''}>Center</option>
+                    <option value="left" ${heroConfig.content_align === 'left' ? 'selected' : ''}>Left</option>
+                    <option value="right" ${heroConfig.content_align === 'right' ? 'selected' : ''}>Right</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -1363,6 +1403,12 @@ async function saveHeroConfig() {
     const config = { ...heroConfig };
     config.image_position = document.getElementById('hero-position')?.value || 'center center';
     config.overlay_opacity = (parseInt(document.getElementById('hero-overlay')?.value) || 70) / 100;
+    config.label = document.getElementById('hero-text-label')?.value || '';
+    config.heading = document.getElementById('hero-text-heading')?.value || '';
+    config.subheading = document.getElementById('hero-text-subheading')?.value || '';
+    config.cta_text = document.getElementById('hero-text-cta')?.value || '';
+    config.cta_link = document.getElementById('hero-text-cta-link')?.value || '';
+    config.content_align = document.getElementById('hero-content-align')?.value || 'centered';
 
     if (pendingHeroFile) {
       status.textContent = 'Uploading desktop image...';

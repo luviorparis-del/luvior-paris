@@ -468,6 +468,39 @@ async function loadHeroImage() {
         if (!data || !data.value) return;
 
         const config = data.value;
+
+        // Hero text content — admin-editable
+        if (config.heading) {
+            const el = document.getElementById('hero-title');
+            if (el) el.innerHTML = config.heading;
+        }
+        if (config.subheading) {
+            const el = document.getElementById('hero-subtitle');
+            if (el) el.textContent = config.subheading;
+        }
+        if (config.label) {
+            const el = document.getElementById('hero-label');
+            if (el) el.textContent = config.label;
+        }
+        const ctaEl = document.getElementById('hero-cta');
+        if (ctaEl) {
+            if (config.cta_text) ctaEl.innerHTML = config.cta_text + ' <span class="arrow">&rarr;</span>';
+            if (config.cta_link) ctaEl.href = config.cta_link;
+        }
+
+        // Hero content alignment — left / center / right
+        const heroContent = document.getElementById('hero-content');
+        if (heroContent && config.content_align) {
+            heroContent.classList.remove('hero__content--centered', 'hero__content--left', 'hero__content--right');
+            heroContent.classList.add('hero__content--' + config.content_align);
+            const textWrap = heroContent.querySelector('.hero__text');
+            if (textWrap) {
+                textWrap.classList.remove('hero__text--centered');
+                if (config.content_align === 'centered') textWrap.classList.add('hero__text--centered');
+            }
+        }
+
+        // Hero background image
         const imageUrl = config.image_url;
         if (!imageUrl) return;
 
