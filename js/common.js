@@ -387,10 +387,14 @@ function initScrollAnimations() {
 /* === Scroll to Top === */
 function initScrollTop() {
     const btn = document.querySelector('.scroll-top');
-    if (!btn) return;
+    const header = document.querySelector('.header');
+    const isHomepage = document.body.classList.contains('page-homepage');
 
     window.addEventListener('scroll', () => {
-        btn.classList.toggle('visible', window.scrollY > 500);
+        if (btn) btn.classList.toggle('visible', window.scrollY > 500);
+        if (isHomepage && header) {
+            header.classList.toggle('header--scrolled', window.scrollY > 80);
+        }
     });
 
     btn.addEventListener('click', () => {

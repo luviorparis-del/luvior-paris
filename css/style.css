@@ -217,14 +217,22 @@ ul, ol {
     transition: background-color var(--transition-smooth);
 }
 
-/* Homepage: transparent header overlaying hero */
+/* Homepage: transparent fixed header overlaying hero */
 .page-homepage .header {
-    position: absolute;
+    position: fixed;
     width: 100%;
     background-color: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background-image: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+    transition: background-color 0.4s ease, backdrop-filter 0.4s ease;
+}
+
+.page-homepage .header.header--scrolled {
+    background-color: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-image: none;
 }
 
 .header__inner {
