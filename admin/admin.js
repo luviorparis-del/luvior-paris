@@ -411,13 +411,13 @@ async function openProductForm(productId) {
       <div class="form-group"><label>SEO Title</label><input id="pf-seo-title" value="${esc(p.seo_title || '')}"></div>
       <div class="form-group"><label>SEO Description</label><input id="pf-seo-desc" value="${esc(p.seo_description || '')}"></div>
     </div>
-    ${productId ? `
     <div style="margin-top:24px">
       <h3 style="font-size:16px;font-weight:600;margin-bottom:12px">Product Images</h3>
       <div class="image-upload-zone" id="image-drop-zone">
-        <p>Drag & drop images here or click to upload</p>
-        <input type="file" id="image-upload-input" multiple accept="image/*">
+        <p>Drag & drop images here or click to upload (JPEG, PNG, WebP — max 10MB each)</p>
+        <input type="file" id="image-upload-input" multiple accept="image/jpeg,image/png,image/webp">
       </div>
+      ${productId ? `
       <div class="image-preview-grid" id="image-preview-grid">
         ${(p.product_images || []).sort((a,b) => a.sort_order - b.sort_order).map(img => `
           <div class="image-preview-item ${img.is_primary ? 'primary' : ''}" data-id="${img.id}">
@@ -430,8 +430,10 @@ async function openProductForm(productId) {
           </div>
         `).join('')}
       </div>
+      ` : ''}
+      <div class="image-preview-grid" id="staged-images-grid"></div>
+      <p id="pf-image-status" style="font-size:12px;color:var(--text-secondary);margin-top:8px"></p>
     </div>
-    ` : '<p style="color:var(--text-secondary);font-size:12px;margin-top:16px">Save the product first, then you can upload images.</p>'}
   `;
 
   const footer = `
@@ -449,14 +451,56 @@ async function openProductForm(productId) {
     });
   }
 
-  if (productId) {
-    const dropZone = modal.querySelector('#image-drop-zone');
-    const fileInput = modal.querySelector('#image-upload-input');
+  const stagedFiles = [];
+  const dropZone = modal.querySelector('#image-drop-zone');
+  const fileInput = modal.querySelector('#image-upload-input');
+  if (dropZone && fileInput) {
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); uploadImages(productId, e.dataTransfer.files); });
-    fileInput.addEventListener('change', () => uploadImages(productId, fileInput.files));
+
+    const handleFiles = (files) => {
+      if (productId) {
+        uploadImages(productId, files);
+        return;
+      }
+      for (const file of files) {
+        if (file.size > 10 * 1024 * 1024) { continue; }
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) continue;
+        stagedFiles.push(file);
+      }
+      renderStagedImages();
+    };
+
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change', () => { handleFiles(fileInput.files); fileInput.value = ''; });
+  }
+
+  function renderStagedImages() {
+    const grid = modal.querySelector('#staged-images-grid');
+    if (!grid) return;
+    grid.innerHTML = stagedFiles.map((f, i) => `
+      <div class="image-preview-item ${i === 0 ? 'primary' : ''}" style="position:relative">
+        <img src="${URL.createObjectURL(f)}" alt="${esc(f.name)}" style="width:100%;height:100%;object-fit:cover">
+        <div class="image-actions">
+          <button type="button" class="staged-primary-btn" data-idx="${i}" title="Set as primary">★</button>
+          <button type="button" class="staged-remove-btn" data-idx="${i}" title="Remove">×</button>
+        </div>
+        ${i === 0 ? '<div class="primary-badge">Primary</div>' : ''}
+      </div>
+    `).join('');
+    grid.querySelectorAll('.staged-remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => { e.stopPropagation(); stagedFiles.splice(parseInt(btn.dataset.idx), 1); renderStagedImages(); });
+    });
+    grid.querySelectorAll('.staged-primary-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        const [moved] = stagedFiles.splice(idx, 1);
+        stagedFiles.unshift(moved);
+        renderStagedImages();
+      });
+    });
   }
 
   modal.querySelector('#save-product-btn').addEventListener('click', async () => {
@@ -509,10 +553,31 @@ async function openProductForm(productId) {
         await sb.from('product_collections').insert(selectedCols.map(cid => ({ product_id: savedId, collection_id: cid })));
       }
 
+      if (stagedFiles.length) {
+        btn.textContent = 'Uploading images...';
+        for (let i = 0; i < stagedFiles.length; i++) {
+          const file = stagedFiles[i];
+          const ext = file.name.split('.').pop().toLowerCase();
+          const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await sb.storage.from('product-images').upload(filename, file, { contentType: file.type, upsert: false });
+          if (upErr) { console.error('Image upload failed:', upErr.message); continue; }
+          const { data: urlData } = sb.storage.from('product-images').getPublicUrl(filename);
+          await sb.from('product_images').insert({
+            product_id: savedId,
+            image_url: urlData.publicUrl,
+            alt_text: file.name,
+            sort_order: i,
+            is_primary: i === 0
+          });
+        }
+      }
+
       modal.remove();
       renderProducts();
     } catch (err) {
-      alert(err.message);
+      const status = modal.querySelector('#pf-image-status');
+      if (status) { status.textContent = 'Error: ' + err.message; status.style.color = 'var(--danger)'; }
+      else { console.error(err); }
       btn.disabled = false;
       btn.textContent = 'Save Product';
     }
