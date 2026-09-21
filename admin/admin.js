@@ -298,7 +298,8 @@ async function renderProducts() {
   el.innerHTML = loading();
 
   try {
-    const { data } = await sb.from('products').select('*, product_images(*)').order('created_at', { ascending: false });
+    const { data, error: qErr } = await sb.from('products').select('*, product_images(*)').order('created_at', { ascending: false });
+    if (qErr) console.error('Products load error:', qErr.message);
     allProducts = data || [];
 
     el.innerHTML = `
@@ -559,20 +560,27 @@ async function openProductForm(productId) {
 
       if (stagedFiles.length) {
         btn.textContent = 'Uploading images...';
+        let imgErrors = [];
+        const existingCount = productId ? (p.product_images || []).length : 0;
         for (let i = 0; i < stagedFiles.length; i++) {
           const file = stagedFiles[i];
           const ext = file.name.split('.').pop().toLowerCase();
-          const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const filename = `products/${savedId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
           const { error: upErr } = await sb.storage.from('product-images').upload(filename, file, { contentType: file.type, upsert: false });
-          if (upErr) { console.error('Image upload failed:', upErr.message); continue; }
+          if (upErr) { imgErrors.push('Upload: ' + upErr.message); console.error('Image upload failed:', upErr.message); continue; }
           const { data: urlData } = sb.storage.from('product-images').getPublicUrl(filename);
-          await sb.from('product_images').insert({
+          const { error: dbErr } = await sb.from('product_images').insert({
             product_id: savedId,
             image_url: urlData.publicUrl,
             alt_text: file.name,
-            sort_order: i,
-            is_primary: i === 0
+            sort_order: existingCount + i,
+            is_primary: existingCount === 0 && i === 0
           });
+          if (dbErr) { imgErrors.push('DB: ' + dbErr.message); console.error('Image record failed:', dbErr.message); }
+        }
+        if (imgErrors.length) {
+          const status = modal.querySelector('#pf-image-status');
+          if (status) { status.textContent = 'Image errors: ' + imgErrors.join('; '); status.style.color = 'var(--danger)'; }
         }
       }
 
@@ -589,26 +597,33 @@ async function openProductForm(productId) {
 }
 
 async function uploadImages(productId, files) {
+  let errors = [];
   try {
     for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) { errors.push(file.name + ': too large'); continue; }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { errors.push(file.name + ': invalid type'); continue; }
       const ext = file.name.split('.').pop().toLowerCase();
-      const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const filename = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
       const { error: upErr } = await sb.storage.from('product-images').upload(filename, file, { contentType: file.type, upsert: false });
-      if (upErr) { console.error('Upload failed:', upErr.message); continue; }
+      if (upErr) { errors.push('Upload ' + file.name + ': ' + upErr.message); console.error('Upload failed:', upErr.message); continue; }
 
       const { data: urlData } = sb.storage.from('product-images').getPublicUrl(filename);
 
-      await sb.from('product_images').insert({
+      const { error: dbErr } = await sb.from('product_images').insert({
         product_id: productId,
         image_url: urlData.publicUrl,
         alt_text: file.name,
-        sort_order: Date.now()
+        sort_order: Date.now(),
+        is_primary: false
       });
+      if (dbErr) { errors.push('DB ' + file.name + ': ' + dbErr.message); console.error('Image record failed:', dbErr.message); }
     }
+    if (errors.length) console.error('Image upload errors:', errors);
     openProductForm(productId);
   } catch (err) {
     console.error('Upload failed:', err.message);
+    openProductForm(productId);
   }
 }
 
