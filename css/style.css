@@ -2293,3 +2293,125 @@ ul, ol {
         width: 100%;
     }
 }
+
+/* ============================================================
+   CUSTOM UI COMPONENTS — Public Site
+   ============================================================ */
+
+/* ---- Custom Scrollbar (luxury minimal) ---- */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* White sections get dark scrollbar */
+.section--white ::-webkit-scrollbar-thumb,
+.cart-drawer ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+}
+.section--white ::-webkit-scrollbar-thumb:hover,
+.cart-drawer ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Custom Select (public) ---- */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+}
+
+/* ---- Custom Checkbox (public) ---- */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--color-gray-600);
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+input[type="checkbox"]:checked {
+    background: var(--color-white);
+    border-color: var(--color-white);
+}
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid var(--color-black);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--color-gray-400);
+    outline-offset: 2px;
+}
+.section--white input[type="checkbox"]:checked {
+    background: var(--color-black);
+    border-color: var(--color-black);
+}
+.section--white input[type="checkbox"]:checked::after {
+    border-color: var(--color-white);
+}
+
+/* ---- Public Toast Notifications ---- */
+.lp-toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+.lp-toast {
+    pointer-events: auto;
+    padding: 12px 28px;
+    background: var(--color-white);
+    color: var(--color-black);
+    font-size: 0.8rem;
+    font-family: var(--font-sans);
+    letter-spacing: var(--letter-wide);
+    text-transform: uppercase;
+    animation: lpToastIn 0.4s var(--transition-fast);
+}
+.lp-toast.removing {
+    animation: lpToastOut 0.3s ease forwards;
+}
+@keyframes lpToastIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes lpToastOut {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translateY(-10px); }
+}

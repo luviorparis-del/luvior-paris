@@ -5,6 +5,45 @@
 let currentPage = 'dashboard';
 let currentUser = null;
 
+// ---- Toast Notifications ----
+function getToastContainer() {
+  let c = document.querySelector('.toast-container');
+  if (!c) { c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); }
+  return c;
+}
+function showToast(message, type = 'info', duration = 3500) {
+  const container = getToastContainer();
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span>${message}</span><button class="toast-close" onclick="this.parentElement.classList.add('removing');setTimeout(()=>this.parentElement.remove(),300)">&times;</button>`;
+  container.appendChild(toast);
+  setTimeout(() => { if (toast.parentElement) { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); } }, duration);
+}
+
+// ---- Custom Confirm Dialog ----
+function showConfirm(message, title = 'Confirm') {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+      <div class="confirm-dialog">
+        <h3>${title}</h3>
+        <p>${message}</p>
+        <div class="confirm-actions">
+          <button class="btn btn-outline confirm-cancel">Cancel</button>
+          <button class="btn btn-danger confirm-ok">Delete</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.confirm-cancel').addEventListener('click', () => { overlay.remove(); resolve(false); });
+    overlay.querySelector('.confirm-ok').addEventListener('click', () => { overlay.remove(); resolve(true); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+    const handler = (e) => { if (e.key === 'Escape') { overlay.remove(); resolve(false); document.removeEventListener('keydown', handler); } };
+    document.addEventListener('keydown', handler);
+    overlay.querySelector('.confirm-ok').focus();
+  });
+}
+
 // ---- Auth ----
 async function checkAuth() {
   const { data: { session } } = await sb.auth.getSession();
@@ -585,8 +624,10 @@ async function openProductForm(productId) {
       }
 
       modal.remove();
+      showToast('Product saved', 'success');
       renderProducts();
     } catch (err) {
+      showToast('Error: ' + err.message, 'error');
       const status = modal.querySelector('#pf-image-status');
       if (status) { status.textContent = 'Error: ' + err.message; status.style.color = 'var(--danger)'; }
       else { console.error(err); }
@@ -634,7 +675,7 @@ async function setPrimaryImage(productId, imageId) {
 }
 
 async function deleteImage(productId, imageId) {
-  if (!confirm('Delete this image?')) return;
+  if (!await showConfirm('Delete this image?', 'Delete Image')) return;
   const { data: img } = await sb.from('product_images').select('image_url').eq('id', imageId).single();
   if (img) {
     const path = img.image_url.split('/product-images/')[1];
@@ -663,7 +704,7 @@ async function toggleProductStatus(id, current) {
 }
 
 async function deleteProduct(id) {
-  if (!confirm('Delete this product? This cannot be undone.')) return;
+  if (!await showConfirm('Delete this product? This cannot be undone.', 'Delete Product')) return;
   await sb.from('products').delete().eq('id', id);
   renderProducts();
 }
@@ -757,22 +798,23 @@ async function openCollectionForm(id) {
       sort_order: parseInt(modal.querySelector('#cf-order').value) || 0,
       status: modal.querySelector('#cf-status').value
     };
-    if (!payload.name || !payload.slug) { alert('Name and Slug required'); return; }
+    if (!payload.name || !payload.slug) { showToast('Name and Slug required', 'error'); return; }
 
     if (id) {
       const { error } = await sb.from('collections').update(payload).eq('id', id);
-      if (error) { alert(error.message); return; }
+      if (error) { showToast(error.message, 'error'); return; }
     } else {
       const { error } = await sb.from('collections').insert(payload);
-      if (error) { alert(error.message); return; }
+      if (error) { showToast(error.message, 'error'); return; }
     }
     modal.remove();
+    showToast('Collection saved', 'success');
     renderCollections();
   });
 }
 
 async function deleteCollection(id) {
-  if (!confirm('Delete this collection?')) return;
+  if (!await showConfirm('Delete this collection?', 'Delete Collection')) return;
   await sb.from('collections').delete().eq('id', id);
   renderCollections();
 }
@@ -1101,7 +1143,7 @@ async function updateShippingStatus(orderId) {
 async function saveOrderNotes(orderId) {
   const notes = document.getElementById('admin-notes').value;
   await sb.from('orders').update({ admin_notes: notes }).eq('id', orderId);
-  alert('Notes saved');
+  showToast('Notes saved', 'success');
 }
 
 // ============================================================
@@ -1429,9 +1471,9 @@ async function uploadHeroToStorage(file, prefix) {
 
 function validateHeroFile(file) {
   if (!file) return false;
-  if (file.size > 10 * 1024 * 1024) { alert('File too large. Max 10MB.'); return false; }
+  if (file.size > 10 * 1024 * 1024) { showToast('File too large. Max 10MB.', 'error'); return false; }
   const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-  if (!allowed.includes(file.type)) { alert('Only JPEG, PNG, WebP allowed.'); return false; }
+  if (!allowed.includes(file.type)) { showToast('Only JPEG, PNG, WebP allowed.', 'error'); return false; }
   return true;
 }
 
@@ -1468,7 +1510,7 @@ function initHeroSlideAdmin() {
   document.querySelectorAll('.slide-delete-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const idx = parseInt(btn.dataset.idx);
-      if (!confirm('Delete this slide?')) return;
+      if (!await showConfirm('Delete this slide?', 'Delete Slide')) return;
       const deleted = heroConfig.slides.splice(idx, 1)[0];
       heroConfig.slides.forEach((s, i) => s.sort_order = i);
       const status = document.getElementById('hero-status');
@@ -1686,7 +1728,7 @@ function editContent(key, valueStr) {
       modal.remove();
       renderContent();
     } catch (err) {
-      alert('Error: ' + err.message);
+      showToast('Error: ' + err.message, 'error');
     }
   });
 }
