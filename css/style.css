@@ -3,7 +3,7 @@
    Luxury Perfume E-Commerce
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&family=Google+Sans:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
 /* --- Design Tokens --- */
 :root {
@@ -22,6 +22,7 @@
 
     --font-serif: 'Playfair Display', 'Georgia', serif;
     --font-sans: 'Inter', 'Helvetica Neue', sans-serif;
+    --font-ui: 'Google Sans', 'Inter', 'Helvetica Neue', sans-serif;
     --font-display: 'Cormorant Garamond', 'Playfair Display', serif;
 
     --spacing-xs: 0.5rem;
@@ -2578,7 +2579,7 @@ input[type="checkbox"]:focus-visible {
 }
 .lx-quote p {
     font-size: 1.1rem;
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.6;
     color: var(--color-white);
     margin-bottom: var(--spacing-xs);
@@ -2621,7 +2622,7 @@ input[type="checkbox"]:focus-visible {
 .lx-collection-row__name {
     display: block;
     font-size: 1.15rem;
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: -0.01em;
     transition: opacity var(--transition-fast);
 }
@@ -2647,7 +2648,7 @@ input[type="checkbox"]:focus-visible {
     border-bottom: var(--border-thin);
     width: 100%;
 }
-.lx-offer__now { font-size: 2rem; font-weight: 300; letter-spacing: -0.02em; color: var(--color-white); }
+.lx-offer__now { font-size: 2rem; font-weight: 400; letter-spacing: -0.02em; color: var(--color-white); }
 .lx-offer__was { font-size: 1rem; color: var(--color-gray-500); text-decoration: line-through; }
 .lx-offer__save {
     margin-left: auto;
@@ -2683,7 +2684,7 @@ input[type="checkbox"]:focus-visible {
 .lx-testimonial__stars { letter-spacing: 0.2em; font-size: 0.8rem; color: var(--color-white); }
 .lx-testimonial blockquote {
     font-size: 1.05rem;
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.65;
     color: var(--color-white);
     flex: 1;
@@ -2760,9 +2761,9 @@ input[type="checkbox"]:focus-visible {
 .page-homepage .section .heading-lg,
 .page-homepage .section .heading-md,
 .page-homepage .section .newsletter__title {
-    font-family: var(--font-sans);
+    font-family: var(--font-ui);
     font-style: normal;
-    font-weight: 300;
+    font-weight: 400;
     color: var(--color-white);
 }
 .page-homepage .section .heading-lg {
@@ -2789,12 +2790,12 @@ input[type="checkbox"]:focus-visible {
 .page-homepage .section .body-text,
 .page-homepage .section .newsletter__text {
     font-size: 0.92rem;
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.75;
     color: var(--color-gray-400);
 }
 .page-homepage .section .product-card__name {
-    font-family: var(--font-sans);
+    font-family: var(--font-ui);
     font-style: normal;
     font-size: 0.95rem;
     font-weight: 400;
@@ -2805,6 +2806,19 @@ input[type="checkbox"]:focus-visible {
     letter-spacing: -0.005em;
 }
 .page-homepage .section .faq-item__answer p {
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.75;
+}
+
+/* Google Sans for everything below the hero (hero excluded: it is not a .section) */
+.page-homepage .section,
+.page-homepage .lx-ticker,
+.page-homepage .footer {
+    font-family: var(--font-ui);
+}
+.page-homepage .section .body-text,
+.page-homepage .section .newsletter__text,
+.page-homepage .section .faq-item__answer p,
+.page-homepage .lx-benefit__text {
+    color: var(--color-gray-400);
 }
