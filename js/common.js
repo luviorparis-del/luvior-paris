@@ -390,12 +390,19 @@ function initScrollTop() {
     const header = document.querySelector('.header');
     const isHomepage = document.body.classList.contains('page-homepage');
 
+    const lightSections = isHomepage ? [...document.querySelectorAll('.section--white, .lx-ticker')] : [];
     window.addEventListener('scroll', () => {
         if (btn) btn.classList.toggle('visible', window.scrollY > 500);
         if (isHomepage && header) {
             header.classList.toggle('header--scrolled', window.scrollY > 80);
+            const probe = header.offsetHeight / 2;
+            const overLight = lightSections.some(s => {
+                const r = s.getBoundingClientRect();
+                return r.top <= probe && r.bottom >= probe;
+            });
+            header.classList.toggle('header--on-light', overLight);
         }
-    });
+    }, { passive: true });
 
     btn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -592,8 +599,75 @@ async function initHomepage() {
         PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
     }
     if (collectionCards) {
-        COLLECTIONS.forEach(c => collectionCards.appendChild(createCollectionCard(c)));
+        const asRows = collectionCards.classList.contains('lx-collections__list');
+        COLLECTIONS.forEach((c, i) => collectionCards.appendChild(asRows ? createCollectionRow(c, i) : createCollectionCard(c)));
     }
+    fillEditorialImages();
+    renderSpecialOffer();
+}
+
+function createCollectionRow(collection, index) {
+    const row = document.createElement('a');
+    row.className = 'lx-collection-row';
+    row.href = `collections.html#${encodeURIComponent(collection.id)}`;
+    const num = document.createElement('span');
+    num.className = 'lx-collection-row__num';
+    num.textContent = String(index + 1).padStart(2, '0');
+    const body = document.createElement('span');
+    const name = document.createElement('span');
+    name.className = 'lx-collection-row__name';
+    name.textContent = collection.name;
+    const sub = document.createElement('span');
+    sub.className = 'lx-collection-row__sub';
+    sub.textContent = collection.subtitle || '';
+    body.append(name, sub);
+    const arrow = document.createElement('span');
+    arrow.className = 'lx-collection-row__arrow';
+    arrow.textContent = '→';
+    arrow.setAttribute('aria-hidden', 'true');
+    row.append(num, body, arrow);
+    return row;
+}
+
+function setSlotImage(slot, src, alt) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt || '';
+    img.addEventListener('load', () => slot.replaceChildren(img), { once: true });
+}
+
+// Fills editorial frames with real Supabase imagery; placeholders stay when none exists.
+function fillEditorialImages() {
+    const slots = document.querySelectorAll('[data-editorial-slot]');
+    if (!slots.length) return;
+    const productImages = PRODUCTS.filter(p => p.image).map(p => ({ src: p.image, alt: p.name }));
+    const collectionImage = COLLECTIONS.find(c => c.image_url);
+    slots.forEach(slot => {
+        const i = parseInt(slot.dataset.editorialSlot, 10);
+        let pick = productImages[i] || productImages[0];
+        if (i === 1 && collectionImage) pick = { src: collectionImage.image_url, alt: collectionImage.name };
+        if (pick) setSlotImage(slot, pick.src, pick.alt);
+    });
+}
+
+// Offer comes only from real admin data: an active product whose compare_price exceeds its price.
+function renderSpecialOffer() {
+    const section = document.getElementById('special-offer');
+    if (!section) return;
+    const offers = PRODUCTS
+        .filter(p => p.compare_price && p.compare_price > p.price)
+        .sort((a, b) => (1 - a.price / a.compare_price) < (1 - b.price / b.compare_price) ? 1 : -1);
+    const p = offers[0];
+    if (!p) return;
+    const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+    section.querySelector('#offer-name').textContent = p.name;
+    section.querySelector('#offer-desc').textContent = p.short_description || p.notes || '';
+    section.querySelector('#offer-price').textContent = inr(p.price);
+    section.querySelector('#offer-compare').textContent = inr(p.compare_price);
+    section.querySelector('#offer-save').textContent = `Save ${Math.round((1 - p.price / p.compare_price) * 100)}%`;
+    section.querySelector('#offer-cta').dataset.id = p.id;
+    if (p.image) setSlotImage(section.querySelector('#offer-image'), p.image, p.name);
+    section.hidden = false;
 }
 
 /* === Init === */
