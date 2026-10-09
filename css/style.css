@@ -3160,3 +3160,34 @@ a.product-card__image { display: block; color: inherit; }
     .btn::before, .product-card__add-to-cart::before, .newsletter__submit::before,
     .cart-suggest__add::before, .search-col::before { transition: none; }
 }
+
+/* ============================================================
+   OUR STORY — sequential statement reveal
+   ============================================================ */
+.story-reveal .reveal-line {
+    display: inline-block;
+    color: var(--color-white);
+    outline: none;
+    cursor: default;
+}
+.story-reveal [data-cms] { color: inherit !important; }
+/* Before the section is reached, lines wait invisible; then they settle in (staggered) at a dimmed level */
+.story-reveal.is-ready .reveal-line {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0);
+    transition: opacity 0.9s var(--ease-lux, ease) var(--d, 0ms), transform 0.9s var(--ease-lux, ease) var(--d, 0ms), color 0.6s ease;
+}
+.story-reveal.is-ready.is-in .reveal-line { opacity: 0.22; transform: none; }
+.story-reveal.is-ready.is-in .reveal-line.is-active {
+    opacity: 1;
+    transition-delay: 0ms;
+    animation: storyDrop 1s var(--ease-lux, ease);
+}
+.story-reveal .reveal-line:focus-visible { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+@keyframes storyDrop {
+    from { transform: translate3d(0, -10px, 0); opacity: 0.22; }
+    to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .story-reveal .reveal-line { opacity: 1 !important; transform: none !important; animation: none !important; }
+}

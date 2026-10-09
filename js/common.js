@@ -350,6 +350,79 @@ function renderCartDrawer() {
     `;
 }
 
+/* === Our Story statement: sequential line reveal === */
+// Splits the (CMS-editable) statement into lines; one line is in focus at a time.
+// Auto-advances while in view; hover/tap/focus picks a line, then the cycle resumes.
+async function initStoryReveal() {
+    const root = document.querySelector('.story-reveal');
+    if (!root) return;
+    await window.CMS?.ready;
+    const lines = [];
+    root.querySelectorAll('[data-cms]').forEach(block => {
+        const parts = [];
+        let current = '';
+        block.childNodes.forEach(n => {
+            if (n.nodeName === 'BR') { parts.push(current); current = ''; }
+            else current += n.textContent;
+        });
+        parts.push(current);
+        block.replaceChildren();
+        parts.map(t => t.trim()).filter(Boolean).forEach((text, i) => {
+            if (i) block.appendChild(document.createElement('br'));
+            const span = document.createElement('span');
+            span.className = 'reveal-line';
+            span.textContent = text;
+            span.tabIndex = 0;
+            span.style.setProperty('--d', `${lines.length * 90}ms`);
+            block.appendChild(span);
+            lines.push(span);
+        });
+    });
+    if (!lines.length || REDUCED_MOTION) { root.classList.add('is-static'); return; }
+
+    root.classList.add('is-ready');
+    let index = -1, timer = null, resumeTimer = null, inView = false, paused = false;
+    const STEP = 2400;
+
+    const activate = i => {
+        index = (i + lines.length) % lines.length;
+        lines.forEach((l, k) => {
+            const on = k === index;
+            if (on && !l.classList.contains('is-active')) {
+                l.classList.remove('is-active');
+                void l.offsetWidth; // restart the entrance animation
+            }
+            l.classList.toggle('is-active', on);
+        });
+    };
+    const stop = () => { clearInterval(timer); timer = null; };
+    const start = () => {
+        stop();
+        if (!inView || paused || document.hidden) return;
+        timer = setInterval(() => activate(index + 1), STEP);
+    };
+
+    new IntersectionObserver(([e]) => {
+        inView = e.isIntersecting;
+        if (inView) {
+            root.classList.add('is-in');
+            if (index < 0) setTimeout(() => { activate(0); start(); }, 900);
+            else start();
+        } else stop();
+    }, { threshold: 0.35 }).observe(root);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+
+    const pick = l => { paused = true; clearTimeout(resumeTimer); stop(); activate(lines.indexOf(l)); };
+    const release = () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { paused = false; start(); }, 1500); };
+    lines.forEach(l => {
+        l.addEventListener('mouseenter', () => pick(l));
+        l.addEventListener('focus', () => pick(l));
+        l.addEventListener('click', () => { pick(l); release(); });
+    });
+    root.addEventListener('mouseleave', release);
+    root.addEventListener('focusout', e => { if (!root.contains(e.relatedTarget)) release(); });
+}
+
 /* === Search === */
 function initSearch() {
     const buttons = document.querySelectorAll('.header__search-btn');
@@ -981,6 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCartIcon();
     initFAQ();
     initSearch();
+    initStoryReveal();
     initHomepage();
     updateCartBadge();
 });
