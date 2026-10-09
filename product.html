@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="description" content="Luvior Paris luxury fragrance." id="meta-desc">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal — Luvior Paris</title>
+    <title>Fragrance — Luvior Paris</title>
     <link rel="stylesheet" href="css/style.css">
     <meta name="description" content="The Luvior Paris Journal — stories of scent, art, and emotion.">
     <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
@@ -57,7 +58,7 @@
         }
     </style>
 </head>
-<body data-cms-page="article">
+<body data-cms-page="product">
 
 
     <!-- Header -->
@@ -71,7 +72,7 @@
                 <a data-cms-item data-cms-field-link="link" href="index.html">Shop</a>
                 <a data-cms-item data-cms-field-link="link" href="collections.html">Collections</a>
                 <a data-cms-item data-cms-field-link="link" href="our-story.html">Our Story</a>
-                <a data-cms-item data-cms-field-link="link" href="journal.html" class="active">Journal</a>
+                <a data-cms-item data-cms-field-link="link" href="journal.html">Journal</a>
                 <a data-cms-item data-cms-field-link="link" href="contact.html">Contact</a>
             </nav>
             <div class="header__actions">
@@ -95,10 +96,10 @@
         <a href="contact.html">Contact</a>
     </nav>
 
-    <main class="section section--black article-page">
-        <article class="container article" id="article" aria-live="polite">
-            <p class="body-text" id="article-status">Loading…</p>
-        </article>
+    <main class="product-page" id="main">
+        <div class="container" id="product-root" aria-live="polite">
+            <p class="body-text product-page__status">Loading…</p>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -178,44 +179,99 @@
     <script src="js/cms.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            const root = document.getElementById('article');
-            const status = document.getElementById('article-status');
+            const root = document.getElementById('product-root');
+            const key = new URLSearchParams(location.search).get('p') || '';
+            const notFound = msg => { root.innerHTML = `<div class="product-page__empty"><h1 class="heading-md">${msg}</h1><a href="collections.html" class="btn">Browse fragrances <span class="arrow">&rarr;</span></a></div>`; };
+            if (!key) return notFound('Fragrance not found');
             try {
-                await CMS.ready;
-                const slug = new URLSearchParams(location.search).get('a') || '';
-                const html = await (await fetch('journal.html', { cache: 'no-cache' })).text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                const value = await CMS.loadValue('journal');
-                if (value) CMS.apply(doc, 'journal', value);
-                const article = CMS.list('articles', 'articles', doc)
-                    .filter(a => a.published !== false)
-                    .find(a => slugify(a.title) === slug);
-                if (!article) { status.textContent = 'This story could not be found.'; return; }
-                document.title = article.title + ' — Luvior Paris';
-                root.replaceChildren();
-                const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || '', textContent: text || '' });
-                const back = Object.assign(el('a', 'btn--ghost article__back', '← Journal'), { href: 'journal.html' });
-                const meta = el('p', 'label article__meta', [article.category, article.date, article.read_time].filter(Boolean).join('  ·  '));
-                root.append(back, meta, el('h1', 'heading-lg article__title', article.title));
-                if (article.cover && article.cover.src) {
-                    const fig = el('figure', 'article__cover');
-                    fig.appendChild(Object.assign(document.createElement('img'), { src: article.cover.src, alt: article.title }));
-                    root.appendChild(fig);
-                }
-                const body = (article.body || article.description || '').split(/\n{2,}/).filter(Boolean);
-                const content = el('div', 'article__body');
-                body.forEach(par => content.appendChild(el('p', 'body-text', par)));
-                root.appendChild(content);
-                if (article.gallery && article.gallery.length) {
-                    const g = el('div', 'article__gallery');
-                    article.gallery.forEach(src => g.appendChild(Object.assign(document.createElement('img'), { src, alt: '', loading: 'lazy' })));
-                    root.appendChild(g);
-                }
+                let q = sb.from('products').select('*, product_images(*), product_collections(collections(name, slug))').eq('status', 'active');
+                q = /^\d+$/.test(key) ? q.eq('id', key) : q.eq('slug', key);
+                const [{ data: p, error }] = await Promise.all([q.maybeSingle(), loadProducts()]);
+                if (error) throw new Error(error.message);
+                if (!p) return notFound('This fragrance is no longer available');
+                renderProduct(root, p);
             } catch (err) {
-                console.error('Article load failed:', err);
-                status.textContent = 'This story could not be loaded.';
+                console.error('Product load failed:', err);
+                notFound('This fragrance could not be loaded');
             }
         });
+
+        function renderProduct(root, p) {
+            document.title = (p.seo_title || p.name) + ' — Luvior Paris';
+            document.getElementById('meta-desc').setAttribute('content', p.seo_description || p.short_description || p.name);
+            const images = (p.product_images || []).slice().sort((a, b) => (b.is_primary - a.is_primary) || (a.sort_order - b.sort_order));
+            const collection = (p.product_collections || []).map(pc => pc.collections).filter(Boolean)[0];
+            const family = collection ? collection.name : (p.fragrance_family || p.category || '');
+            const discount = p.compare_price && p.compare_price > p.price;
+            const out = (p.stock ?? 0) <= 0;
+            const notes = [['Top', p.top_notes], ['Heart', p.heart_notes], ['Base', p.base_notes]].filter(n => n[1]);
+            const specs = [['Concentration', CONCENTRATIONS[p.concentration] || p.concentration], ['Volume', p.volume], ['For', p.gender ? p.gender.charAt(0).toUpperCase() + p.gender.slice(1) : '']].filter(s => s[1]);
+            root.innerHTML = `
+                <nav class="product__crumbs" aria-label="Breadcrumb"><a href="collections.html">Shop</a><span>/</span>${collection ? `<a href="collections.html#${encodeURIComponent(collection.slug)}">${escHtml(collection.name)}</a><span>/</span>` : ''}<span aria-current="page">${escHtml(p.name)}</span></nav>
+                <div class="product">
+                    <div class="product__gallery">
+                        <div class="product__main" id="product-main">
+                            ${images.length ? `<img src="${escHtml(images[0].image_url)}" alt="${escHtml(images[0].alt_text || p.name)}">` : `<div class="placeholder-image">${escHtml(p.name)}</div>`}
+                        </div>
+                        ${images.length > 1 ? `<div class="product__thumbs" role="list">${images.map((img, i) => `
+                            <button type="button" class="product__thumb${i === 0 ? ' active' : ''}" data-src="${escHtml(img.image_url)}" aria-label="Show image ${i + 1}" role="listitem">
+                                <img src="${escHtml(img.image_url)}" alt="" loading="lazy">
+                            </button>`).join('')}</div>` : ''}
+                    </div>
+                    <div class="product__info">
+                        ${family ? `<p class="label">${escHtml(family)}</p>` : ''}
+                        <h1 class="product__name">${escHtml(p.name)}</h1>
+                        <div class="product__price">
+                            <span class="product__now">${inr(p.price)}</span>
+                            ${discount ? `<span class="product__was">${inr(p.compare_price)}</span><span class="product__save">Save ${Math.round((1 - p.price / p.compare_price) * 100)}%</span>` : ''}
+                        </div>
+                        ${p.short_description ? `<p class="body-text product__lead">${escHtml(p.short_description)}</p>` : ''}
+                        ${specs.length ? `<dl class="product__specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${escHtml(v)}</dd></div>`).join('')}</dl>` : ''}
+                        ${notes.length ? `<div class="product__notes">${notes.map(([k, v]) => `<div class="product__note"><span class="product__note-label">${k} notes</span><span>${escHtml(v)}</span></div>`).join('')}</div>` : ''}
+                        <div class="product__buy">
+                            <div class="cart-item__qty product__qty" role="group" aria-label="Quantity">
+                                <button type="button" data-q="-1" aria-label="Decrease quantity">&minus;</button>
+                                <span id="product-qty">1</span>
+                                <button type="button" data-q="1" aria-label="Increase quantity">+</button>
+                            </div>
+                            <button type="button" class="btn btn--filled product__add" id="product-add" ${out ? 'disabled' : ''}>${out ? 'Out of stock' : 'Add to Cart'}</button>
+                        </div>
+                        <p class="product__delivery">Complimentary delivery on orders over ${inr(FREE_DELIVERY_MIN)}</p>
+                        ${p.description ? `<div class="product__desc"><h2 class="label">Description</h2>${p.description.split(/\n{2,}/).map(par => `<p class="body-text">${escHtml(par)}</p>`).join('')}</div>` : ''}
+                    </div>
+                </div>
+                <section class="product__related" id="product-related" hidden>
+                    <h2 class="heading-md">You may also like</h2>
+                    <div class="product-grid" id="related-grid"></div>
+                </section>`;
+
+            const main = root.querySelector('#product-main');
+            root.querySelectorAll('.product__thumb').forEach(t => t.addEventListener('click', () => {
+                root.querySelectorAll('.product__thumb').forEach(x => x.classList.toggle('active', x === t));
+                const img = main.querySelector('img');
+                img.style.opacity = 0;
+                setTimeout(() => { img.src = t.dataset.src; img.style.opacity = 1; }, 180);
+            }));
+            let qty = 1;
+            const qtyEl = root.querySelector('#product-qty');
+            root.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => {
+                qty = Math.max(1, Math.min(Math.max(1, p.stock || 1), qty + Number(b.dataset.q)));
+                qtyEl.textContent = qty;
+            }));
+            root.querySelector('#product-add').addEventListener('click', () => {
+                addToCart(p.id, qty);
+                openCartDrawer();
+            });
+
+            const related = PRODUCTS.filter(x => String(x.id) !== String(p.id))
+                .sort((a, b) => (b.category === (p.fragrance_family || p.category)) - (a.category === (p.fragrance_family || p.category)))
+                .slice(0, 4);
+            if (related.length) {
+                const grid = root.querySelector('#related-grid');
+                related.forEach(r => grid.appendChild(createProductCard(r)));
+                root.querySelector('#product-related').hidden = false;
+            }
+        }
     </script>
 </body>
 </html>

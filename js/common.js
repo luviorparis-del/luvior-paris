@@ -23,8 +23,6 @@ async function loadProducts() {
                 notes: [p.top_notes, p.heart_notes, p.base_notes].filter(Boolean).join(' · ') || '',
                 price: p.price || 0,
                 compare_price: p.compare_price,
-                rating: 4.7,
-                reviews: Math.floor(Math.random() * 200) + 50,
                 category: p.fragrance_family || p.category || '',
                 badge: p.new_arrival ? 'new' : (p.bestseller ? 'bestseller' : ''),
                 image: primary?.image_url || null,
@@ -87,11 +85,11 @@ function getCartSubtotal() {
     return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 }
 
-function addToCart(productId) {
+function addToCart(productId, qty = 1) {
     const pid = String(productId);
     const existing = cart.find(item => String(item.id) === pid);
     if (existing) {
-        existing.qty++;
+        existing.qty += qty;
     } else {
         const product = PRODUCTS.find(p => String(p.id) === pid);
         if (product) {
@@ -102,7 +100,7 @@ function addToCart(productId) {
                 image: product.image,
                 volume: product.volume || '',
                 concentration: product.concentration || '',
-                qty: 1
+                qty
             });
         } else {
             cart.push({ id: productId, name: 'Product', price: 0, image: null, volume: '', concentration: '', qty: 1 });
@@ -321,7 +319,7 @@ function renderCartDrawer() {
             <div class="cart-item__image">${item.image ? `<img src="${escHtml(item.image)}" alt="${escHtml(item.name)}">` : `<span>${escHtml((item.name || '?').charAt(0))}</span>`}</div>
             <div class="cart-item__body">
                 <div class="cart-item__top">
-                    <h3 class="cart-item__name">${escHtml(item.name)}</h3>
+                    <h3 class="cart-item__name"><a href="${productUrl(PRODUCTS.find(p => String(p.id) === String(item.id)) || item)}">${escHtml(item.name)}</a></h3>
                     <span class="cart-item__line">${inr(item.price * item.qty)}</span>
                 </div>
                 ${cartVariant(item) ? `<p class="cart-item__variant">${escHtml(cartVariant(item))}</p>` : ''}
@@ -352,6 +350,85 @@ function renderCartDrawer() {
     `;
 }
 
+/* === Search === */
+function initSearch() {
+    const buttons = document.querySelectorAll('.header__search-btn');
+    if (!buttons.length) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'search-overlay';
+    overlay.id = 'search-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Search');
+    overlay.hidden = true;
+    overlay.innerHTML = `
+        <div class="search-overlay__inner">
+            <div class="search-overlay__bar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="search-input" placeholder="Search fragrances, notes, collections…" autocomplete="off" aria-label="Search" aria-controls="search-results">
+                <button type="button" class="search-overlay__close" aria-label="Close search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+                </button>
+            </div>
+            <div class="search-overlay__results" id="search-results" aria-live="polite"></div>
+        </div>`;
+    document.body.appendChild(overlay);
+    const input = overlay.querySelector('#search-input');
+    const results = overlay.querySelector('#search-results');
+    let returnFocus = null;
+
+    const open = async () => {
+        returnFocus = document.activeElement;
+        overlay.hidden = false;
+        requestAnimationFrame(() => overlay.classList.add('active'));
+        document.body.style.overflow = 'hidden';
+        input.focus();
+        render();
+        if (!PRODUCTS.length) { await loadProducts(); render(); }
+        if (!COLLECTIONS.length) { await loadCollections(); render(); }
+    };
+    const close = () => {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => { overlay.hidden = true; }, 300);
+        returnFocus?.focus?.();
+    };
+
+    function render() {
+        const q = input.value.trim().toLowerCase();
+        const terms = q.split(/\s+/).filter(Boolean);
+        const hay = p => [p.name, p.notes, p.category, p.short_description, CONCENTRATIONS[p.concentration], p.volume].join(' ').toLowerCase();
+        const products = (terms.length ? PRODUCTS.filter(p => terms.every(t => hay(p).includes(t))) : PRODUCTS).slice(0, 8);
+        const cols = terms.length ? COLLECTIONS.filter(c => terms.every(t => `${c.name} ${c.subtitle} ${c.description}`.toLowerCase().includes(t))) : [];
+        if (!PRODUCTS.length && !COLLECTIONS.length) { results.innerHTML = '<p class="search-empty">Loading…</p>'; return; }
+        if (terms.length && !products.length && !cols.length) {
+            results.innerHTML = `<p class="search-empty">No results for “${escHtml(input.value.trim())}”.</p><a href="collections.html" class="btn--ghost">Browse all fragrances <span class="arrow">&rarr;</span></a>`;
+            return;
+        }
+        results.innerHTML = `
+            <p class="search-label">${terms.length ? 'Fragrances' : 'All fragrances'}</p>
+            <div class="search-list">${products.map((p, i) => `
+                <a class="search-item${i === 0 && terms.length ? ' is-first' : ''}" href="${productUrl(p)}">
+                    <span class="search-item__img">${p.image ? `<img src="${escHtml(p.image)}" alt="" loading="lazy">` : ''}</span>
+                    <span class="search-item__info"><span class="search-item__name">${escHtml(p.name)}</span><span class="search-item__notes">${escHtml(p.notes)}</span></span>
+                    <span class="search-item__price">${inr(p.price)}</span>
+                </a>`).join('')}</div>
+            ${cols.length ? `<p class="search-label">Collections</p><div class="search-cols">${cols.map(c => `<a href="collections.html#${encodeURIComponent(c.id)}" class="search-col">${escHtml(c.name)} <span class="arrow">&rarr;</span></a>`).join('')}</div>` : ''}`;
+    }
+
+    buttons.forEach(b => b.addEventListener('click', open));
+    overlay.querySelector('.search-overlay__close').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { const first = results.querySelector('.search-item'); if (first) window.location.href = first.href; }
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !overlay.hidden) close();
+        if (e.key === '/' && overlay.hidden && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); open(); }
+    });
+}
+
 /* === Cart Toast === */
 let toastTimer = null;
 function showCartToast(msg) {
@@ -371,13 +448,8 @@ function showCartToast(msg) {
 }
 
 /* === Render Helpers === */
-function renderStars(rating) {
-    const full = Math.floor(rating);
-    const half = rating % 1 >= 0.5;
-    let stars = '';
-    for (let i = 0; i < full; i++) stars += '★';
-    if (half) stars += '★';
-    return stars;
+function productUrl(product) {
+    return `product.html?p=${encodeURIComponent(product.slug || product.id)}`;
 }
 
 function createProductCard(product) {
@@ -385,25 +457,21 @@ function createProductCard(product) {
     card.className = 'product-card';
     card.dataset.category = product.category;
     if (product.badge) card.dataset.badge = product.badge;
+    const url = productUrl(product);
+    const name = escHtml(product.name);
     card.innerHTML = `
-        <div class="product-card__image">
+        <a class="product-card__image" href="${url}" aria-label="${name}">
             ${product.image
-                ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover">`
-                : `<div class="placeholder-image" style="width:100%;height:100%">${product.name}</div>`}
-            <div class="product-card__wishlist">
-                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
-            </div>
-        </div>
-        <h3 class="product-card__name">${product.name}</h3>
-        <p class="product-card__notes">${product.notes}</p>
+                ? `<img src="${escHtml(product.image)}" alt="${name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
+                : `<div class="placeholder-image" style="width:100%;height:100%">${name}</div>`}
+        </a>
+        <h3 class="product-card__name"><a href="${url}">${name}</a></h3>
+        <p class="product-card__notes">${escHtml(product.notes)}</p>
         <div class="product-card__bottom">
-            <span class="product-card__price">₹${(product.price || 0).toLocaleString('en-IN')}</span>
-            <span class="product-card__rating">
-                <span class="stars">${renderStars(product.rating)}</span>
-                (${product.reviews})
-            </span>
+            <span class="product-card__price">${inr(product.price)}</span>
+            ${product.compare_price > product.price ? `<span class="product-card__compare">${inr(product.compare_price)}</span>` : ''}
         </div>
-        <button class="product-card__add-to-cart" data-id="${product.id}">Add to Cart</button>
+        <button class="product-card__add-to-cart" data-id="${escHtml(product.id)}">Add to Cart</button>
     `;
     return card;
 }
@@ -912,6 +980,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAddToCart();
     initCartIcon();
     initFAQ();
+    initSearch();
     initHomepage();
     updateCartBadge();
 });
