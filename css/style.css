@@ -3,7 +3,7 @@
    Luxury Perfume E-Commerce
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&family=Google+Sans:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap');
 
 /* --- Design Tokens --- */
 :root {
@@ -20,10 +20,10 @@
     --color-gray-800: #262626;
     --color-gray-900: #171717;
 
-    --font-serif: 'Playfair Display', 'Georgia', serif;
-    --font-sans: 'Inter', 'Helvetica Neue', sans-serif;
-    --font-ui: 'Google Sans', 'Inter', 'Helvetica Neue', sans-serif;
-    --font-display: 'Cormorant Garamond', 'Playfair Display', serif;
+    --font-serif: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
+    --font-sans: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
+    --font-ui: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
 
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
@@ -870,7 +870,7 @@ ul, ol {
     font-family: var(--font-serif);
     font-size: 0.85rem;
     font-weight: 400;
-    font-style: italic;
+    font-style: normal;
     color: var(--color-gray-300);
     margin-bottom: var(--spacing-md);
 }
@@ -958,7 +958,7 @@ ul, ol {
 .testimonial-card__text {
     font-family: var(--font-serif);
     font-size: 0.9rem;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.6;
     color: var(--color-gray-300);
     margin-bottom: var(--spacing-md);
@@ -1337,7 +1337,7 @@ ul, ol {
     font-family: var(--font-serif);
     font-size: clamp(1.5rem, 3vw, 2.8rem);
     font-weight: 400;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.4;
     max-width: 800px;
     margin: 0 auto;
