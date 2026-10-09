@@ -10,15 +10,6 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let PRODUCTS = [];
 let COLLECTIONS = [];
 
-const JOURNAL_ARTICLES = [
-    { id: 1, category: "The Art of Fragrance", title: "Why Scent Becomes Memory", description: "The science and poetry behind how fragrance anchors itself to our most vivid recollections.", date: "Sep 12, 2024", readTime: "6 min read", featured: true },
-    { id: 2, category: "Ingredients", title: "The Art of Layering Fragrance", description: "How to combine scents for a signature that is uniquely yours.", date: "Aug 28, 2024", readTime: "5 min read", featured: false },
-    { id: 3, category: "Craftsmanship", title: "Inside the World of Oud", description: "One of the rarest and most prized ingredients in perfumery.", date: "Aug 15, 2024", readTime: "7 min read", featured: false },
-    { id: 4, category: "Ingredients", title: "Why Bergamot Opens So Many Iconic Scents", description: "The citrus note that defines the opening of modern perfumery.", date: "Jul 30, 2024", readTime: "4 min read", featured: false },
-    { id: 5, category: "Behind the Brand", title: "From Flower to Fragrance", description: "The journey of a single ingredient from harvest to bottle.", date: "Jul 18, 2024", readTime: "8 min read", featured: false },
-    { id: 6, category: "Culture", title: "The Ritual of Choosing a Signature Scent", description: "Why your fragrance choice says more about you than you think.", date: "Jul 5, 2024", readTime: "5 min read", featured: false },
-    { id: 7, category: "Places", title: "Places That Inspire Luvior Paris", description: "From Grasse to Kyoto — the landscapes that shape our fragrances.", date: "Jun 22, 2024", readTime: "6 min read", featured: false }
-];
 
 async function loadProducts() {
     try {
@@ -326,21 +317,28 @@ function createCollectionCard(collection) {
 }
 
 function createArticleCard(article) {
-    const card = document.createElement('div');
+    const card = document.createElement('a');
     card.className = 'article-card';
-    card.innerHTML = `
-        <div class="article-card__image">
-            <div class="placeholder-image" style="width:100%;height:100%">${article.category}</div>
-        </div>
-        <p class="article-card__category">${article.category}</p>
-        <h3 class="article-card__title">${article.title}</h3>
-        <div class="article-card__meta">
-            <span>${article.date}</span>
-            <span>&middot;</span>
-            <span>${article.readTime}</span>
-        </div>
-        <span class="article-card__arrow">Read Story <span class="arrow">&rarr;</span></span>
-    `;
+    card.href = `article.html?a=${encodeURIComponent(article.slug || slugify(article.title))}`;
+    const imageWrap = document.createElement('div');
+    imageWrap.className = 'article-card__image';
+    if (article.cover && article.cover.src) setCoverImage(imageWrap, article.cover, article.title);
+    else {
+        const ph = document.createElement('div');
+        ph.className = 'placeholder-image';
+        ph.style.cssText = 'width:100%;height:100%';
+        ph.textContent = article.category || '';
+        imageWrap.appendChild(ph);
+    }
+    const cat = Object.assign(document.createElement('p'), { className: 'article-card__category', textContent: article.category || '' });
+    const title = Object.assign(document.createElement('h3'), { className: 'article-card__title', textContent: article.title || '' });
+    const meta = document.createElement('div');
+    meta.className = 'article-card__meta';
+    [article.date, '·', article.read_time || article.readTime].filter(Boolean).forEach(t => meta.appendChild(Object.assign(document.createElement('span'), { textContent: t })));
+    const arrow = document.createElement('span');
+    arrow.className = 'article-card__arrow';
+    arrow.innerHTML = 'Read Story <span class="arrow">&rarr;</span>';
+    card.append(imageWrap, cat, title, meta, arrow);
     return card;
 }
 
@@ -404,7 +402,7 @@ function initScrollTop() {
         }
     }, { passive: true });
 
-    btn.addEventListener('click', () => {
+    btn?.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
@@ -458,14 +456,16 @@ function initCartIcon() {
 }
 
 /* === FAQ Toggle === */
+// Delegated so FAQ items rendered later from CMS content also toggle.
 function initFAQ() {
-    document.querySelectorAll('.faq-item__question').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const item = btn.closest('.faq-item');
-            const isOpen = item.classList.contains('open');
-            item.closest('.faq-list').querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-            if (!isOpen) item.classList.add('open');
-        });
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.faq-item__question');
+        if (!btn) return;
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        item.closest('.faq-list').querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+        btn.setAttribute('aria-expanded', String(!isOpen));
     });
 }
 
@@ -594,6 +594,7 @@ async function initHomepage() {
     if (heroSlideshow) tasks.push(loadHeroImage());
 
     await Promise.all(tasks);
+    await window.CMS?.ready;
 
     if (featuredGrid) {
         PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
@@ -649,7 +650,7 @@ function setSlotImage(slot, candidates) {
 function fillEditorialImages() {
     const productImages = PRODUCTS.filter(p => p.image).map(p => ({ src: p.image, alt: p.name, photo: true }));
     const collectionImage = COLLECTIONS.find(c => c.image_url);
-    document.querySelectorAll('.lx-cutout[data-cutout]:not(#offer-image)').forEach(slot => {
+    document.querySelectorAll('.lx-cutout[data-cutout]:not(#offer-image):not([data-cms-filled])').forEach(slot => {
         const candidates = [{ src: slot.dataset.cutout, alt: '' }];
         if (slot.dataset.editorialSlot !== undefined) {
             const i = parseInt(slot.dataset.editorialSlot, 10);
@@ -661,25 +662,93 @@ function fillEditorialImages() {
     });
 }
 
-// Offer comes only from real admin data: an active product whose compare_price exceeds its price.
+// Offer uses real admin data only: the product chosen in Website → Home → Special Offer,
+// otherwise the active product with the largest compare_price discount. Countdown only
+// shows when an end date is set, and the section hides itself once that date passes.
 function renderSpecialOffer() {
     const section = document.getElementById('special-offer');
     if (!section) return;
-    const offers = PRODUCTS
+    const chosenId = window.CMS ? CMS.setting('offer', 'product_id') : '';
+    const endsAt = window.CMS ? CMS.setting('offer', 'ends_at') : '';
+    const discounted = PRODUCTS
         .filter(p => p.compare_price && p.compare_price > p.price)
-        .sort((a, b) => (1 - a.price / a.compare_price) < (1 - b.price / b.compare_price) ? 1 : -1);
-    const p = offers[0];
+        .sort((a, b) => (b.compare_price - b.price) / b.compare_price - (a.compare_price - a.price) / a.compare_price);
+    const p = (chosenId && PRODUCTS.find(x => String(x.id) === String(chosenId))) || discounted[0];
     if (!p) return;
+
+    const end = endsAt ? new Date(endsAt).getTime() : null;
+    if (end !== null && (isNaN(end) || end <= Date.now())) return;
+
     const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+    const hasDiscount = p.compare_price && p.compare_price > p.price;
     section.querySelector('#offer-name').textContent = p.name;
     section.querySelector('#offer-desc').textContent = p.short_description || p.notes || '';
     section.querySelector('#offer-price').textContent = inr(p.price);
-    section.querySelector('#offer-compare').textContent = inr(p.compare_price);
-    section.querySelector('#offer-save').textContent = `Save ${Math.round((1 - p.price / p.compare_price) * 100)}%`;
+    section.querySelector('#offer-compare').textContent = hasDiscount ? inr(p.compare_price) : '';
+    section.querySelector('#offer-save').textContent = hasDiscount ? `Save ${Math.round((1 - p.price / p.compare_price) * 100)}%` : '';
+    section.querySelector('#offer-save').hidden = !hasDiscount;
     section.querySelector('#offer-cta').dataset.id = p.id;
     const slot = section.querySelector('#offer-image');
-    setSlotImage(slot, [{ src: slot.dataset.cutout, alt: p.name }, { src: p.image, alt: p.name, photo: true }]);
+    if (!slot.dataset.cmsFilled) setSlotImage(slot, [{ src: slot.dataset.cutout, alt: p.name }, { src: p.image, alt: p.name, photo: true }]);
     section.hidden = false;
+    if (end !== null) startCountdown(section, end);
+}
+
+function startCountdown(section, end) {
+    const box = section.querySelector('#offer-countdown');
+    if (!box) return;
+    const units = { d: 86400000, h: 3600000, m: 60000, s: 1000 };
+    const tick = () => {
+        let left = end - Date.now();
+        if (left <= 0) { clearInterval(timer); section.hidden = true; return; }
+        Object.entries(units).forEach(([u, ms]) => {
+            const v = Math.floor(left / ms);
+            left -= v * ms;
+            box.querySelector(`[data-unit="${u}"]`).textContent = String(v).padStart(2, '0');
+        });
+    };
+    box.hidden = false;
+    tick();
+    const timer = setInterval(tick, 1000);
+}
+
+/* === Journal (articles managed in Website → Journal) === */
+function slugify(t) {
+    return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function journalArticles() {
+    const items = window.CMS ? CMS.list('articles', 'articles') : [];
+    return items.filter(a => a.published !== false && a.title).map(a => ({ ...a, slug: slugify(a.title) }));
+}
+
+async function initJournal() {
+    await window.CMS?.ready;
+    const articles = journalArticles();
+    const featured = articles.find(a => a.featured);
+    const fs = document.getElementById('journal-featured');
+    if (fs) {
+        if (!featured) fs.hidden = true;
+        else {
+            const set = (k, v) => { const el = fs.querySelector(`[data-jf="${k}"]`); if (el) el.textContent = v || ''; };
+            ['category', 'title', 'description', 'date', 'read_time'].forEach(k => set(k, featured[k]));
+            const link = fs.querySelector('[data-jf="link"]');
+            if (link) link.href = `article.html?a=${encodeURIComponent(featured.slug)}`;
+            const cover = fs.querySelector('[data-jf="cover"]');
+            if (cover && featured.cover && featured.cover.src) setCoverImage(cover, featured.cover, featured.title);
+        }
+    }
+    const grid = document.getElementById('journal-grid');
+    if (grid) articles.filter(a => a !== featured).forEach(a => grid.appendChild(createArticleCard(a)));
+}
+
+function setCoverImage(el, cover, alt) {
+    const img = document.createElement('img');
+    img.src = cover.src;
+    img.alt = alt || '';
+    img.className = 'article-cover-img';
+    el.classList.add('cms-has-img');
+    el.replaceChildren(img);
 }
 
 /* === Init === */

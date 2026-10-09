@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
 </head>
-<body class="page-homepage">
+<body class="page-homepage" data-cms-page="home">
 
     <!-- Header -->
     <header class="header">
@@ -80,16 +80,16 @@
     </section>
 
     <!-- Brand Ticker -->
-    <div class="lx-ticker" aria-label="Luvior Paris highlights">
+    <div class="lx-ticker" aria-label="Luvior Paris highlights" data-cms-section="ticker" data-cms-label="Promotional Banner">
         <div class="lx-ticker__track">
-            <div class="lx-ticker__group">
-                <span>Premium, Ethically Sourced Ingredients</span>
-                <span>Long-Lasting Performance</span>
-                <span>Luxury Gift Packaging</span>
-                <span>Worldwide Shipping</span>
-                <span>A More Beautiful Tomorrow</span>
+            <div class="lx-ticker__group" data-cms-list="items" data-cms-title="Banner messages">
+                <span data-cms-item data-cms-field="text">Premium, Ethically Sourced Ingredients</span>
+                <span data-cms-item data-cms-field="text">Long-Lasting Performance</span>
+                <span data-cms-item data-cms-field="text">Luxury Gift Packaging</span>
+                <span data-cms-item data-cms-field="text">Worldwide Shipping</span>
+                <span data-cms-item data-cms-field="text">A More Beautiful Tomorrow</span>
             </div>
-            <div class="lx-ticker__group" aria-hidden="true">
+            <div class="lx-ticker__group" aria-hidden="true" data-cms-mirror="items">
                 <span>Premium, Ethically Sourced Ingredients</span>
                 <span>Long-Lasting Performance</span>
                 <span>Luxury Gift Packaging</span>
@@ -100,44 +100,44 @@
     </div>
 
     <!-- Benefits -->
-    <section class="section section--black lx-benefits">
+    <section class="section section--black lx-benefits" data-cms-section="benefits" data-cms-label="Benefits">
         <div class="container">
             <div class="lx-heading fade-up">
-                <p class="label">A More Beautiful Tomorrow</p>
-                <h2 class="heading-md">Our Promise</h2>
+                <p class="label" data-cms="eyebrow">A More Beautiful Tomorrow</p>
+                <h2 class="heading-md" data-cms="heading">Our Promise</h2>
             </div>
-            <div class="lx-benefits__grid fade-up">
-                <article class="lx-benefit">
+            <div class="lx-benefits__grid fade-up" data-cms-list="items" data-cms-title="Benefits">
+                <article class="lx-benefit" data-cms-item>
                     <span class="lx-benefit__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg></span>
-                    <h3 class="lx-benefit__title">Ethically Sourced</h3>
-                    <p class="lx-benefit__text">Premium ingredients, selected with care for every composition.</p>
+                    <h3 class="lx-benefit__title" data-cms-field="title">Ethically Sourced</h3>
+                    <p class="lx-benefit__text" data-cms-field="text">Premium ingredients, selected with care for every composition.</p>
                 </article>
-                <article class="lx-benefit">
+                <article class="lx-benefit" data-cms-item>
                     <span class="lx-benefit__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg></span>
-                    <h3 class="lx-benefit__title">Long-Lasting</h3>
-                    <p class="lx-benefit__text">Performance crafted to linger beyond time.</p>
+                    <h3 class="lx-benefit__title" data-cms-field="title">Long-Lasting</h3>
+                    <p class="lx-benefit__text" data-cms-field="text">Performance crafted to linger beyond time.</p>
                 </article>
-                <article class="lx-benefit">
+                <article class="lx-benefit" data-cms-item>
                     <span class="lx-benefit__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="3" x2="16" y2="21"/></svg></span>
-                    <h3 class="lx-benefit__title">Gift Packaging</h3>
-                    <p class="lx-benefit__text">Every bottle presented in luxury packaging.</p>
+                    <h3 class="lx-benefit__title" data-cms-field="title">Gift Packaging</h3>
+                    <p class="lx-benefit__text" data-cms-field="text">Every bottle presented in luxury packaging.</p>
                 </article>
-                <article class="lx-benefit">
+                <article class="lx-benefit" data-cms-item>
                     <span class="lx-benefit__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>
-                    <h3 class="lx-benefit__title">Worldwide Shipping</h3>
-                    <p class="lx-benefit__text">Delivered to your door, wherever you are.</p>
+                    <h3 class="lx-benefit__title" data-cms-field="title">Worldwide Shipping</h3>
+                    <p class="lx-benefit__text" data-cms-field="text">Delivered to your door, wherever you are.</p>
                 </article>
             </div>
         </div>
     </section>
 
     <!-- Featured Fragrances -->
-    <section class="section section--black lx-featured">
+    <section class="section section--black lx-featured" data-cms-section="featured" data-cms-label="Featured Fragrances" data-cms-hint="Products shown here are managed in Products (Featured flag).">
         <div class="container">
             <div class="section-header fade-up">
-                <h2 class="heading-md">Featured Fragrances</h2>
+                <h2 class="heading-md" data-cms="heading">Featured Fragrances</h2>
                 <span class="section-header__line"></span>
-                <a href="collections.html" class="btn--ghost">Shop All <span class="arrow">&rarr;</span></a>
+                <a href="collections.html" class="btn--ghost" data-cms-link="link">Shop All <span class="arrow">&rarr;</span></a>
             </div>
 
             <div class="product-grid fade-up" id="featured-products">
@@ -147,244 +147,252 @@
     </section>
 
     <!-- About: text left, cutout right -->
-    <section class="section section--black lx-row">
+    <section class="section section--black lx-row" data-cms-section="about" data-cms-label="About / Brand Story">
         <div class="container">
             <div class="lx-split fade-up">
                 <div class="lx-split__text">
-                    <p class="label">The Essence of Us</p>
-                    <h2 class="heading-lg">A Higher Form<br>of Self-Expression</h2>
-                    <p class="body-text">Luvior Paris is a modern fragrance house, creating extraordinary scents for those who seek more — more meaning, more beauty, more of themselves.</p>
+                    <p class="label" data-cms="eyebrow">The Essence of Us</p>
+                    <h2 class="heading-lg" data-cms="heading">A Higher Form<br>of Self-Expression</h2>
+                    <p class="body-text" data-cms="body" data-cms-type="textarea">Luvior Paris is a modern fragrance house, creating extraordinary scents for those who seek more — more meaning, more beauty, more of themselves.</p>
                     <blockquote class="lx-quote">
-                        <p>&ldquo;Fragrance is the invisible signature of who you are.&rdquo;</p>
-                        <cite class="label">Luvior Paris</cite>
+                        <p data-cms="quote" data-cms-type="textarea">&ldquo;Fragrance is the invisible signature of who you are.&rdquo;</p>
+                        <cite class="label" data-cms="quote_author">Luvior Paris</cite>
                     </blockquote>
-                    <a href="our-story.html" class="btn">Our Story <span class="arrow">&rarr;</span></a>
+                    <a href="our-story.html" class="btn" data-cms-link="cta">Our Story <span class="arrow">&rarr;</span></a>
                 </div>
                 <div class="lx-split__media">
-                    <div class="lx-cutout" data-cutout="images/cutouts/about.png" data-editorial-slot="0"></div>
+                    <div class="lx-cutout" data-cutout="images/cutouts/about.png" data-editorial-slot="0" data-cms-img="image" data-cms-hint="Leave empty to use images/cutouts/about.png or the first product photo."></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Collections: cutout left, content right -->
-    <section class="section section--black lx-row lx-collections">
+    <section class="section section--black lx-row lx-collections" data-cms-section="collections" data-cms-label="Collections" data-cms-hint="Collection names and order are managed in Collections.">
         <div class="container">
             <div class="lx-split lx-split--reverse fade-up">
                 <div class="lx-split__media">
-                    <span class="lx-vertical-word" aria-hidden="true">Collections</span>
-                    <div class="lx-cutout" data-cutout="images/cutouts/collections.png" data-editorial-slot="1"></div>
+                    <span class="lx-vertical-word" aria-hidden="true" data-cms="side_label">Collections</span>
+                    <div class="lx-cutout" data-cutout="images/cutouts/collections.png" data-editorial-slot="1" data-cms-img="image"></div>
                 </div>
                 <div class="lx-split__text">
-                    <p class="label">Explore</p>
-                    <h2 class="heading-lg">Find Your<br>Olfactive World</h2>
+                    <p class="label" data-cms="eyebrow">Explore</p>
+                    <h2 class="heading-lg" data-cms="heading">Find Your<br>Olfactive World</h2>
                     <div class="lx-collections__list" id="collection-cards">
                         <!-- Populated by JS -->
                     </div>
-                    <a href="collections.html" class="btn">View All Collections <span class="arrow">&rarr;</span></a>
+                    <a href="collections.html" class="btn" data-cms-link="cta">View All Collections <span class="arrow">&rarr;</span></a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Bestseller Spotlight: text left, cutout right -->
-    <section class="section section--black lx-row">
+    <section class="section section--black lx-row" data-cms-section="bestseller" data-cms-label="Bestseller Spotlight">
         <div class="container">
             <div class="lx-split fade-up">
                 <div class="lx-split__text">
-                    <p class="label">Our Bestseller</p>
-                    <h2 class="heading-lg">Le Solstice</h2>
-                    <p class="body-text">A captivating blend of saffron, amber, and soft leather. Bold. Sensual. Unforgettable.</p>
-                    <a href="#" class="btn">Shop Now <span class="arrow">&rarr;</span></a>
+                    <p class="label" data-cms="eyebrow">Our Bestseller</p>
+                    <h2 class="heading-lg" data-cms="heading">Le Solstice</h2>
+                    <p class="body-text" data-cms="body" data-cms-type="textarea">A captivating blend of saffron, amber, and soft leather. Bold. Sensual. Unforgettable.</p>
+                    <a href="#" class="btn" data-cms-link="cta">Shop Now <span class="arrow">&rarr;</span></a>
                 </div>
                 <div class="lx-split__media">
-                    <div class="lx-cutout" data-cutout="images/cutouts/le-solstice.png"></div>
+                    <div class="lx-cutout" data-cutout="images/cutouts/le-solstice.png" data-cms-img="image"></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Special Offer: cutout left, content right (shown only when a real discounted product exists) -->
-    <section class="section section--black lx-row lx-offer" id="special-offer" hidden>
+    <section class="section section--black lx-row lx-offer" id="special-offer" hidden data-cms-section="offer" data-cms-label="Special Offer" data-cms-hint="Shows a product whose Compare-at price is above its price, or the product chosen below. With an end date the countdown shows and the offer hides itself when it expires.">
+        <template data-cms-setting="product_id" data-cms-type="product" data-cms-title="Offer product (optional)"></template>
+        <template data-cms-setting="ends_at" data-cms-type="datetime" data-cms-title="Offer ends at (countdown)"></template>
         <div class="container">
             <div class="lx-split lx-split--reverse fade-up">
                 <div class="lx-split__media">
-                    <div class="lx-cutout" id="offer-image" data-cutout="images/cutouts/offer.png"></div>
+                    <div class="lx-cutout" id="offer-image" data-cutout="images/cutouts/offer.png" data-cms-img="image" data-cms-hint="Leave empty to use the product photo."></div>
                 </div>
                 <div class="lx-split__text">
-                    <p class="label">Special Offer</p>
+                    <p class="label" data-cms="eyebrow">Special Offer</p>
                     <h2 class="heading-lg" id="offer-name"></h2>
                     <p class="body-text" id="offer-desc"></p>
+                    <div class="lx-countdown" id="offer-countdown" hidden aria-live="polite">
+                        <div><span data-unit="d">00</span><small>Days</small></div>
+                        <div><span data-unit="h">00</span><small>Hours</small></div>
+                        <div><span data-unit="m">00</span><small>Mins</small></div>
+                        <div><span data-unit="s">00</span><small>Secs</small></div>
+                    </div>
                     <div class="lx-offer__price">
                         <span class="lx-offer__now" id="offer-price"></span>
                         <span class="lx-offer__was" id="offer-compare"></span>
                         <span class="lx-offer__save" id="offer-save"></span>
                     </div>
-                    <button class="btn btn--filled product-card__add-to-cart lx-offer__cta" id="offer-cta">Order Now</button>
+                    <button class="btn btn--filled product-card__add-to-cart lx-offer__cta" id="offer-cta" data-cms="cta_label" data-cms-title="Button text">Order Now</button>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials -->
-    <section class="section section--black lx-testimonials">
+    <section class="section section--black lx-testimonials" data-cms-section="testimonials" data-cms-label="Testimonials">
         <div class="container">
             <div class="lx-heading fade-up">
-                <p class="label">Testimonials</p>
-                <h2 class="heading-md">What Our Customers Say</h2>
+                <p class="label" data-cms="eyebrow">Testimonials</p>
+                <h2 class="heading-md" data-cms="heading">What Our Customers Say</h2>
             </div>
-            <div class="lx-testimonials__grid fade-up">
-                <figure class="lx-testimonial">
+            <div class="lx-testimonials__grid fade-up" data-cms-list="items" data-cms-title="Testimonials">
+                <figure class="lx-testimonial" data-cms-item>
                     <div class="lx-testimonial__stars" aria-label="5 out of 5 stars">&starf;&starf;&starf;&starf;&starf;</div>
-                    <blockquote>&ldquo;Absolutely mesmerizing. It feels like confidence in a bottle.&rdquo;</blockquote>
-                    <figcaption class="label">Sophia L.</figcaption>
+                    <blockquote data-cms-field="quote" data-cms-type="textarea">&ldquo;Absolutely mesmerizing. It feels like confidence in a bottle.&rdquo;</blockquote>
+                    <figcaption class="label" data-cms-field="author">Sophia L.</figcaption>
                 </figure>
-                <figure class="lx-testimonial">
+                <figure class="lx-testimonial" data-cms-item>
                     <div class="lx-testimonial__stars" aria-label="5 out of 5 stars">&starf;&starf;&starf;&starf;&starf;</div>
-                    <blockquote>&ldquo;The most beautiful fragrance I&rsquo;ve ever owned. Pure elegance.&rdquo;</blockquote>
-                    <figcaption class="label">James T.</figcaption>
+                    <blockquote data-cms-field="quote" data-cms-type="textarea">&ldquo;The most beautiful fragrance I&rsquo;ve ever owned. Pure elegance.&rdquo;</blockquote>
+                    <figcaption class="label" data-cms-field="author">James T.</figcaption>
                 </figure>
-                <figure class="lx-testimonial">
+                <figure class="lx-testimonial" data-cms-item>
                     <div class="lx-testimonial__stars" aria-label="5 out of 5 stars">&starf;&starf;&starf;&starf;&starf;</div>
-                    <blockquote>&ldquo;Long-lasting, sophisticated, and truly unique.&rdquo;</blockquote>
-                    <figcaption class="label">Emma R.</figcaption>
+                    <blockquote data-cms-field="quote" data-cms-type="textarea">&ldquo;Long-lasting, sophisticated, and truly unique.&rdquo;</blockquote>
+                    <figcaption class="label" data-cms-field="author">Emma R.</figcaption>
                 </figure>
             </div>
         </div>
     </section>
 
     <!-- FAQ -->
-    <section class="section section--black lx-faq" id="faq">
+    <section class="section section--black lx-faq" id="faq" data-cms-section="faq" data-cms-label="FAQ">
         <div class="container lx-faq__container">
             <div class="lx-heading fade-up">
-                <p class="label">Questions</p>
-                <h2 class="heading-md">FAQ</h2>
+                <p class="label" data-cms="eyebrow">Questions</p>
+                <h2 class="heading-md" data-cms="heading">FAQ</h2>
             </div>
-            <div class="faq-list fade-up">
-                <div class="faq-item">
+            <div class="faq-list fade-up" data-cms-list="items" data-cms-title="Questions">
+                <div class="faq-item" data-cms-item>
                     <button class="faq-item__question">
-                        <span>How long do the fragrances last on skin?</span>
+                        <span data-cms-field="question">How long do the fragrances last on skin?</span>
                         <span class="faq-item__icon">+</span>
                     </button>
                     <div class="faq-item__answer">
-                        <p>Our Eau de Parfum formulations typically last 8-12 hours on skin, though longevity varies with skin type, climate, and the specific composition.</p>
+                        <p data-cms-field="answer" data-cms-type="textarea">Our Eau de Parfum formulations typically last 8-12 hours on skin, though longevity varies with skin type, climate, and the specific composition.</p>
                     </div>
                 </div>
-                <div class="faq-item">
+                <div class="faq-item" data-cms-item>
                     <button class="faq-item__question">
-                        <span>What is the delivery time for international orders?</span>
+                        <span data-cms-field="question">What is the delivery time for international orders?</span>
                         <span class="faq-item__icon">+</span>
                     </button>
                     <div class="faq-item__answer">
-                        <p>International orders typically arrive within 7-14 business days. Express shipping options are available at checkout for select destinations.</p>
+                        <p data-cms-field="answer" data-cms-type="textarea">International orders typically arrive within 7-14 business days. Express shipping options are available at checkout for select destinations.</p>
                     </div>
                 </div>
-                <div class="faq-item">
+                <div class="faq-item" data-cms-item>
                     <button class="faq-item__question">
-                        <span>Can I return a fragrance if it doesn&rsquo;t suit me?</span>
+                        <span data-cms-field="question">Can I return a fragrance if it doesn&rsquo;t suit me?</span>
                         <span class="faq-item__icon">+</span>
                     </button>
                     <div class="faq-item__answer">
-                        <p>We accept returns within 30 days of purchase for unopened items in original packaging. For opened fragrances, please contact our customer care team.</p>
+                        <p data-cms-field="answer" data-cms-type="textarea">We accept returns within 30 days of purchase for unopened items in original packaging. For opened fragrances, please contact our customer care team.</p>
                     </div>
                 </div>
-                <div class="faq-item">
+                <div class="faq-item" data-cms-item>
                     <button class="faq-item__question">
-                        <span>Are Luvior Paris fragrances cruelty-free?</span>
+                        <span data-cms-field="question">Are Luvior Paris fragrances cruelty-free?</span>
                         <span class="faq-item__icon">+</span>
                     </button>
                     <div class="faq-item__answer">
-                        <p>Absolutely. We never test on animals, and we work exclusively with suppliers who share our commitment to ethical practices.</p>
+                        <p data-cms-field="answer" data-cms-type="textarea">Absolutely. We never test on animals, and we work exclusively with suppliers who share our commitment to ethical practices.</p>
                     </div>
                 </div>
             </div>
-            <p class="lx-faq__more fade-up"><a href="contact.html" class="btn--ghost">More Answers <span class="arrow">&rarr;</span></a></p>
+            <p class="lx-faq__more fade-up"><a href="contact.html" class="btn--ghost" data-cms-link="more">More Answers <span class="arrow">&rarr;</span></a></p>
         </div>
     </section>
 
     <!-- Newsletter: content left, cutout right -->
-    <section class="section section--black lx-newsletter-section">
+    <section class="section section--black lx-newsletter-section" data-cms-section="newsletter" data-cms-label="Newsletter">
         <div class="container">
             <div class="lx-newsletter fade-up">
                 <div class="lx-newsletter__body">
-                    <p class="newsletter__label">Join the Luvior Paris Circle</p>
-                    <h3 class="newsletter__title">Be the First to Know</h3>
-                    <p class="newsletter__text">Exclusive releases, private offers, and stories from our world.</p>
+                    <p class="newsletter__label" data-cms="label">Join the Luvior Paris Circle</p>
+                    <h3 class="newsletter__title" data-cms="title">Be the First to Know</h3>
+                    <p class="newsletter__text" data-cms="text" data-cms-type="textarea">Exclusive releases, private offers, and stories from our world.</p>
                     <form class="newsletter__form" id="newsletter-form">
                         <input type="email" class="newsletter__input" placeholder="Your email address" aria-label="Email address" required>
                         <button type="submit" class="newsletter__submit">Subscribe</button>
                     </form>
                 </div>
                 <div class="lx-newsletter__media">
-                    <div class="lx-cutout lx-cutout--small" data-cutout="images/cutouts/newsletter.png" data-fallback="images/logo-symbol.png"></div>
+                    <div class="lx-cutout lx-cutout--small" data-cutout="images/cutouts/newsletter.png" data-fallback="images/logo-symbol.png" data-cms-img="image"></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" data-cms-global="footer">
         <div class="container">
             <div class="footer__top">
-                <div class="footer__brand">
+                <div class="footer__brand" data-cms-section="brand" data-cms-label="Brand" data-cms-pin data-cms-hint="The logo is fixed; edit the tagline here.">
                     <img src="images/logo-symbol.png" alt="Luvior Paris" style="height:40px;width:auto">
                     
-                    <p class="footer__brand-text">Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.</p>
+                    <p class="footer__brand-text" data-cms="text" data-cms-type="textarea">Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.</p>
                 </div>
-                <div>
-                    <h4 class="footer__column-title">Shop</h4>
-                    <div class="footer__links">
-                        <a href="collections.html">All Fragrances</a>
-                        <a href="collections.html#floral">Floral</a>
-                        <a href="collections.html#woody">Woody</a>
-                        <a href="collections.html#oriental">Oriental</a>
-                        <a href="collections.html#fresh">Fresh</a>
+                <div data-cms-section="shop_col" data-cms-label="Column: Shop">
+                    <h4 class="footer__column-title" data-cms="title">Shop</h4>
+                    <div class="footer__links" data-cms-list="links" data-cms-title="Links">
+                        <a data-cms-item data-cms-field-link="link" href="collections.html">All Fragrances</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#floral">Floral</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#woody">Woody</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#oriental">Oriental</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#fresh">Fresh</a>
                     </div>
                 </div>
-                <div>
-                    <h4 class="footer__column-title">Company</h4>
-                    <div class="footer__links">
-                        <a href="our-story.html">Our Story</a>
-                        <a href="journal.html">Journal</a>
-                        <a href="contact.html">Contact</a>
-                        <a href="#">Careers</a>
+                <div data-cms-section="company_col" data-cms-label="Column: Company">
+                    <h4 class="footer__column-title" data-cms="title">Company</h4>
+                    <div class="footer__links" data-cms-list="links" data-cms-title="Links">
+                        <a data-cms-item data-cms-field-link="link" href="our-story.html">Our Story</a>
+                        <a data-cms-item data-cms-field-link="link" href="journal.html">Journal</a>
+                        <a data-cms-item data-cms-field-link="link" href="contact.html">Contact</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">Careers</a>
                     </div>
                 </div>
-                <div>
-                    <h4 class="footer__column-title">Help</h4>
-                    <div class="footer__links">
-                        <a href="contact.html">Customer Care</a>
-                        <a href="#">Shipping</a>
-                        <a href="#">Returns</a>
-                        <a href="#">FAQ</a>
+                <div data-cms-section="help_col" data-cms-label="Column: Help">
+                    <h4 class="footer__column-title" data-cms="title">Help</h4>
+                    <div class="footer__links" data-cms-list="links" data-cms-title="Links">
+                        <a data-cms-item data-cms-field-link="link" href="contact.html">Customer Care</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">Shipping</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">Returns</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">FAQ</a>
                     </div>
                 </div>
             </div>
 
             <div class="footer__bottom">
-                <nav class="footer__nav">
-                    <a href="index.html">Shop</a>
-                    <a href="collections.html">Collections</a>
-                    <a href="our-story.html">Our Story</a>
-                    <a href="journal.html">Journal</a>
-                    <a href="contact.html">Contact</a>
+                <nav class="footer__nav" data-cms-section="nav" data-cms-label="Bottom Navigation" data-cms-list="links" data-cms-title="Links">
+                    <a data-cms-item data-cms-field-link="link" href="index.html">Shop</a>
+                    <a data-cms-item data-cms-field-link="link" href="collections.html">Collections</a>
+                    <a data-cms-item data-cms-field-link="link" href="our-story.html">Our Story</a>
+                    <a data-cms-item data-cms-field-link="link" href="journal.html">Journal</a>
+                    <a data-cms-item data-cms-field-link="link" href="contact.html">Contact</a>
                 </nav>
 
-                <div class="footer__social">
-                    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-                    <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
-                    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a>
-                    <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg></a>
+                <div class="footer__social" data-cms-section="social" data-cms-label="Social Links" data-cms-list="links" data-cms-title="Social profiles (set URLs)">
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a>
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg></a>
                 </div>
             </div>
 
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--spacing-xl);padding-top:var(--spacing-md);border-top:var(--border-thin);flex-wrap:wrap;gap:var(--spacing-md)">
-                <p class="footer__copyright">&copy; 2024 Luvior Paris. All rights reserved.</p>
-                <div class="footer__legal">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="#">Shipping</a>
-                    <a href="#">FAQ</a>
+            <div data-cms-section="legal" data-cms-label="Copyright & Legal" style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--spacing-xl);padding-top:var(--spacing-md);border-top:var(--border-thin);flex-wrap:wrap;gap:var(--spacing-md)">
+                <p class="footer__copyright" data-cms="copyright">&copy; 2024 Luvior Paris. All rights reserved.</p>
+                <div class="footer__legal" data-cms-list="links" data-cms-title="Legal links">
+                    <a data-cms-item data-cms-field-link="link" href="#">Privacy Policy</a>
+                    <a data-cms-item data-cms-field-link="link" href="#">Terms of Service</a>
+                    <a data-cms-item data-cms-field-link="link" href="#">Shipping</a>
+                    <a data-cms-item data-cms-field-link="link" href="#">FAQ</a>
                 </div>
             </div>
         </div>
@@ -399,5 +407,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/cms.js"></script>
 </body>
 </html>

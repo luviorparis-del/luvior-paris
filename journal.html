@@ -57,7 +57,7 @@
         }
     </style>
 </head>
-<body>
+<body data-cms-page="journal">
 
 
     <!-- Header -->
@@ -96,65 +96,151 @@
     </nav>
 
     <!-- SECTION 1 — Journal Hero -->
-    <section class="section section--black" style="padding:var(--spacing-4xl) 0 var(--spacing-2xl)">
+    <section class="section section--black" style="padding:var(--spacing-4xl) 0 var(--spacing-2xl)" data-cms-section="hero" data-cms-label="Journal Banner" data-cms-pin>
         <div class="container" style="text-align:center">
             <div class="fade-up">
-                <p class="label" style="margin-bottom:var(--spacing-md)">The Luvior Paris Journal</p>
-                <h1 class="heading-xl" style="margin-bottom:var(--spacing-md)">Stories of Scent,<br>Art &amp; Emotion</h1>
-                <p class="body-text" style="max-width:500px;margin:0 auto">Discover the inspirations, ingredients, people and places behind Luvior Paris.</p>
+                <p class="label" style="margin-bottom:var(--spacing-md)" data-cms="label">The Luvior Paris Journal</p>
+                <h1 class="heading-xl" style="margin-bottom:var(--spacing-md)" data-cms="title">Stories of Scent,<br>Art &amp; Emotion</h1>
+                <p class="body-text" style="max-width:500px;margin:0 auto" data-cms="subtitle" data-cms-type="textarea">Discover the inspirations, ingredients, people and places behind Luvior Paris.</p>
             </div>
         </div>
     </section>
 
     <!-- SECTION 2 — Featured Story -->
-    <section class="section section--black" style="padding-top:0">
+    <section class="section section--black" style="padding-top:0" id="journal-featured" data-cms-section="featured" data-cms-label="Featured Story" data-cms-hint="Shows the article marked Featured in the Articles section.">
         <div class="container">
             <div class="featured-article fade-up">
                 <div class="featured-article__image">
-                    <div class="placeholder-image" style="width:100%;height:100%">Featured Story</div>
+                    <div class="placeholder-image" style="width:100%;height:100%" data-jf="cover">Featured Story</div>
                 </div>
                 <div class="featured-article__content">
-                    <p class="article-card__category">The Art of Fragrance</p>
-                    <h2 class="article-card__title">Why Scent Becomes Memory</h2>
-                    <p class="body-text" style="margin-bottom:var(--spacing-md)">The science and poetry behind how fragrance anchors itself to our most vivid recollections — and why certain scents can transport us across decades in a single breath.</p>
+                    <p class="article-card__category" data-jf="category">The Art of Fragrance</p>
+                    <h2 class="article-card__title" data-jf="title">Why Scent Becomes Memory</h2>
+                    <p class="body-text" style="margin-bottom:var(--spacing-md)" data-jf="description">The science and poetry behind how fragrance anchors itself to our most vivid recollections — and why certain scents can transport us across decades in a single breath.</p>
                     <div class="article-card__meta" style="margin-bottom:var(--spacing-md)">
-                        <span>Sep 12, 2024</span>
+                        <span data-jf="date">Sep 12, 2024</span>
                         <span>&middot;</span>
-                        <span>6 min read</span>
+                        <span data-jf="read_time">6 min read</span>
                     </div>
-                    <a href="#" class="btn" style="align-self:flex-start">Read Story <span class="arrow">&rarr;</span></a>
+                    <a href="#" class="btn" style="align-self:flex-start" data-jf="link">Read Story <span class="arrow">&rarr;</span></a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- SECTION 3 — Journal Grid -->
-    <section class="section section--black" style="padding-top:0">
+    <section class="section section--black" style="padding-top:0" data-cms-section="articles" data-cms-label="Articles" data-cms-nohide>
         <div class="container">
             <div class="journal-grid fade-up" id="journal-grid">
                 <!-- Populated by JS -->
+            </div>
+            <div hidden data-cms-list="articles" data-cms-title="Articles">
+                <div data-cms-item>
+                    <span data-cms-field="title">Why Scent Becomes Memory</span>
+                    <span data-cms-field="category">The Art of Fragrance</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">The science and poetry behind how fragrance anchors itself to our most vivid recollections — and why certain scents can transport us across decades in a single breath.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Sep 12, 2024</span>
+                    <span data-cms-field="read_time">6 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="true"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
+                <div data-cms-item>
+                    <span data-cms-field="title">The Art of Layering Fragrance</span>
+                    <span data-cms-field="category">Ingredients</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">How to combine scents for a signature that is uniquely yours.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Aug 28, 2024</span>
+                    <span data-cms-field="read_time">5 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="false"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
+                <div data-cms-item>
+                    <span data-cms-field="title">Inside the World of Oud</span>
+                    <span data-cms-field="category">Craftsmanship</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">One of the rarest and most prized ingredients in perfumery.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Aug 15, 2024</span>
+                    <span data-cms-field="read_time">7 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="false"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
+                <div data-cms-item>
+                    <span data-cms-field="title">Why Bergamot Opens So Many Iconic Scents</span>
+                    <span data-cms-field="category">Ingredients</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">The citrus note that defines the opening of modern perfumery.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Jul 30, 2024</span>
+                    <span data-cms-field="read_time">4 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="false"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
+                <div data-cms-item>
+                    <span data-cms-field="title">From Flower to Fragrance</span>
+                    <span data-cms-field="category">Behind the Brand</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">The journey of a single ingredient from harvest to bottle.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Jul 18, 2024</span>
+                    <span data-cms-field="read_time">8 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="false"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
+                <div data-cms-item>
+                    <span data-cms-field="title">The Ritual of Choosing a Signature Scent</span>
+                    <span data-cms-field="category">Culture</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">Why your fragrance choice says more about you than you think.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Jul 5, 2024</span>
+                    <span data-cms-field="read_time">5 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="false"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
+                <div data-cms-item>
+                    <span data-cms-field="title">Places That Inspire Luvior Paris</span>
+                    <span data-cms-field="category">Places</span>
+                    <span data-cms-field="description" data-cms-type="textarea" data-cms-title="Excerpt">From Grasse to Kyoto — the landscapes that shape our fragrances.</span>
+                    <span data-cms-field="date" data-cms-title="Publication date">Jun 22, 2024</span>
+                    <span data-cms-field="read_time">6 min read</span>
+                    <div data-cms-field-img="cover" data-cms-title="Cover image"></div>
+                    <div data-cms-field="body" data-cms-type="textarea" data-cms-title="Article content"></div>
+                    <div data-cms-field-gallery="gallery" data-cms-title="Gallery"></div>
+                    <span data-cms-field-bool="featured" data-value="false"></span>
+                    <span data-cms-field-bool="published" data-value="true"></span>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- SECTION 4 — Feature Quote -->
-    <section class="section section--dark">
+    <section class="section section--dark" data-cms-section="quote" data-cms-label="Feature Quote">
         <div class="quote-section fade-up">
-            <p class="quote-section__text">&ldquo;Perfume is the art that makes memory speak.&rdquo;</p>
-            <p class="quote-section__author">Charles Baudelaire</p>
+            <p class="quote-section__text" data-cms="quote" data-cms-type="textarea">&ldquo;Perfume is the art that makes memory speak.&rdquo;</p>
+            <p class="quote-section__author" data-cms="author">Charles Baudelaire</p>
         </div>
     </section>
 
     <!-- SECTION 5 — Newsletter -->
-    <section class="section section--black">
+    <section class="section section--black" data-cms-section="newsletter" data-cms-label="Newsletter">
         <div class="container">
             <div class="newsletter fade-up">
                 <div>
-                    <p class="newsletter__label">Stay Inspired</p>
-                    <h3 class="newsletter__title">Stories Worth Remembering</h3>
+                    <p class="newsletter__label" data-cms="label">Stay Inspired</p>
+                    <h3 class="newsletter__title" data-cms="title">Stories Worth Remembering</h3>
                 </div>
                 <div class="newsletter__right">
-                    <p class="newsletter__text">Receive new stories, fragrance releases and private invitations.</p>
+                    <p class="newsletter__text" data-cms="text" data-cms-type="textarea">Receive new stories, fragrance releases and private invitations.</p>
                     <form class="newsletter__form">
                         <input type="email" class="newsletter__input" placeholder="Your email address" required>
                         <button type="submit" class="newsletter__submit">Subscribe</button>
@@ -165,65 +251,68 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" data-cms-global="footer">
         <div class="container">
             <div class="footer__top">
-                <div class="footer__brand">
+                <div class="footer__brand" data-cms-section="brand" data-cms-label="Brand" data-cms-pin data-cms-hint="The logo is fixed; edit the tagline here.">
                     <img src="images/logo-symbol.png" alt="Luvior Paris" style="height:40px;width:auto">
                     
-                    <p class="footer__brand-text">Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.</p>
+                    <p class="footer__brand-text" data-cms="text" data-cms-type="textarea">Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.</p>
                 </div>
-                <div>
-                    <h4 class="footer__column-title">Shop</h4>
-                    <div class="footer__links">
-                        <a href="collections.html">All Fragrances</a>
-                        <a href="collections.html#floral">Floral</a>
-                        <a href="collections.html#woody">Woody</a>
-                        <a href="collections.html#oriental">Oriental</a>
-                        <a href="collections.html#fresh">Fresh</a>
+                <div data-cms-section="shop_col" data-cms-label="Column: Shop">
+                    <h4 class="footer__column-title" data-cms="title">Shop</h4>
+                    <div class="footer__links" data-cms-list="links" data-cms-title="Links">
+                        <a data-cms-item data-cms-field-link="link" href="collections.html">All Fragrances</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#floral">Floral</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#woody">Woody</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#oriental">Oriental</a>
+                        <a data-cms-item data-cms-field-link="link" href="collections.html#fresh">Fresh</a>
                     </div>
                 </div>
-                <div>
-                    <h4 class="footer__column-title">Company</h4>
-                    <div class="footer__links">
-                        <a href="our-story.html">Our Story</a>
-                        <a href="journal.html">Journal</a>
-                        <a href="contact.html">Contact</a>
-                        <a href="#">Careers</a>
+                <div data-cms-section="company_col" data-cms-label="Column: Company">
+                    <h4 class="footer__column-title" data-cms="title">Company</h4>
+                    <div class="footer__links" data-cms-list="links" data-cms-title="Links">
+                        <a data-cms-item data-cms-field-link="link" href="our-story.html">Our Story</a>
+                        <a data-cms-item data-cms-field-link="link" href="journal.html">Journal</a>
+                        <a data-cms-item data-cms-field-link="link" href="contact.html">Contact</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">Careers</a>
                     </div>
                 </div>
-                <div>
-                    <h4 class="footer__column-title">Help</h4>
-                    <div class="footer__links">
-                        <a href="contact.html">Customer Care</a>
-                        <a href="#">Shipping</a>
-                        <a href="#">Returns</a>
-                        <a href="#">FAQ</a>
+                <div data-cms-section="help_col" data-cms-label="Column: Help">
+                    <h4 class="footer__column-title" data-cms="title">Help</h4>
+                    <div class="footer__links" data-cms-list="links" data-cms-title="Links">
+                        <a data-cms-item data-cms-field-link="link" href="contact.html">Customer Care</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">Shipping</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">Returns</a>
+                        <a data-cms-item data-cms-field-link="link" href="#">FAQ</a>
                     </div>
                 </div>
             </div>
+
             <div class="footer__bottom">
-                <nav class="footer__nav">
-                    <a href="index.html">Shop</a>
-                    <a href="collections.html">Collections</a>
-                    <a href="our-story.html">Our Story</a>
-                    <a href="journal.html">Journal</a>
-                    <a href="contact.html">Contact</a>
+                <nav class="footer__nav" data-cms-section="nav" data-cms-label="Bottom Navigation" data-cms-list="links" data-cms-title="Links">
+                    <a data-cms-item data-cms-field-link="link" href="index.html">Shop</a>
+                    <a data-cms-item data-cms-field-link="link" href="collections.html">Collections</a>
+                    <a data-cms-item data-cms-field-link="link" href="our-story.html">Our Story</a>
+                    <a data-cms-item data-cms-field-link="link" href="journal.html">Journal</a>
+                    <a data-cms-item data-cms-field-link="link" href="contact.html">Contact</a>
                 </nav>
-                <div class="footer__social">
-                    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-                    <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
-                    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a>
-                    <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg></a>
+
+                <div class="footer__social" data-cms-section="social" data-cms-label="Social Links" data-cms-list="links" data-cms-title="Social profiles (set URLs)">
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></a>
+                    <a data-cms-item data-cms-field-link="link" href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12a10 10 0 006.839 9.489c-.075-.652-.143-1.653.03-2.366.156-.642 1.006-4.264 1.006-4.264s-.257-.513-.257-1.274c0-1.194.692-2.085 1.554-2.085.733 0 1.087.55 1.087 1.21 0 .738-.47 1.84-.711 2.862-.202.856.428 1.554 1.272 1.554 1.527 0 2.7-1.61 2.7-3.934 0-2.057-1.478-3.494-3.589-3.494-2.445 0-3.88 1.834-3.88 3.729 0 .738.284 1.53.639 1.96a.256.256 0 01.059.246c-.065.272-.21.856-.239.975-.037.157-.124.19-.287.114-1.074-.5-1.745-2.07-1.745-3.33 0-2.711 1.97-5.2 5.68-5.2 2.982 0 5.3 2.125 5.3 4.963 0 2.961-1.867 5.348-4.462 5.348-.871 0-1.69-.453-1.969-.988l-.536 2.04c-.194.748-.718 1.684-1.069 2.254A10 10 0 0022 12c0-5.523-4.477-10-10-10z"/></svg></a>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--spacing-xl);padding-top:var(--spacing-md);border-top:var(--border-thin);flex-wrap:wrap;gap:var(--spacing-md)">
-                <p class="footer__copyright">&copy; 2024 Luvior Paris. All rights reserved.</p>
-                <div class="footer__legal">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="#">Shipping</a>
-                    <a href="#">FAQ</a>
+
+            <div data-cms-section="legal" data-cms-label="Copyright & Legal" style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--spacing-xl);padding-top:var(--spacing-md);border-top:var(--border-thin);flex-wrap:wrap;gap:var(--spacing-md)">
+                <p class="footer__copyright" data-cms="copyright">&copy; 2024 Luvior Paris. All rights reserved.</p>
+                <div class="footer__legal" data-cms-list="links" data-cms-title="Legal links">
+                    <a data-cms-item data-cms-field-link="link" href="#">Privacy Policy</a>
+                    <a data-cms-item data-cms-field-link="link" href="#">Terms of Service</a>
+                    <a data-cms-item data-cms-field-link="link" href="#">Shipping</a>
+                    <a data-cms-item data-cms-field-link="link" href="#">FAQ</a>
                 </div>
             </div>
         </div>
@@ -235,15 +324,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/cms.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const grid = document.getElementById('journal-grid');
-            if (grid) {
-                JOURNAL_ARTICLES.filter(a => !a.featured).forEach(a => {
-                    grid.appendChild(createArticleCard(a));
-                });
-            }
-        });
+        document.addEventListener('DOMContentLoaded', () => initJournal());
     </script>
 </body>
 </html>

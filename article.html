@@ -3,15 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collections — Luvior Paris</title>
+    <title>Journal — Luvior Paris</title>
     <link rel="stylesheet" href="css/style.css">
-    <meta name="description" content="Explore the Luvior Paris fragrance collections — Floral, Woody, Oriental, Fresh.">
+    <meta name="description" content="The Luvior Paris Journal — stories of scent, art, and emotion.">
     <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <style>
+        .journal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-xl);
+        }
+        .featured-article {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 0;
+            border: var(--border-thin);
+            margin-bottom: var(--spacing-3xl);
+        }
+        .featured-article__image {
+            position: relative;
+            overflow: hidden;
+            min-height: 450px;
+        }
+        .featured-article__image .placeholder-image {
+            width: 100%;
+            height: 100%;
+        }
+        .featured-article__content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--spacing-2xl);
+        }
+        .featured-article__content .article-card__title {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-md);
+        }
+        @media (max-width: 1024px) {
+            .featured-article {
+                grid-template-columns: 1fr;
+            }
+            .featured-article__image {
+                min-height: 350px;
+            }
+        }
+        @media (max-width: 768px) {
+            .journal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body data-cms-page="collections">
+<body data-cms-page="article">
 
 
     <!-- Header -->
@@ -23,9 +69,9 @@
             </a>
             <nav class="header__nav">
                 <a href="index.html">Shop</a>
-                <a href="collections.html" class="active">Collections</a>
+                <a href="collections.html">Collections</a>
                 <a href="our-story.html">Our Story</a>
-                <a href="journal.html">Journal</a>
+                <a href="journal.html" class="active">Journal</a>
                 <a href="contact.html">Contact</a>
             </nav>
             <div class="header__actions">
@@ -49,118 +95,11 @@
         <a href="contact.html">Contact</a>
     </nav>
 
-    <!-- SECTION 1 — Collection Hero -->
-    <section class="hero" style="min-height:70vh" data-cms-section="hero" data-cms-label="Page Hero" data-cms-pin data-cms-nohide>
-        <div class="hero__bg">
-            <div class="placeholder-image hero__bg-image" style="width:100%;height:100%" data-cms-img="background" data-cms-fit="cover" data-cms-title="Background image"></div>
-            <div class="hero__bg-gradient"></div>
-        </div>
-        <div class="hero__content">
-            <div class="hero__text fade-up">
-                <p class="hero__label" data-cms="label">Our Collections</p>
-                <h1 class="hero__title" data-cms="title">Scents for Every<br>Side of You</h1>
-                <p class="hero__subtitle" data-cms="subtitle" data-cms-type="textarea">Explore fragrances shaped by mood, memory, ingredients and character.</p>
-                <a href="#fragrance-families" class="btn" data-cms-link="cta">Explore the Collections <span class="arrow">&rarr;</span></a>
-            </div>
-            <div class="hero__image-container">
-                <div class="placeholder-image" style="width:350px;height:450px;border:1px solid rgba(255,255,255,0.1)" data-cms-img="image" data-cms-title="Side image (cutout)">Collection Imagery</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 2 — Fragrance Families -->
-    <section class="section section--black" id="fragrance-families" data-cms-section="families" data-cms-label="Fragrance Families" data-cms-hint="Cards come from Collections (name, subtitle, cover image, order).">
-        <div class="container">
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-md)" class="fade-up" id="family-cards">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 3 — All Fragrances -->
-    <section class="section section--black" data-cms-section="all" data-cms-label="All Fragrances" data-cms-hint="Products come from Products (Active status).">
-        <div class="container">
-            <h2 data-cms="heading" class="heading-md fade-up" style="margin-bottom:var(--spacing-xl)">Discover the Collection</h2>
-
-            <div class="filter-bar fade-up" id="filter-bar">
-                <button class="filter-bar__btn active" data-filter="all">All</button>
-                <button class="filter-bar__btn" data-filter="floral">Floral</button>
-                <button class="filter-bar__btn" data-filter="woody">Woody</button>
-                <button class="filter-bar__btn" data-filter="oriental">Oriental</button>
-                <button class="filter-bar__btn" data-filter="fresh">Fresh</button>
-                <button class="filter-bar__btn" data-filter="bestseller">Bestsellers</button>
-                <button class="filter-bar__btn" data-filter="new">New Arrivals</button>
-            </div>
-
-            <div class="product-grid fade-up" id="all-products">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 4 — Featured Collection -->
-    <section class="section--black" data-cms-section="featured" data-cms-label="Featured Collection">
-        <div class="split fade-up">
-            <div class="split__text" style="padding:var(--spacing-3xl);background-color:var(--color-gray-900)">
-                <p class="label" style="margin-bottom:var(--spacing-sm)" data-cms="eyebrow">Featured</p>
-                <h2 class="heading-lg" style="margin-bottom:var(--spacing-md)" data-cms="heading">Le Solstice</h2>
-                <p class="body-text" style="margin-bottom:var(--spacing-xl)" data-cms="body" data-cms-type="textarea">A composition of saffron, leather and amber. Bold yet refined, Le Solstice captures the warmth of golden hour in a single bottle.</p>
-                <a href="#" class="btn" style="align-self:flex-start" data-cms-link="cta">Discover Le Solstice <span class="arrow">&rarr;</span></a>
-            </div>
-            <div class="split__image">
-                <div class="placeholder-image" style="width:100%;height:100%;min-height:450px" data-cms-img="image">Le Solstice</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 5 — Collection Philosophy -->
-    <section class="section section--black" data-cms-section="philosophy" data-cms-label="Collection Philosophy">
-        <div class="container" style="text-align:center">
-            <div class="fade-up" style="max-width:700px;margin:0 auto">
-                <p class="label" style="margin-bottom:var(--spacing-md)" data-cms="eyebrow">Our Philosophy</p>
-                <h2 class="heading-lg" style="margin-bottom:var(--spacing-xl)" data-cms="heading">Four Worlds.<br>Infinite Expressions.</h2>
-                <p class="body-text" style="max-width:500px;margin:0 auto" data-cms="body" data-cms-type="textarea">Each collection is a universe — a distinct olfactory world built from rare ingredients, emotion, and the belief that fragrance is the most intimate form of self-expression.</p>
-            </div>
-
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm);margin-top:var(--spacing-3xl)" class="fade-up" data-cms-list="worlds" data-cms-title="Worlds">
-                <div class="ingredient-card" data-cms-item>
-                    <div class="placeholder-image" style="width:100%;height:100%" data-cms-field-img="image">Flowers</div>
-                    <span class="ingredient-card__name" data-cms-field="name">Floral World</span>
-                </div>
-                <div class="ingredient-card" data-cms-item>
-                    <div class="placeholder-image" style="width:100%;height:100%" data-cms-field-img="image">Woods</div>
-                    <span class="ingredient-card__name" data-cms-field="name">Woody World</span>
-                </div>
-                <div class="ingredient-card" data-cms-item>
-                    <div class="placeholder-image" style="width:100%;height:100%" data-cms-field-img="image">Spices</div>
-                    <span class="ingredient-card__name" data-cms-field="name">Oriental World</span>
-                </div>
-                <div class="ingredient-card" data-cms-item>
-                    <div class="placeholder-image" style="width:100%;height:100%" data-cms-field-img="image">Citrus</div>
-                    <span class="ingredient-card__name" data-cms-field="name">Fresh World</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 6 — Newsletter -->
-    <section class="section section--black" style="padding-top:0" data-cms-section="newsletter" data-cms-label="Newsletter">
-        <div class="container">
-            <div class="newsletter fade-up">
-                <div>
-                    <p class="newsletter__label" data-cms="label">Join the Luvior Paris Circle</p>
-                    <h3 class="newsletter__title" data-cms="title">Be the First to Know</h3>
-                </div>
-                <div class="newsletter__right">
-                    <p class="newsletter__text" data-cms="text" data-cms-type="textarea">Exclusive releases, private offers, and stories from our world.</p>
-                    <form class="newsletter__form">
-                        <input type="email" class="newsletter__input" placeholder="Your email address" required>
-                        <button type="submit" class="newsletter__submit">Subscribe</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
+    <main class="section section--black article-page">
+        <article class="container article" id="article" aria-live="polite">
+            <p class="body-text" id="article-status">Loading…</p>
+        </article>
+    </main>
 
     <!-- Footer -->
     <footer class="footer" data-cms-global="footer">
@@ -237,6 +176,46 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/common.js"></script>
     <script src="js/cms.js"></script>
-    <script src="js/collections.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const root = document.getElementById('article');
+            const status = document.getElementById('article-status');
+            try {
+                await CMS.ready;
+                const slug = new URLSearchParams(location.search).get('a') || '';
+                const html = await (await fetch('journal.html', { cache: 'no-cache' })).text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const value = await CMS.loadValue('journal');
+                if (value) CMS.apply(doc, 'journal', value);
+                const article = CMS.list('articles', 'articles', doc)
+                    .filter(a => a.published !== false)
+                    .find(a => slugify(a.title) === slug);
+                if (!article) { status.textContent = 'This story could not be found.'; return; }
+                document.title = article.title + ' — Luvior Paris';
+                root.replaceChildren();
+                const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || '', textContent: text || '' });
+                const back = Object.assign(el('a', 'btn--ghost article__back', '← Journal'), { href: 'journal.html' });
+                const meta = el('p', 'label article__meta', [article.category, article.date, article.read_time].filter(Boolean).join('  ·  '));
+                root.append(back, meta, el('h1', 'heading-lg article__title', article.title));
+                if (article.cover && article.cover.src) {
+                    const fig = el('figure', 'article__cover');
+                    fig.appendChild(Object.assign(document.createElement('img'), { src: article.cover.src, alt: article.title }));
+                    root.appendChild(fig);
+                }
+                const body = (article.body || article.description || '').split(/\n{2,}/).filter(Boolean);
+                const content = el('div', 'article__body');
+                body.forEach(par => content.appendChild(el('p', 'body-text', par)));
+                root.appendChild(content);
+                if (article.gallery && article.gallery.length) {
+                    const g = el('div', 'article__gallery');
+                    article.gallery.forEach(src => g.appendChild(Object.assign(document.createElement('img'), { src, alt: '', loading: 'lazy' })));
+                    root.appendChild(g);
+                }
+            } catch (err) {
+                console.error('Article load failed:', err);
+                status.textContent = 'This story could not be loaded.';
+            }
+        });
+    </script>
 </body>
 </html>

@@ -21,7 +21,7 @@ function showToast(message, type = 'info', duration = 3500) {
 }
 
 // ---- Custom Confirm Dialog ----
-function showConfirm(message, title = 'Confirm') {
+function showConfirm(message, title = 'Confirm', okLabel = 'Delete', okClass = 'btn-danger') {
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.className = 'confirm-overlay';
@@ -31,7 +31,7 @@ function showConfirm(message, title = 'Confirm') {
         <p>${message}</p>
         <div class="confirm-actions">
           <button class="btn btn-outline confirm-cancel">Cancel</button>
-          <button class="btn btn-danger confirm-ok">Delete</button>
+          <button class="btn ${okClass} confirm-ok">${okLabel}</button>
         </div>
       </div>`;
     document.body.appendChild(overlay);
@@ -123,6 +123,7 @@ function navigate(page) {
     inventory: renderInventory,
     orders: renderOrders,
     customers: renderCustomers,
+    website: renderWebsite,
     content: renderContent,
     settings: renderSettings
   };
@@ -768,7 +769,14 @@ async function openCollectionForm(id) {
     </div>
     <div class="form-group"><label>Subtitle</label><input id="cf-subtitle" value="${esc(c.subtitle || '')}"></div>
     <div class="form-group"><label>Description</label><textarea id="cf-desc" rows="3">${esc(c.description || '')}</textarea></div>
-    <div class="form-group"><label>Image URL</label><input id="cf-image" value="${esc(c.image_url || '')}"></div>
+    <div class="form-group"><label>Cover Image</label>
+      <div class="ws-inline">
+        <input id="cf-image" value="${esc(c.image_url || '')}" placeholder="Upload an image or paste a URL">
+        <button type="button" class="btn btn-sm btn-outline" id="cf-image-upload">Upload</button>
+        <input type="file" id="cf-image-file" accept="image/png,image/webp,image/jpeg" hidden>
+      </div>
+      <img id="cf-image-preview" src="${esc(c.image_url || '')}" alt="" style="max-height:120px;margin-top:8px;${c.image_url ? '' : 'display:none'}">
+    </div>
     <div class="form-row">
       <div class="form-group"><label>Sort Order</label><input type="number" id="cf-order" value="${c.sort_order || 0}"></div>
       <div class="form-group"><label>Status</label>
@@ -781,6 +789,26 @@ async function openCollectionForm(id) {
     <button class="btn btn-outline" onclick="document.querySelector('.modal-overlay').remove()">Cancel</button>
     <button class="btn btn-primary" id="save-collection-btn">Save</button>
   `);
+
+  const cfFile = modal.querySelector('#cf-image-file');
+  const cfUrl = modal.querySelector('#cf-image');
+  const cfPreview = modal.querySelector('#cf-image-preview');
+  modal.querySelector('#cf-image-upload').addEventListener('click', () => cfFile.click());
+  cfUrl.addEventListener('input', () => { cfPreview.src = cfUrl.value; cfPreview.style.display = cfUrl.value ? '' : 'none'; });
+  cfFile.addEventListener('change', async () => {
+    const file = cfFile.files[0];
+    cfFile.value = '';
+    if (!file) return;
+    try {
+      const src = await wsUpload(file, 'collection-cover');
+      cfUrl.value = src;
+      cfPreview.src = src;
+      cfPreview.style.display = '';
+      showToast('Cover uploaded — click Save to keep it', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  });
 
   if (!id) {
     modal.querySelector('#cf-name').addEventListener('input', function() {
