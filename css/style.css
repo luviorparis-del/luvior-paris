@@ -2822,3 +2822,20 @@ input[type="checkbox"]:focus-visible {
 .page-homepage .lx-benefit__text {
     color: var(--color-gray-400);
 }
+
+/* Google Sans on homepage hero (typography only; layout/slideshow untouched) */
+.page-homepage .hero {
+    font-family: var(--font-ui);
+}
+.page-homepage .hero__title {
+    font-family: var(--font-ui);
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+}
+.page-homepage .hero__label {
+    font-weight: 500;
+}
+.page-homepage .hero__subtitle {
+    font-weight: 400;
+}
