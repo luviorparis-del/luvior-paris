@@ -3085,3 +3085,78 @@ a.product-card__image { display: block; color: inherit; }
 @media (max-width: 360px) {
     .header__logo-text { display: none; }
 }
+
+/* ============================================================
+   BUTTONS — pill outline with a fill that sweeps in on hover
+   ============================================================ */
+.btn,
+.product-card__add-to-cart,
+.newsletter__submit,
+.cart-suggest__add,
+.search-col {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 999px;
+    transition: color 0.5s ease-in-out, border-color 0.5s ease-in-out;
+}
+.btn::before,
+.product-card__add-to-cart::before,
+.newsletter__submit::before,
+.cart-suggest__add::before,
+.search-col::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background-color: var(--color-white);
+    border-radius: inherit;
+    z-index: -1;
+    transition: width 0.5s ease-in-out;
+}
+.btn:hover::before,
+.btn:focus-visible::before,
+.product-card__add-to-cart:hover::before,
+.newsletter__submit:hover::before,
+.cart-suggest__add:hover::before,
+.search-col:hover::before { width: 100%; }
+
+/* Outline buttons: white fill sweeps in, text turns black */
+.btn:hover, .btn:focus-visible,
+.product-card__add-to-cart:hover,
+.cart-suggest__add:hover,
+.search-col:hover {
+    background-color: transparent;
+    color: var(--color-black);
+    border-color: var(--color-white);
+}
+
+/* Filled (white) buttons: black fill sweeps in, text turns white */
+.btn--filled::before,
+.newsletter__submit::before { background-color: var(--color-black); }
+.btn--filled:hover, .btn--filled:focus-visible,
+.lx-offer .lx-offer__cta:hover {
+    background-color: var(--color-white);
+    color: var(--color-white);
+    border-color: var(--color-white);
+}
+.newsletter__submit:hover { background-color: var(--color-white); color: var(--color-white); }
+
+.btn .arrow, .btn:hover .arrow { position: relative; }
+.product-card__add-to-cart:disabled::before, .btn:disabled::before { display: none; }
+
+/* Newsletter field joins the pill button */
+.newsletter__input { border-radius: 999px 0 0 999px; padding-left: 1.4rem; }
+.newsletter__submit { border-radius: 0 999px 999px 0; padding-right: 1.8rem; }
+@media (max-width: 560px) {
+    .lx-newsletter__body .newsletter__input,
+    .lx-newsletter__body .newsletter__submit { border-radius: 999px; }
+    .lx-newsletter__body .newsletter__form { gap: 0.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn::before, .product-card__add-to-cart::before, .newsletter__submit::before,
+    .cart-suggest__add::before, .search-col::before { transition: none; }
+}
