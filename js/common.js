@@ -390,7 +390,7 @@ function initScrollTop() {
     const header = document.querySelector('.header');
     const isHomepage = document.body.classList.contains('page-homepage');
 
-    const lightSections = isHomepage ? [...document.querySelectorAll('.section--white, .lx-ticker')] : [];
+    const lightSections = isHomepage ? [...document.querySelectorAll('.section--white')] : [];
     window.addEventListener('scroll', () => {
         if (btn) btn.classList.toggle('visible', window.scrollY > 500);
         if (isHomepage && header) {
@@ -629,24 +629,35 @@ function createCollectionRow(collection, index) {
     return row;
 }
 
-function setSlotImage(slot, src, alt) {
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = alt || '';
-    img.addEventListener('load', () => slot.replaceChildren(img), { once: true });
+// Tries each candidate in order; first that loads wins. Slot stays empty if none load.
+function setSlotImage(slot, candidates) {
+    const list = candidates.filter(c => c && c.src);
+    const tryNext = i => {
+        if (i >= list.length) return;
+        const img = new Image();
+        img.alt = list[i].alt || '';
+        if (list[i].photo) img.className = 'is-photo';
+        img.onload = () => slot.replaceChildren(img);
+        img.onerror = () => tryNext(i + 1);
+        img.src = list[i].src;
+    };
+    tryNext(0);
 }
 
-// Fills editorial frames with real Supabase imagery; placeholders stay when none exists.
+// Cutout slots: drop a transparent PNG at the slot's data-cutout path to override;
+// otherwise real Supabase product/collection imagery is used, else the space stays open.
 function fillEditorialImages() {
-    const slots = document.querySelectorAll('[data-editorial-slot]');
-    if (!slots.length) return;
-    const productImages = PRODUCTS.filter(p => p.image).map(p => ({ src: p.image, alt: p.name }));
+    const productImages = PRODUCTS.filter(p => p.image).map(p => ({ src: p.image, alt: p.name, photo: true }));
     const collectionImage = COLLECTIONS.find(c => c.image_url);
-    slots.forEach(slot => {
-        const i = parseInt(slot.dataset.editorialSlot, 10);
-        let pick = productImages[i] || productImages[0];
-        if (i === 1 && collectionImage) pick = { src: collectionImage.image_url, alt: collectionImage.name };
-        if (pick) setSlotImage(slot, pick.src, pick.alt);
+    document.querySelectorAll('.lx-cutout[data-cutout]:not(#offer-image)').forEach(slot => {
+        const candidates = [{ src: slot.dataset.cutout, alt: '' }];
+        if (slot.dataset.editorialSlot !== undefined) {
+            const i = parseInt(slot.dataset.editorialSlot, 10);
+            if (i === 1 && collectionImage) candidates.push({ src: collectionImage.image_url, alt: collectionImage.name, photo: true });
+            candidates.push(productImages[i] || productImages[0]);
+        }
+        if (slot.dataset.fallback) candidates.push({ src: slot.dataset.fallback, alt: '' });
+        setSlotImage(slot, candidates);
     });
 }
 
@@ -666,7 +677,8 @@ function renderSpecialOffer() {
     section.querySelector('#offer-compare').textContent = inr(p.compare_price);
     section.querySelector('#offer-save').textContent = `Save ${Math.round((1 - p.price / p.compare_price) * 100)}%`;
     section.querySelector('#offer-cta').dataset.id = p.id;
-    if (p.image) setSlotImage(section.querySelector('#offer-image'), p.image, p.name);
+    const slot = section.querySelector('#offer-image');
+    setSlotImage(slot, [{ src: slot.dataset.cutout, alt: p.name }, { src: p.image, alt: p.name, photo: true }]);
     section.hidden = false;
 }
 
