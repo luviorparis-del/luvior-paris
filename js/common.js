@@ -116,6 +116,12 @@ function addToCart(productId) {
 
 function removeFromCart(productId) {
     const pid = String(productId);
+    const index = cart.findIndex(item => String(item.id) === pid);
+    if (index >= 0) {
+        lastRemoved = { item: cart[index], index };
+        clearTimeout(undoTimer);
+        undoTimer = setTimeout(() => { lastRemoved = null; renderCartDrawer(); }, 6000);
+    }
     cart = cart.filter(item => String(item.id) !== pid);
     saveCart();
     updateCartBadge();
@@ -144,6 +150,16 @@ function updateCartBadge() {
 }
 
 /* === Cart Drawer === */
+// Mirrors the delivery rule in the create_order() database function.
+const FREE_DELIVERY_MIN = 10000;
+const DELIVERY_FEE = 500;
+const CONCENTRATIONS = { edp: 'Eau de Parfum', edt: 'Eau de Toilette', parfum: 'Parfum', cologne: 'Cologne', body_mist: 'Body Mist' };
+let lastRemoved = null;
+let undoTimer = null;
+let cartReturnFocus = null;
+const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+const escHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 function injectCartDrawer() {
     if (document.getElementById('cart-overlay')) return;
 
@@ -152,15 +168,22 @@ function injectCartDrawer() {
     overlay.id = 'cart-overlay';
     overlay.addEventListener('click', closeCartDrawer);
 
-    const drawer = document.createElement('div');
+    const drawer = document.createElement('aside');
     drawer.className = 'cart-drawer';
     drawer.id = 'cart-drawer';
+    drawer.setAttribute('role', 'dialog');
+    drawer.setAttribute('aria-modal', 'true');
+    drawer.setAttribute('aria-labelledby', 'cart-title');
+    drawer.setAttribute('aria-hidden', 'true');
     drawer.innerHTML = `
         <div class="cart-drawer__header">
-            <span class="cart-drawer__title">Your Cart</span>
-            <button class="cart-drawer__close" id="cart-drawer-close">&times;</button>
+            <h2 class="cart-drawer__title" id="cart-title">Your Cart <span class="cart-drawer__count" id="cart-count-label"></span></h2>
+            <button class="cart-drawer__close" id="cart-drawer-close" aria-label="Close cart">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+            </button>
         </div>
-        <div class="cart-drawer__items" id="cart-drawer-items"></div>
+        <div class="cart-drawer__progress" id="cart-progress"></div>
+        <div class="cart-drawer__items" id="cart-drawer-items" aria-live="polite"></div>
         <div class="cart-drawer__footer" id="cart-drawer-footer"></div>
     `;
 
@@ -168,74 +191,165 @@ function injectCartDrawer() {
     document.body.appendChild(drawer);
 
     document.getElementById('cart-drawer-close').addEventListener('click', closeCartDrawer);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('active')) closeCartDrawer(); });
+    drawer.addEventListener('click', e => {
+        const t = e.target.closest('[data-cart-action]');
+        if (!t) return;
+        const id = t.dataset.id;
+        switch (t.dataset.cartAction) {
+            case 'minus': updateCartQty(id, -1); break;
+            case 'plus': updateCartQty(id, 1); break;
+            case 'remove': removeFromCart(id); break;
+            case 'add': addToCart(id); break;
+            case 'undo':
+                if (lastRemoved) {
+                    cart.splice(Math.min(lastRemoved.index, cart.length), 0, lastRemoved.item);
+                    lastRemoved = null;
+                    clearTimeout(undoTimer);
+                    saveCart(); updateCartBadge(); renderCartDrawer();
+                }
+                break;
+            case 'close': closeCartDrawer(); break;
+        }
+    });
 }
 
 function openCartDrawer() {
+    cartReturnFocus = document.activeElement;
+    syncCart();
     renderCartDrawer();
+    const drawer = document.getElementById('cart-drawer');
     document.getElementById('cart-overlay')?.classList.add('active');
-    document.getElementById('cart-drawer')?.classList.add('active');
+    drawer?.classList.add('active');
+    drawer?.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('cart-drawer-close')?.focus(), 50);
+    if (!PRODUCTS.length) loadProducts().then(() => { syncCart(); renderCartDrawer(); });
 }
 
 function closeCartDrawer() {
     document.getElementById('cart-overlay')?.classList.remove('active');
-    document.getElementById('cart-drawer')?.classList.remove('active');
+    const drawer = document.getElementById('cart-drawer');
+    drawer?.classList.remove('active');
+    drawer?.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (cartReturnFocus && typeof cartReturnFocus.focus === 'function') cartReturnFocus.focus();
+}
+
+// Refresh names, prices and images from live product data; flag items no longer sold.
+function syncCart() {
+    if (!PRODUCTS.length) return;
+    let changed = false;
+    cart.forEach(item => {
+        const p = PRODUCTS.find(x => String(x.id) === String(item.id));
+        const next = p
+            ? { name: p.name, price: p.price, image: p.image, volume: p.volume || '', concentration: p.concentration || '', unavailable: false }
+            : { unavailable: true };
+        Object.entries(next).forEach(([k, v]) => { if (item[k] !== v) { item[k] = v; changed = true; } });
+    });
+    if (changed) { saveCart(); updateCartBadge(); }
+}
+
+function cartVariant(item) {
+    const vol = item.volume ? String(item.volume).replace(/(\d)\s*ml/i, '$1 ml') : '';
+    const conc = CONCENTRATIONS[item.concentration] || item.concentration || '';
+    return [vol, conc].filter(Boolean).join(' · ');
+}
+
+function cartSuggestions(limit) {
+    const inCart = new Set(cart.map(i => String(i.id)));
+    return PRODUCTS.filter(p => !inCart.has(String(p.id))).slice(0, limit);
+}
+
+function suggestionsHtml(limit, title) {
+    const list = cartSuggestions(limit);
+    if (!list.length) return '';
+    return `
+        <div class="cart-suggest">
+            <p class="cart-suggest__title">${title}</p>
+            ${list.map(p => `
+                <div class="cart-suggest__item">
+                    <div class="cart-suggest__img">${p.image ? `<img src="${escHtml(p.image)}" alt="" loading="lazy">` : ''}</div>
+                    <div class="cart-suggest__info">
+                        <span class="cart-suggest__name">${escHtml(p.name)}</span>
+                        <span class="cart-suggest__price">${inr(p.price)}</span>
+                    </div>
+                    <button class="cart-suggest__add" data-cart-action="add" data-id="${escHtml(p.id)}" aria-label="Add ${escHtml(p.name)} to cart">Add</button>
+                </div>`).join('')}
+        </div>`;
 }
 
 function renderCartDrawer() {
     const itemsEl = document.getElementById('cart-drawer-items');
     const footerEl = document.getElementById('cart-drawer-footer');
+    const progressEl = document.getElementById('cart-progress');
     if (!itemsEl || !footerEl) return;
 
+    const count = getCartCount();
+    document.getElementById('cart-count-label').textContent = count ? `(${count})` : '';
+
+    const undo = lastRemoved ? `
+        <div class="cart-undo">
+            <span>${escHtml(lastRemoved.item.name)} removed</span>
+            <button data-cart-action="undo">Undo</button>
+        </div>` : '';
+
     if (cart.length === 0) {
-        itemsEl.innerHTML = '<div class="cart-drawer__empty">Your cart is empty</div>';
+        progressEl.innerHTML = '';
+        itemsEl.innerHTML = `${undo}
+            <div class="cart-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                <p class="cart-empty__title">Your cart is empty</p>
+                <p class="cart-empty__text">Discover a fragrance that feels like you.</p>
+                <a href="collections.html" class="btn">Explore the Collection <span class="arrow">&rarr;</span></a>
+            </div>
+            ${suggestionsHtml(3, 'Our fragrances')}`;
         footerEl.innerHTML = '';
         return;
     }
 
-    itemsEl.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <div class="cart-item__image">
-                ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
-            </div>
-            <div class="cart-item__details">
-                <div class="cart-item__name">${item.name}</div>
-                ${item.volume || item.concentration ? `<div class="cart-item__variant">${[item.volume, item.concentration].filter(Boolean).join(' · ')}</div>` : ''}
-                <div class="cart-item__price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
-            </div>
-            <div class="cart-item__actions">
-                <button class="cart-item__remove" data-remove="${item.id}">Remove</button>
-                <div class="cart-item__qty">
-                    <button data-qty-minus="${item.id}">&minus;</button>
-                    <span>${item.qty}</span>
-                    <button data-qty-plus="${item.id}">+</button>
+    const billable = cart.filter(i => !i.unavailable);
+    const subtotal = billable.reduce((s, i) => s + i.price * i.qty, 0);
+    const delivery = subtotal >= FREE_DELIVERY_MIN ? 0 : DELIVERY_FEE;
+    const remaining = Math.max(0, FREE_DELIVERY_MIN - subtotal);
+    progressEl.innerHTML = `
+        <p class="cart-progress__text">${remaining > 0 ? `You are <strong>${inr(remaining)}</strong> away from complimentary delivery` : 'Complimentary delivery unlocked'}</p>
+        <div class="cart-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, subtotal / FREE_DELIVERY_MIN * 100))}"><span style="width:${Math.min(100, subtotal / FREE_DELIVERY_MIN * 100)}%"></span></div>`;
+
+    itemsEl.innerHTML = undo + cart.map(item => `
+        <article class="cart-item${item.unavailable ? ' is-unavailable' : ''}">
+            <div class="cart-item__image">${item.image ? `<img src="${escHtml(item.image)}" alt="${escHtml(item.name)}">` : `<span>${escHtml((item.name || '?').charAt(0))}</span>`}</div>
+            <div class="cart-item__body">
+                <div class="cart-item__top">
+                    <h3 class="cart-item__name">${escHtml(item.name)}</h3>
+                    <span class="cart-item__line">${inr(item.price * item.qty)}</span>
+                </div>
+                ${cartVariant(item) ? `<p class="cart-item__variant">${escHtml(cartVariant(item))}</p>` : ''}
+                ${item.qty > 1 ? `<p class="cart-item__each">${inr(item.price)} each</p>` : ''}
+                ${item.unavailable ? '<p class="cart-item__warn">No longer available — remove to continue</p>' : ''}
+                <div class="cart-item__bottom">
+                    <div class="cart-item__qty" role="group" aria-label="Quantity for ${escHtml(item.name)}">
+                        <button data-cart-action="minus" data-id="${escHtml(item.id)}" aria-label="Decrease quantity">&minus;</button>
+                        <span aria-live="polite">${item.qty}</span>
+                        <button data-cart-action="plus" data-id="${escHtml(item.id)}" aria-label="Increase quantity"${item.unavailable ? ' disabled' : ''}>+</button>
+                    </div>
+                    <button class="cart-item__remove" data-cart-action="remove" data-id="${escHtml(item.id)}">Remove</button>
                 </div>
             </div>
-        </div>
-    `).join('');
+        </article>
+    `).join('') + suggestionsHtml(2, 'You may also like');
 
-    const subtotal = getCartSubtotal();
     footerEl.innerHTML = `
-        <div class="cart-drawer__subtotal">
-            <span class="cart-drawer__subtotal-label">Subtotal</span>
-            <span class="cart-drawer__subtotal-value">₹${subtotal.toLocaleString('en-IN')}</span>
-        </div>
+        <dl class="cart-summary">
+            <div><dt>Subtotal</dt><dd>${inr(subtotal)}</dd></div>
+            <div><dt>Delivery</dt><dd>${delivery ? inr(delivery) : 'Complimentary'}</dd></div>
+            <div class="cart-summary__total"><dt>Total</dt><dd>${inr(subtotal + delivery)}</dd></div>
+        </dl>
         <div class="cart-drawer__buttons">
-            <button class="btn btn--filled" onclick="closeCartDrawer()">Checkout</button>
-            <button class="btn" onclick="closeCartDrawer()">Continue Shopping</button>
+            <button class="btn btn--filled" data-cart-action="close">Checkout</button>
+            <button class="btn" data-cart-action="close">Continue Shopping</button>
         </div>
     `;
-
-    itemsEl.querySelectorAll('[data-remove]').forEach(btn => {
-        btn.addEventListener('click', () => removeFromCart(btn.dataset.remove));
-    });
-    itemsEl.querySelectorAll('[data-qty-minus]').forEach(btn => {
-        btn.addEventListener('click', () => updateCartQty(btn.dataset.qtyMinus, -1));
-    });
-    itemsEl.querySelectorAll('[data-qty-plus]').forEach(btn => {
-        btn.addEventListener('click', () => updateCartQty(btn.dataset.qtyPlus, 1));
-    });
 }
 
 /* === Cart Toast === */
