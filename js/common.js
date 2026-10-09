@@ -364,9 +364,18 @@ function initMobileMenu() {
 }
 
 /* === Scroll Animations === */
-function initScrollAnimations() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!REDUCED_MOTION) document.documentElement.classList.add('anim');
 
+// Containers whose children reveal one after another (hero excluded).
+const STAGGER_SEL = '.product-grid, .lx-benefits__grid, .lx-testimonials__grid, .lx-collections__list, .faq-list, .journal-grid, .timeline, .ingredient-grid, .values-grid, .contact-options, .lx-split__text, .footer__top';
+
+function indexStagger(container) {
+    [...container.children].forEach((child, i) => child.style.setProperty('--i', Math.min(i, 8)));
+}
+
+function initScrollAnimations() {
+    if (REDUCED_MOTION) return;
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -374,12 +383,39 @@ function initScrollAnimations() {
                 observer.unobserve(entry.target);
             }
         });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
+    const mo = new MutationObserver(muts => muts.forEach(m => indexStagger(m.target)));
+    document.querySelectorAll(STAGGER_SEL).forEach(el => {
+        if (el.closest('.hero')) return;
+        el.classList.add('stagger');
+        if (!el.classList.contains('fade-up')) el.classList.add('fade-up');
+        indexStagger(el);
+        mo.observe(el, { childList: true });
+    });
+    document.querySelectorAll('.lx-split__media, .footer').forEach(el => { if (!el.classList.contains('fade-up')) el.classList.add('fade-up'); });
     document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    initDrift();
+}
+
+// Very subtle scroll-linked drift on cutout images (desktop only).
+function initDrift() {
+    if (!window.matchMedia('(min-width: 861px)').matches) return;
+    const items = new Set();
+    const io = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting ? items.add(e.target) : items.delete(e.target)), { rootMargin: '100px 0px' });
+    document.querySelectorAll('.lx-cutout').forEach(el => io.observe(el));
+    let ticking = false;
+    const update = () => {
+        const vh = window.innerHeight;
+        items.forEach(el => {
+            const r = el.getBoundingClientRect();
+            const offset = (r.top + r.height / 2 - vh / 2) / vh;
+            el.style.transform = `translate3d(0, ${(offset * -24).toFixed(1)}px, 0)`;
+        });
+        ticking = false;
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
 }
 
 /* === Scroll to Top === */

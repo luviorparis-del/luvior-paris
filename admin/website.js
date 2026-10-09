@@ -6,14 +6,15 @@
    ============================================================ */
 
 const WS_PAGES = [
-  { id: 'home', label: 'Home', file: 'index.html',
-    links: [['Hero & slideshow', 'content'], ['Products', 'products'], ['Collections', 'collections']] },
-  { id: 'collections', label: 'Shop & Collections', file: 'collections.html',
-    links: [['Products (prices, discounts, images, visibility)', 'products'], ['Collections (covers, order, visibility)', 'collections']] },
-  { id: 'story', label: 'Our Story', file: 'our-story.html' },
-  { id: 'journal', label: 'Journal', file: 'journal.html' },
-  { id: 'contact', label: 'Contact', file: 'contact.html' },
-  { id: 'footer', label: 'Footer', file: 'index.html', note: 'Footer changes apply to every page.' }
+  { id: 'home', label: 'Homepage', file: 'index.html', subtitle: 'Every section below the hero. Save a draft, preview it, then publish.',
+    links: [['Hero & slideshow', 'home:hero'], ['Offer & promo banner', 'offers']] },
+  { id: 'collections', label: 'Shop page', file: 'collections.html', subtitle: 'Text and images on the Collections / shop page.',
+    links: [['Products', 'shop:products'], ['Collections', 'collections']] },
+  { id: 'story', label: 'Our Story', file: 'our-story.html', subtitle: 'Story sections, images and their order.' },
+  { id: 'journal', label: 'Journal', file: 'journal.html', subtitle: 'Banner, articles (cover, content, gallery, date, featured, published) and quote.' },
+  { id: 'contact', label: 'Contact', file: 'contact.html', subtitle: 'Contact details, form wording, FAQ and social profiles.' },
+  { id: 'footer', label: 'Footer', file: 'index.html', subtitle: 'Footer text, links, social profiles and copyright — shown on every page.' },
+  { id: 'nav', label: 'Header menu', file: 'index.html', subtitle: 'Menu links in the header and mobile menu — shown on every page. The current page is highlighted automatically.' }
 ];
 const WS_BUCKET = 'hero-images';
 const WS_IMG_TYPES = ['image/png', 'image/webp', 'image/jpeg'];
@@ -39,27 +40,27 @@ function h(tag, attrs = {}, ...children) {
 
 window.addEventListener('beforeunload', e => { if (ws && ws.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
-async function renderWebsite() {
-  const el = document.getElementById('page-content');
-  el.innerHTML = `
-    <div class="page-header">
-      <div><h1 class="page-title">Website</h1><p class="page-subtitle">Edit every page's text, images, sections and footer. Save a draft, preview it, then publish.</p></div>
-    </div>
-    <div class="tabs" id="ws-tabs"></div>
-    <div id="ws-body">${loading()}</div>`;
-  const tabs = el.querySelector('#ws-tabs');
-  WS_PAGES.forEach(p => tabs.appendChild(h('button', { class: 'tab-btn', 'data-page': p.id, text: p.label, onclick: () => wsSwitch(p.id) })));
-  await wsLoad(ws?.page.id || 'home');
-}
-
-async function wsSwitch(pageId) {
-  if (ws && ws.dirty && !(await showConfirm('You have unsaved changes on this page. Leave without saving?', 'Unsaved changes', 'Leave', 'btn-danger'))) return;
-  await wsLoad(pageId);
-}
-
-async function wsLoad(pageId) {
+// Renders one page editor into the main content area (or a given host element).
+async function renderWsPage(pageId, opts = {}) {
   const page = WS_PAGES.find(p => p.id === pageId);
-  document.querySelectorAll('#ws-tabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+  const host = opts.host || document.getElementById('page-content');
+  if (!opts.host) {
+    host.innerHTML = `
+      <div class="page-header">
+        <div><h1 class="page-title">${esc(opts.title || page.label)}</h1><p class="page-subtitle">${esc(opts.subtitle || page.subtitle || '')}</p></div>
+      </div>`;
+  }
+  const body = h('div', { id: 'ws-body' });
+  body.innerHTML = loading();
+  host.appendChild(body);
+  await wsLoad(pageId, opts.only || null);
+}
+
+// Legacy entry point (#website) → Homepage sections.
+function renderWebsite() { navigate('home:sections'); }
+
+async function wsLoad(pageId, only = null) {
+  const page = WS_PAGES.find(p => p.id === pageId);
   const body = document.getElementById('ws-body');
   body.innerHTML = loading();
   try {
@@ -77,7 +78,7 @@ async function wsLoad(pageId) {
     const byKey = Object.fromEntries((rows.data || []).map(r => [r.key, r]));
     const draft = byKey['cms-draft:' + pageId], live = byKey['cms:' + pageId];
     ws = {
-      page, schema,
+      page, schema, only,
       working: clone(draft?.value || live?.value) || { v: 1, sections: {}, order: [] },
       liveJson: JSON.stringify(live?.value || null),
       draftJson: JSON.stringify(draft?.value || null),
@@ -128,15 +129,15 @@ function wsRender() {
       h('button', { class: 'btn btn-primary', text: 'Publish', onclick: () => wsSave(true) })));
   body.appendChild(bar);
 
-  if (ws.page.note || ws.page.links) {
+  if (!ws.only && ws.page.links) {
     const info = h('div', { class: 'ws-info' });
-    if (ws.page.note) info.appendChild(h('p', { text: ws.page.note }));
-    (ws.page.links || []).forEach(([label, target]) => info.appendChild(h('button', { class: 'btn btn-sm btn-outline', text: label + ' →', onclick: () => navigate(target) })));
+    (ws.only ? [] : ws.page.links || []).forEach(([label, target]) => info.appendChild(h('button', { class: 'btn btn-sm btn-outline', text: label + ' →', onclick: () => navigate(target) })));
     body.appendChild(info);
   }
 
   const order = wsOrder();
-  const sorted = [...ws.schema].sort((a, b) => (a.pinned === b.pinned ? order.indexOf(a.id) - order.indexOf(b.id) : a.pinned ? -1 : 1));
+  const visible = ws.only ? ws.schema.filter(sec => ws.only.includes(sec.id)) : ws.schema;
+  const sorted = [...visible].sort((a, b) => (a.pinned === b.pinned ? order.indexOf(a.id) - order.indexOf(b.id) : a.pinned ? -1 : 1));
   const list = h('div', { class: 'ws-sections', id: 'ws-sections' });
   sorted.forEach(sec => list.appendChild(wsSectionCard(sec)));
   body.appendChild(list);
@@ -170,7 +171,7 @@ function wsSectionCard(sec) {
   } }, h('span', { class: 'ws-caret', 'aria-hidden': 'true', text: '▸' }), sec.label);
 
   const actions = h('div', { class: 'ws-section__actions' });
-  if (!sec.pinned) {
+  if (!sec.pinned && !ws.only) {
     actions.append(
       h('button', { class: 'btn btn-sm btn-outline', title: 'Move up', 'aria-label': `Move ${sec.label} up`, text: '↑', onclick: () => wsMove(sec.id, -1) }),
       h('button', { class: 'btn btn-sm btn-outline', title: 'Move down', 'aria-label': `Move ${sec.label} down`, text: '↓', onclick: () => wsMove(sec.id, 1) }));
@@ -469,7 +470,7 @@ async function wsSave(publish) {
 
 async function wsPreview() {
   if (ws.dirty && !(await wsSave(false))) return;
-  window.open(`../${ws.page.file}?cms_preview=1`, '_blank', 'noopener');
+  window.open(`../${ws.page.file}?cms_preview=1${ws.only ? '#special-offer' : ''}`, '_blank', 'noopener');
 }
 
 async function wsDiscard() {
@@ -479,8 +480,133 @@ async function wsDiscard() {
     if (error) throw new Error(error.message);
     showToast('Draft discarded', 'success');
     ws.dirty = false;
-    await wsLoad(ws.page.id);
+    await wsLoad(ws.page.id, ws.only);
   } catch (err) {
     showToast('Could not discard: ' + err.message, 'error');
   }
+}
+
+
+/* ============================================================
+   OFFERS & PROMOTIONS — offer + promo banner editor, discount overview
+   ============================================================ */
+async function renderOffers() {
+  const el = document.getElementById('page-content');
+  el.innerHTML = `
+    <div class="page-header"><div><h1 class="page-title">Offers & Promotions</h1>
+      <p class="page-subtitle">The homepage special offer (product, countdown), the promotional banner, and every discounted product.</p></div></div>
+    <div id="offer-editor"></div>
+    <section class="settings-block">
+      <h3>Discounted products</h3>
+      <p class="ws-hint">A product is discounted when its Compare-at price is higher than its price. Edit prices in Shop → Products.</p>
+      <div id="offer-products">${loading()}</div>
+    </section>`;
+  renderWsPage('home', { host: el.querySelector('#offer-editor'), only: ['offer', 'ticker'] });
+  const box = el.querySelector('#offer-products');
+  const { data, error } = await sb.from('products').select('id,name,status,price,compare_price').order('name');
+  if (error) { box.innerHTML = `<p class="ws-hint">Could not load products: ${esc(error.message)}</p>`; return; }
+  const rows = (data || []).filter(p => p.compare_price);
+  if (!rows.length) { box.innerHTML = '<p class="ws-hint">No product has a Compare-at price yet.</p>'; return; }
+  box.innerHTML = `<div class="table-wrap"><table class="mobile-cards">
+    <thead><tr><th>Product</th><th>Price</th><th>Compare-at</th><th>Discount</th><th>Status</th><th></th></tr></thead>
+    <tbody>${rows.map(p => {
+      const valid = p.compare_price > p.price;
+      return `<tr>
+        <td data-label="Product"><strong>${esc(p.name)}</strong></td>
+        <td data-label="Price">${formatPriceRaw(p.price)}</td>
+        <td data-label="Compare-at">${formatPriceRaw(p.compare_price)}</td>
+        <td data-label="Discount">${valid ? `<span class="badge badge-active">${Math.round((1 - p.price / p.compare_price) * 100)}% off</span>` : '<span class="badge badge-failed">Compare-at is below price</span>'}</td>
+        <td data-label="Status">${badge(p.status)}</td>
+        <td data-label=""><button class="btn btn-sm btn-outline" onclick="openProductForm(${p.id})">Edit</button></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+/* ============================================================
+   MEDIA LIBRARY — every uploaded image across storage buckets
+   ============================================================ */
+const MEDIA_BUCKETS = [['product-images', 'Products'], ['hero-images', 'Website & hero']];
+
+async function mediaList(bucket, prefix = '', depth = 0, out = []) {
+  const { data, error } = await sb.storage.from(bucket).list(prefix, { limit: 1000, sortBy: { column: 'created_at', order: 'desc' } });
+  if (error) throw new Error(error.message);
+  for (const item of data || []) {
+    const path = prefix ? `${prefix}/${item.name}` : item.name;
+    if (item.id === null) { if (depth < 4) await mediaList(bucket, path, depth + 1, out); }
+    else if (!item.name.startsWith('.')) out.push({ bucket, path, name: item.name, size: item.metadata?.size || 0, created: item.created_at, url: sb.storage.from(bucket).getPublicUrl(path).data.publicUrl });
+  }
+  return out;
+}
+
+async function mediaUsage() {
+  const [content, images, cols] = await Promise.all([
+    sb.from('site_content').select('value'),
+    sb.from('product_images').select('image_url'),
+    sb.from('collections').select('image_url')
+  ]);
+  return [JSON.stringify((content.data || []).map(r => r.value)), ...(images.data || []).map(r => r.image_url), ...(cols.data || []).map(r => r.image_url)].join('\n');
+}
+
+let mediaState = { filter: 'all', items: [], used: '' };
+
+async function renderMedia() {
+  const el = document.getElementById('page-content');
+  el.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">Media Library</h1><p class="page-subtitle">All uploaded images. Copy a link, upload new files, or delete unused ones.</p></div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="media-upload-btn">Upload images</button>
+        <input type="file" id="media-upload" accept="${WS_IMG_TYPES.join(',')}" multiple hidden>
+      </div>
+    </div>
+    <div class="filter-bar" id="media-filters"></div>
+    <div id="media-grid">${loading()}</div>`;
+  el.querySelector('#media-upload-btn').addEventListener('click', () => el.querySelector('#media-upload').click());
+  el.querySelector('#media-upload').addEventListener('change', async e => {
+    const files = [...e.target.files];
+    e.target.value = '';
+    let ok = 0;
+    for (const f of files) {
+      try { await wsUpload(f, 'library'); ok++; } catch (err) { showToast(`${f.name}: ${err.message}`, 'error'); }
+    }
+    if (ok) { showToast(`${ok} image${ok > 1 ? 's' : ''} uploaded`, 'success'); renderMedia(); }
+  });
+  try {
+    const [lists, used] = await Promise.all([Promise.all(MEDIA_BUCKETS.map(([b]) => mediaList(b))), mediaUsage()]);
+    mediaState.items = lists.flat().sort((a, b) => String(b.created).localeCompare(String(a.created)));
+    mediaState.used = used;
+    mediaDraw();
+  } catch (err) {
+    console.error('Media load failed:', err);
+    el.querySelector('#media-grid').innerHTML = `<div class="empty-state"><h3>Could not load media</h3><p>${esc(err.message)}</p></div>`;
+  }
+}
+
+function mediaDraw() {
+  const filters = document.getElementById('media-filters');
+  const grid = document.getElementById('media-grid');
+  if (!filters || !grid) return;
+  const opts = [['all', 'All'], ...MEDIA_BUCKETS, ['unused', 'Not in use']];
+  filters.replaceChildren(...opts.map(([id, label]) => h('button', { class: 'filter-btn' + (mediaState.filter === id ? ' active' : ''), text: label, onclick: () => { mediaState.filter = id; mediaDraw(); } })));
+  const inUse = it => mediaState.used.includes(it.path);
+  const items = mediaState.items.filter(it => mediaState.filter === 'all' || (mediaState.filter === 'unused' ? !inUse(it) : it.bucket === mediaState.filter));
+  if (!items.length) { grid.innerHTML = '<div class="empty-state"><h3>No images here</h3></div>'; return; }
+  grid.replaceChildren(h('div', { class: 'media-grid' }, items.map(it => h('figure', { class: 'media-item' },
+    h('div', { class: 'media-item__thumb' }, h('img', { src: it.url, alt: '', loading: 'lazy' })),
+    h('figcaption', {},
+      h('span', { class: 'media-item__name', title: it.path, text: it.name }),
+      h('span', { class: 'media-item__meta', text: `${(it.size / 1024).toFixed(0)} KB · ${inUse(it) ? 'In use' : 'Not in use'}` }),
+      h('div', { class: 'media-item__actions' },
+        h('button', { class: 'btn btn-sm btn-outline', text: 'Copy link', onclick: async () => { await navigator.clipboard.writeText(it.url); showToast('Link copied', 'success'); } }),
+        h('button', { class: 'btn btn-sm btn-outline ws-danger', text: 'Delete', onclick: () => mediaDelete(it, inUse(it)) })))))));
+}
+
+async function mediaDelete(it, used) {
+  const msg = used ? 'This image is used on the website or by a product. Deleting it will leave an empty space there. Delete anyway?' : 'Delete this image permanently?';
+  if (!(await showConfirm(msg, 'Delete image'))) return;
+  const { error } = await sb.storage.from(it.bucket).remove([it.path]);
+  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+  mediaState.items = mediaState.items.filter(x => x !== it);
+  showToast('Image deleted', 'success');
+  mediaDraw();
 }

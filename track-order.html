@@ -66,12 +66,12 @@
                 <img src="images/logo-symbol.png" alt="Luvior Paris" class="header__logo-img">
                 <span class="header__logo-text">LUVIOR PARIS</span>
             </a>
-            <nav class="header__nav">
-                <a href="index.html">Shop</a>
-                <a href="collections.html">Collections</a>
-                <a href="our-story.html">Our Story</a>
-                <a href="journal.html">Journal</a>
-                <a href="contact.html">Contact</a>
+            <nav class="header__nav" data-cms-global="nav" data-cms-section="menu" data-cms-label="Header Menu" data-cms-pin data-cms-nohide data-cms-list="links" data-cms-title="Menu links" data-cms-mirror-id="nav-links">
+                <a data-cms-item data-cms-field-link="link" href="index.html">Shop</a>
+                <a data-cms-item data-cms-field-link="link" href="collections.html">Collections</a>
+                <a data-cms-item data-cms-field-link="link" href="our-story.html">Our Story</a>
+                <a data-cms-item data-cms-field-link="link" href="journal.html">Journal</a>
+                <a data-cms-item data-cms-field-link="link" href="contact.html">Contact</a>
             </nav>
             <div class="header__actions">
                 <div class="header__menu-toggle" aria-label="Menu"><span></span><span></span><span></span></div>
@@ -79,7 +79,7 @@
         </div>
     </header>
 
-    <nav class="mobile-menu">
+    <nav class="mobile-menu" data-cms-mirror-of="nav-links">
         <a href="index.html">Shop</a>
         <a href="collections.html">Collections</a>
         <a href="our-story.html">Our Story</a>
@@ -134,6 +134,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="js/common.js"></script>
+    <script src="js/cms.js"></script>
     <script>
         const statusFlow = ['new', 'confirmed', 'processing', 'packed', 'shipped', 'out_for_delivery', 'delivered'];
         const statusLabels = {

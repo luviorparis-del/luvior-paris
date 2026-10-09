@@ -109,28 +109,59 @@ document.querySelectorAll('.nav-item').forEach(item => {
   });
 });
 
+// Areas shown in the sidebar. Areas with tabs get a sub-navigation bar above the page.
+const ADMIN_ROUTES = {
+  dashboard:   { title: 'Dashboard', render: () => renderDashboard() },
+  home:        { title: 'Homepage', tabs: [['sections', 'Page sections', () => renderWsPage('home')], ['hero', 'Hero & slideshow', () => renderContent()]] },
+  shop:        { title: 'Shop', tabs: [['products', 'Products', () => renderProducts()], ['inventory', 'Inventory', () => renderInventory()], ['page', 'Shop page', () => renderWsPage('collections')]] },
+  collections: { title: 'Collections', render: () => renderCollections() },
+  story:       { title: 'Our Story', render: () => renderWsPage('story') },
+  journal:     { title: 'Journal', render: () => renderWsPage('journal') },
+  contact:     { title: 'Contact', render: () => renderWsPage('contact') },
+  offers:      { title: 'Offers & Promotions', render: () => renderOffers() },
+  media:       { title: 'Media Library', render: () => renderMedia() },
+  footer:      { title: 'Footer & Navigation', tabs: [['footer', 'Footer', () => renderWsPage('footer')], ['menu', 'Header menu', () => renderWsPage('nav')]] },
+  orders:      { title: 'Orders', render: () => renderOrders() },
+  customers:   { title: 'Customers', render: () => renderCustomers() },
+  settings:    { title: 'Settings', render: () => renderSettings() }
+};
+const ADMIN_ALIASES = { products: 'shop:products', inventory: 'shop:inventory', content: 'home:hero', website: 'home' };
+
 function navigate(page) {
-  currentPage = page;
-  window.location.hash = page;
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const active = document.querySelector(`.nav-item[data-page="${page}"]`);
-  if (active) active.classList.add('active');
+  if (typeof ws !== 'undefined' && ws && ws.dirty) {
+    showConfirm('You have unsaved changes. Leave without saving?', 'Unsaved changes', 'Leave', 'btn-danger').then(ok => {
+      if (!ok) return;
+      ws.dirty = false;
+      navigate(page);
+    });
+    return;
+  }
+  page = ADMIN_ALIASES[page] || page || 'dashboard';
+  let [base, sub] = page.split(':');
+  if (!ADMIN_ROUTES[base]) base = 'dashboard';
+  const route = ADMIN_ROUTES[base];
+  if (route.tabs && !route.tabs.some(t => t[0] === sub)) sub = route.tabs[0][0];
+  currentPage = sub ? `${base}:${sub}` : base;
+  if (window.location.hash.slice(1) !== currentPage) history.replaceState(null, '', '#' + currentPage);
+  document.title = `${route.title} — Luvior Paris Admin`;
 
-  const pageMap = {
-    dashboard: renderDashboard,
-    products: renderProducts,
-    collections: renderCollections,
-    inventory: renderInventory,
-    orders: renderOrders,
-    customers: renderCustomers,
-    website: renderWebsite,
-    content: renderContent,
-    settings: renderSettings
-  };
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === base));
 
-  const render = pageMap[page];
-  if (render) render();
-  else document.getElementById('page-content').innerHTML = '<div class="empty-state"><h3>Coming soon</h3></div>';
+  const subnav = document.getElementById('page-subnav');
+  subnav.replaceChildren();
+  subnav.hidden = !route.tabs;
+  if (route.tabs) {
+    route.tabs.forEach(([id, label]) => {
+      const b = document.createElement('button');
+      b.className = 'subnav-btn' + (id === sub ? ' active' : '');
+      b.textContent = label;
+      b.addEventListener('click', () => navigate(`${base}:${id}`));
+      subnav.appendChild(b);
+    });
+  }
+  window.scrollTo(0, 0);
+  const render = route.tabs ? route.tabs.find(t => t[0] === sub)[2] : route.render;
+  render();
 }
 
 // ---- Mobile Sidebar ----
@@ -1331,7 +1362,7 @@ async function renderContent() {
 
     el.innerHTML = `
       <div class="page-header">
-        <div><h1 class="page-title">Website Content</h1><p class="page-subtitle">Manage dynamic content for the public website</p></div>
+        <div><h1 class="page-title">Homepage</h1><p class="page-subtitle">Hero slideshow, headline and button. Changes here go live immediately.</p></div>
       </div>
 
       <!-- Hero Slideshow Management -->
@@ -1445,17 +1476,8 @@ async function renderContent() {
           <p id="hero-status" style="font-size:12px;color:var(--text-secondary);margin-top:8px"></p>
         </div>
       </div>
-
-      <!-- Other Content Entries -->
-      <div class="card">
-        <div class="card-header"><h3>Other Content</h3></div>
-        <div class="card-body" id="other-content-list">
-          ${loading()}
-        </div>
-      </div>
     `;
 
-    loadOtherContent();
     initHeroSlideAdmin();
   } catch (err) {
     el.innerHTML = `<div class="empty-state"><h3>Failed to load content</h3><p>${esc(err.message || '')}</p></div>`;
@@ -1466,7 +1488,8 @@ async function loadOtherContent() {
   const container = document.getElementById('other-content-list');
   if (!container) return;
   try {
-    const { data: items } = await sb.from('site_content').select('*').neq('key', 'hero_banner').order('key');
+    const { data: all } = await sb.from('site_content').select('*').neq('key', 'hero_banner').order('key');
+    const items = (all || []).filter(i => !/^cms(-draft)?:/.test(i.key));
     if (!items || !items.length) {
       container.innerHTML = '<p style="color:var(--text-secondary)">No other content entries</p>';
       return;
@@ -1765,12 +1788,26 @@ function editContent(key, valueStr) {
 // SETTINGS
 // ============================================================
 function renderSettings() {
-  document.getElementById('page-content').innerHTML = `
-    <div class="page-header"><div><h1 class="page-title">Settings</h1></div></div>
-    <div class="card"><div class="card-body">
-      <div class="empty-state"><h3>Store Settings</h3><p>Store configuration coming soon. Currently managed through Content section and database.</p></div>
-    </div></div>
-  `;
+  const el = document.getElementById('page-content');
+  const siteUrl = new URL('../', window.location.href).href;
+  el.innerHTML = `
+    <div class="page-header"><div><h1 class="page-title">Settings</h1><p class="page-subtitle">Account, website links and advanced content.</p></div></div>
+    <section class="settings-block">
+      <h3>Account</h3>
+      <div class="detail-row"><span class="label">Signed in as</span><span class="value">${esc(currentUser?.email || '')}</span></div>
+      <div class="detail-row"><span class="label">Role</span><span class="value">${esc(currentUser?.role || '')}</span></div>
+    </section>
+    <section class="settings-block">
+      <h3>Website</h3>
+      <div class="detail-row"><span class="label">Live site</span><span class="value"><a href="${esc(siteUrl)}" target="_blank" rel="noopener">${esc(siteUrl)}</a></span></div>
+      <div class="detail-row"><span class="label">Social links</span><span class="value"><button class="btn btn-sm btn-outline" onclick="navigate('footer:footer')">Edit in Footer & Navigation</button></span></div>
+    </section>
+    <section class="settings-block">
+      <h3>Advanced — stored content</h3>
+      <p class="ws-hint">Raw data entries used by older features. Page text and images are edited under Website — prefer those screens; editing JSON here can break the site.</p>
+      <div id="other-content-list">${loading()}</div>
+    </section>`;
+  loadOtherContent();
 }
 
 // ---- Init ----

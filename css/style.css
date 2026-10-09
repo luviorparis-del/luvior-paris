@@ -1229,29 +1229,34 @@ ul, ol {
 }
 
 /* --- Scroll Animations --- */
-.fade-up {
+/* Scroll reveal — hidden states only apply once JS adds .anim (content stays visible without JS).
+   :where() keeps specificity low so existing hover transforms still win. */
+:root { --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1); }
+.anim :where(.fade-up) {
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity var(--transition-slow), transform var(--transition-slow);
+    transform: translate3d(0, 24px, 0);
+    transition: opacity 1s var(--ease-lux), transform 1.1s var(--ease-lux);
 }
-
-.fade-up.visible {
-    opacity: 1;
-    transform: translateY(0);
+.anim :where(.fade-up.visible) { opacity: 1; transform: none; }
+/* Stagger containers stay put; their children rise in sequence */
+.anim :where(.fade-up.stagger), .anim :where(.lx-split.fade-up) { opacity: 1; transform: none; }
+.anim :where(.stagger) > * {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition: opacity 0.9s var(--ease-lux), transform 1s var(--ease-lux);
+    transition-delay: calc(var(--i, 0) * 80ms);
 }
+.anim :where(.stagger.visible) > * { opacity: 1; transform: none; }
+/* Cutout images settle in softly after their text */
+.anim :where(.lx-split__media.fade-up) { transform: translate3d(0, 32px, 0); transition-delay: 0.15s; }
+.anim :where(.lx-split__media.fade-up.visible) { transform: none; }
+.lx-cutout { will-change: transform; transition: transform 0.2s linear; }
 
 @media (prefers-reduced-motion: reduce) {
-    .fade-up {
-        opacity: 1;
-        transform: none;
-        transition: none;
-    }
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
+    .fade-up, .stagger > *, .lx-cutout {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
     }
 }
 

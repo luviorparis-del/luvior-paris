@@ -198,6 +198,26 @@
         marker.remove();
         const sec = container.closest('[data-cms-section]');
         sec?.querySelectorAll(`[data-cms-mirror="${container.dataset.cmsList}"]`).forEach(m => { m.innerHTML = container.innerHTML; });
+        if (container.dataset.cmsMirrorId) {
+            container.ownerDocument.querySelectorAll(`[data-cms-mirror-of="${container.dataset.cmsMirrorId}"]`).forEach(m => {
+                m.replaceChildren(...listItems(container).map(a => {
+                    const c = a.cloneNode(true);
+                    [...c.attributes].filter(x => x.name.startsWith('data-cms') || x.name === 'class').forEach(x => c.removeAttribute(x.name));
+                    return c;
+                }));
+            });
+        }
+        markActiveLinks(container);
+    }
+
+    // Keep the "current page" highlight on menu links after reordering/renaming.
+    function markActiveLinks(container) {
+        if (!container.matches('.header__nav')) return;
+        const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        listItems(container).forEach(a => {
+            const target = (a.getAttribute('href') || '').split('#')[0].split('?')[0].toLowerCase();
+            a.classList.toggle('active', target === here);
+        });
     }
 
     function apply(doc, page, data) {
@@ -281,8 +301,10 @@
 
     async function load() {
         const page = document.body.dataset.cmsPage;
-        if (!page || typeof sb === 'undefined') return;
-        const pages = [page, ...(document.querySelector('[data-cms-global="footer"]') ? ['footer'] : [])];
+        if (typeof sb === 'undefined') return;
+        const globals = [...new Set([...document.querySelectorAll('[data-cms-global]')].map(g => g.dataset.cmsGlobal))];
+        const pages = [...(page ? [page] : []), ...globals];
+        if (!pages.length) return;
         const preview = await isPreview();
         const keys = pages.flatMap(p => preview ? ['cms-draft:' + p, 'cms:' + p] : ['cms:' + p]);
         const rows = await fetchRows(keys);
