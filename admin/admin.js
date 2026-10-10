@@ -113,7 +113,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
 const ADMIN_ROUTES = {
   dashboard:   { title: 'Dashboard', render: () => renderDashboard() },
   home:        { title: 'Homepage', tabs: [['sections', 'Page sections', () => renderWsPage('home')], ['hero', 'Hero & slideshow', () => renderContent()]] },
-  shop:        { title: 'Shop', tabs: [['products', 'Products', () => renderProducts()], ['inventory', 'Inventory', () => renderInventory()], ['page', 'Shop page', () => renderWsPage('collections')]] },
+  shop:        { title: 'Shop', tabs: [['products', 'Products', () => renderProducts()], ['inventory', 'Inventory', () => renderInventory()], ['page', 'Shop page', () => renderWsPage('collections')], ['product', 'Product page', () => renderWsPage('product')]] },
   collections: { title: 'Collections', render: () => renderCollections() },
   story:       { title: 'Our Story', render: () => renderWsPage('story') },
   journal:     { title: 'Journal', render: () => renderWsPage('journal') },
@@ -483,6 +483,7 @@ async function openProductForm(productId) {
       <div class="form-group"><label>SEO Title</label><input id="pf-seo-title" value="${esc(p.seo_title || '')}"></div>
       <div class="form-group"><label>SEO Description</label><input id="pf-seo-desc" value="${esc(p.seo_description || '')}"></div>
     </div>
+    <div id="pe-root" class="pe-root"></div>
     <div style="margin-top:24px">
       <h3 style="font-size:16px;font-weight:600;margin-bottom:12px">Product Images</h3>
       <div class="image-upload-zone" id="image-drop-zone">
@@ -495,6 +496,8 @@ async function openProductForm(productId) {
           <div class="image-preview-item ${img.is_primary ? 'primary' : ''}" data-id="${img.id}">
             <img src="${esc(img.image_url)}" alt="${esc(img.alt_text || '')}">
             <div class="image-actions">
+              <button onclick="moveImage(${productId}, ${img.id}, -1)" title="Move left" aria-label="Move image left">‹</button>
+              <button onclick="moveImage(${productId}, ${img.id}, 1)" title="Move right" aria-label="Move image right">›</button>
               <button onclick="setPrimaryImage(${productId}, ${img.id})" title="Set as primary">★</button>
               <button onclick="deleteImage(${productId}, ${img.id})" title="Delete">×</button>
             </div>
@@ -514,6 +517,7 @@ async function openProductForm(productId) {
   `;
 
   const modal = showModal(productId ? 'Edit Product' : 'Add Product', body, footer);
+  peInit(modal, productId);
 
   const nameInput = modal.querySelector('#pf-name');
   const slugInput = modal.querySelector('#pf-slug');
@@ -609,6 +613,8 @@ async function openProductForm(productId) {
     }
 
     const btn = modal.querySelector('#save-product-btn');
+    const peProblem = peState ? peValidate(peCollect(modal.querySelector('#pe-root'))) : null;
+    if (peProblem) { showToast(peProblem, 'error', 6000); return; }
     btn.disabled = true;
     btn.textContent = 'Saving...';
 
@@ -624,6 +630,7 @@ async function openProductForm(productId) {
       }
 
       const selectedCols = [...modal.querySelectorAll('.pf-collection:checked')].map(c => parseInt(c.value));
+      await peSave(savedId, modal);
       await sb.from('product_collections').delete().eq('product_id', savedId);
       if (selectedCols.length) {
         await sb.from('product_collections').insert(selectedCols.map(cid => ({ product_id: savedId, collection_id: cid })));

@@ -75,6 +75,32 @@ function loadCart() {
 
 function saveCart() {
     try { localStorage.setItem('luvior_cart', JSON.stringify(cart)); } catch { }
+    try { localStorage.setItem('luvior_bundles', JSON.stringify(cartBundles)); } catch { }
+}
+
+/* Bundle offers configured per product in admin: { ids:[...], percent }.
+   The saving applies only while every bundled product is still in the cart. */
+let cartBundles = [];
+try { cartBundles = JSON.parse(localStorage.getItem('luvior_bundles') || '[]'); } catch { cartBundles = []; }
+
+function addBundleToCart(ids, percent) {
+    ids.forEach(id => {
+        if (!cart.some(i => String(i.id) === String(id))) addToCart(id, 1, { silent: true });
+    });
+    const key = ids.map(String).sort().join(',');
+    cartBundles = cartBundles.filter(b => b.ids.map(String).sort().join(',') !== key);
+    if (percent > 0) cartBundles.push({ ids: ids.map(String), percent });
+    saveCart();
+    updateCartBadge();
+    renderCartDrawer();
+}
+
+function getBundleSaving() {
+    return cartBundles.reduce((sum, b) => {
+        const items = b.ids.map(id => cart.find(i => String(i.id) === id && !i.unavailable));
+        if (items.some(i => !i)) return sum;
+        return sum + Math.round(items.reduce((s, i) => s + i.price, 0) * b.percent / 100);
+    }, 0);
 }
 
 function getCartCount() {
@@ -85,7 +111,7 @@ function getCartSubtotal() {
     return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 }
 
-function addToCart(productId, qty = 1) {
+function addToCart(productId, qty = 1, opts = {}) {
     const pid = String(productId);
     const existing = cart.find(item => String(item.id) === pid);
     if (existing) {
@@ -109,7 +135,7 @@ function addToCart(productId, qty = 1) {
     saveCart();
     updateCartBadge();
     renderCartDrawer();
-    showCartToast('Added to Cart');
+    if (!opts.silent) showCartToast('Added to Cart');
 }
 
 function removeFromCart(productId) {
@@ -308,11 +334,13 @@ function renderCartDrawer() {
 
     const billable = cart.filter(i => !i.unavailable);
     const subtotal = billable.reduce((s, i) => s + i.price * i.qty, 0);
-    const delivery = subtotal >= FREE_DELIVERY_MIN ? 0 : DELIVERY_FEE;
-    const remaining = Math.max(0, FREE_DELIVERY_MIN - subtotal);
+    const bundleSaving = getBundleSaving();
+    const afterSaving = subtotal - bundleSaving;
+    const delivery = afterSaving >= FREE_DELIVERY_MIN ? 0 : DELIVERY_FEE;
+    const remaining = Math.max(0, FREE_DELIVERY_MIN - afterSaving);
     progressEl.innerHTML = `
         <p class="cart-progress__text">${remaining > 0 ? `You are <strong>${inr(remaining)}</strong> away from complimentary delivery` : 'Complimentary delivery unlocked'}</p>
-        <div class="cart-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, subtotal / FREE_DELIVERY_MIN * 100))}"><span style="width:${Math.min(100, subtotal / FREE_DELIVERY_MIN * 100)}%"></span></div>`;
+        <div class="cart-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, afterSaving / FREE_DELIVERY_MIN * 100))}"><span style="width:${Math.min(100, afterSaving / FREE_DELIVERY_MIN * 100)}%"></span></div>`;
 
     itemsEl.innerHTML = undo + cart.map(item => `
         <article class="cart-item${item.unavailable ? ' is-unavailable' : ''}">
@@ -340,8 +368,9 @@ function renderCartDrawer() {
     footerEl.innerHTML = `
         <dl class="cart-summary">
             <div><dt>Subtotal</dt><dd>${inr(subtotal)}</dd></div>
+            ${bundleSaving ? `<div><dt>Bundle saving</dt><dd>−${inr(bundleSaving)}</dd></div>` : ''}
             <div><dt>Delivery</dt><dd>${delivery ? inr(delivery) : 'Complimentary'}</dd></div>
-            <div class="cart-summary__total"><dt>Total</dt><dd>${inr(subtotal + delivery)}</dd></div>
+            <div class="cart-summary__total"><dt>Total</dt><dd>${inr(afterSaving + delivery)}</dd></div>
         </dl>
         <div class="cart-drawer__buttons">
             <button class="btn btn--filled" data-cart-action="close">Checkout</button>

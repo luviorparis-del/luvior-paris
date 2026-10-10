@@ -1377,3 +1377,13 @@ tr:hover td { background: rgba(255, 255, 255, 0.025); }
   .ws-toolbar .btn-group { width: 100%; }
   .ws-toolbar .btn-group .btn { flex: 1; justify-content: center; padding: 9px 10px; }
 }
+
+/* Product page extras (product form) */
+.pe-root { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border-light); }
+.pe-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.pe-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.pe-row input, .pe-row select { flex: 1; min-width: 120px; }
+.pe-row input[type="number"] { flex: 0 0 72px; min-width: 0; }
+.pe-inline-label { font-size: 12px; color: var(--text-secondary); }
+.pe-checks { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.form-group .pe-check { display: flex; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text); font-size: 13px; margin: 0; }

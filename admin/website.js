@@ -10,6 +10,7 @@ const WS_PAGES = [
     links: [['Hero & slideshow', 'home:hero'], ['Offer & promo banner', 'offers']] },
   { id: 'collections', label: 'Shop page', file: 'collections.html', subtitle: 'Text and images on the Collections / shop page.',
     links: [['Products', 'shop:products'], ['Collections', 'collections']] },
+  { id: 'product', label: 'Product page', file: 'product.html', subtitle: 'Shipping & returns text and FAQ shown on every product page. Per-product details are edited in Shop → Products.' },
   { id: 'story', label: 'Our Story', file: 'our-story.html', subtitle: 'Story sections, images and their order.' },
   { id: 'journal', label: 'Journal', file: 'journal.html', subtitle: 'Banner, articles (cover, content, gallery, date, featured, published) and quote.' },
   { id: 'contact', label: 'Contact', file: 'contact.html', subtitle: 'Contact details, form wording, FAQ and social profiles.' },
