@@ -31,7 +31,14 @@
     const readLink = el => ({ label: readText(el), href: el.getAttribute('href') || '' });
     function writeLink(el, v) {
         if (!v) return;
-        writeText(el, v.label);
+        // Icon-only links (e.g. social icons): keep them icon-only; the label becomes the accessible name.
+        const iconOnly = el.querySelector(':scope > svg') && !readText(el);
+        if (iconOnly) {
+            const label = String(v.label || '').trim();
+            if (label && !/^https?:|^www\./i.test(label)) el.setAttribute('aria-label', label);
+        } else {
+            writeText(el, v.label);
+        }
         el.setAttribute('href', safeHref(v.href));
     }
 

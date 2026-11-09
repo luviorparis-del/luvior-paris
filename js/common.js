@@ -733,7 +733,11 @@ function initScrollTop() {
 
     const lightSections = isHomepage ? [...document.querySelectorAll('.section--white')] : [];
     window.addEventListener('scroll', () => {
-        if (btn) btn.classList.toggle('visible', window.scrollY > 500);
+        if (btn) {
+            btn.classList.toggle('visible', window.scrollY > 500);
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            btn.style.setProperty('--p', max > 0 ? Math.min(1, window.scrollY / max).toFixed(3) : 0);
+        }
         if (isHomepage && header) {
             header.classList.toggle('header--scrolled', window.scrollY > 80);
             const probe = header.offsetHeight / 2;

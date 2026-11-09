@@ -3196,3 +3196,40 @@ a.product-card__image { display: block; color: inherit; }
 html { overflow-x: clip; }
 .cart-drawer { visibility: hidden; transition: transform 0.55s var(--ease-lux, ease), visibility 0s linear 0.55s; }
 .cart-drawer.active { visibility: visible; transition: transform 0.55s var(--ease-lux, ease), visibility 0s; }
+
+/* Scroll-to-top: round, quiet, with a thin ring showing how far down the page you are */
+.scroll-top {
+    width: 46px;
+    height: 46px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.55);
+    color: var(--color-white);
+    bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s var(--ease-lux, ease), background-color 0.35s ease, color 0.35s ease;
+}
+.scroll-top.visible { transform: none; }
+.scroll-top::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 1px;
+    background: conic-gradient(var(--color-white) calc(var(--p, 0) * 1turn), rgba(255, 255, 255, 0.18) 0);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    pointer-events: none;
+}
+.scroll-top svg { width: 15px; height: 15px; position: relative; transition: transform 0.35s var(--ease-lux, ease); }
+.scroll-top:hover { background-color: var(--color-white); color: var(--color-black); }
+.scroll-top:hover svg { transform: translateY(-2px); }
+.scroll-top:focus-visible { outline: 1px solid var(--color-gray-400); outline-offset: 3px; }
+@media (max-width: 560px) {
+    .scroll-top { width: 42px; height: 42px; right: var(--spacing-md); bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom)); }
+}
+/* Keep it clear of the product page's mobile buy bar */
+@media (max-width: 900px) {
+    body:has(.pd-sticky.is-visible) .scroll-top { bottom: calc(84px + env(safe-area-inset-bottom)); }
+}
