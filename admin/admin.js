@@ -122,6 +122,7 @@ const ADMIN_ROUTES = {
   footer:      { title: 'Footer & Navigation', tabs: [['footer', 'Footer', () => renderWsPage('footer')], ['menu', 'Header menu', () => renderWsPage('nav')]] },
   orders:      { title: 'Orders', render: () => renderOrders() },
   customers:   { title: 'Customers', render: () => renderCustomers() },
+  messages:    { title: 'Messages', render: () => renderMessages() },
   settings:    { title: 'Settings', render: () => renderSettings() }
 };
 const ADMIN_ALIASES = { products: 'shop:products', inventory: 'shop:inventory', content: 'home:hero', website: 'home' };

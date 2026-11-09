@@ -1389,3 +1389,25 @@ tr:hover td { background: rgba(255, 255, 255, 0.025); }
 .form-group .pe-check { display: flex; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text); font-size: 13px; margin: 0; }
 .ws-video__stage { height: 260px; }
 .ws-video__stage video, .ws-video__stage img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Messages inbox */
+.msg-layout { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 16px; align-items: start; }
+.msg-list { display: flex; flex-direction: column; gap: 2px; max-height: calc(100vh - 220px); overflow-y: auto; }
+.msg-row { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 12px 14px; border: none; border-radius: 8px; background: none; color: var(--text); font: inherit; cursor: pointer; position: relative; }
+.msg-row:hover { background: var(--bg-card); }
+.msg-row.active { background: var(--bg-elev); }
+.msg-row.is-new::before { content: ''; position: absolute; left: 3px; top: 18px; width: 6px; height: 6px; border-radius: 50%; background: var(--info); }
+.msg-row__top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.msg-row__time { color: var(--text-secondary); font-size: 11px; white-space: nowrap; }
+.msg-row__reason { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
+.msg-row__snippet { font-size: 12.5px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-detail { background: var(--bg-card); border-radius: var(--radius); padding: 24px; min-height: 240px; position: sticky; top: 80px; }
+.msg-detail__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.msg-detail__head h2 { font-size: 20px; font-weight: 500; }
+.msg-detail__meta { border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); padding: 8px 0; margin-bottom: 18px; }
+.msg-detail__body { white-space: pre-wrap; line-height: 1.65; font-size: 14px; margin-bottom: 22px; }
+@media (max-width: 900px) {
+  .msg-layout { grid-template-columns: 1fr; }
+  .msg-list { max-height: none; }
+  .msg-detail { position: static; }
+}
