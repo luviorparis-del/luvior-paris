@@ -3144,3 +3144,8 @@ body { overflow-x: clip; }
     border: 0;
     pointer-events: none;
 }
+
+/* Contact form: hidden anti-spam field and send status */
+.contact-form__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.contact-form__status { margin-top: var(--spacing-sm); font-size: 0.8rem; color: #e88; text-align: center; }
+.contact-form button[disabled] { opacity: 0.6; cursor: wait; }
