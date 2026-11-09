@@ -623,32 +623,6 @@ function createCollectionCard(collection) {
     return card;
 }
 
-function createArticleCard(article) {
-    const card = document.createElement('a');
-    card.className = 'article-card';
-    card.href = `article.html?a=${encodeURIComponent(article.slug || slugify(article.title))}`;
-    const imageWrap = document.createElement('div');
-    imageWrap.className = 'article-card__image';
-    if (article.cover && article.cover.src) setCoverImage(imageWrap, article.cover, article.title);
-    else {
-        const ph = document.createElement('div');
-        ph.className = 'placeholder-image';
-        ph.style.cssText = 'width:100%;height:100%';
-        ph.textContent = article.category || '';
-        imageWrap.appendChild(ph);
-    }
-    const cat = Object.assign(document.createElement('p'), { className: 'article-card__category', textContent: article.category || '' });
-    const title = Object.assign(document.createElement('h3'), { className: 'article-card__title', textContent: article.title || '' });
-    const meta = document.createElement('div');
-    meta.className = 'article-card__meta';
-    [article.date, '·', article.read_time || article.readTime].filter(Boolean).forEach(t => meta.appendChild(Object.assign(document.createElement('span'), { textContent: t })));
-    const arrow = document.createElement('span');
-    arrow.className = 'article-card__arrow';
-    arrow.innerHTML = 'Read Story <span class="arrow">&rarr;</span>';
-    card.append(imageWrap, cat, title, meta, arrow);
-    return card;
-}
-
 /* === Mobile Menu === */
 function initMobileMenu() {
     const toggle = document.querySelector('.header__menu-toggle');
@@ -675,7 +649,7 @@ const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').mat
 if (!REDUCED_MOTION) document.documentElement.classList.add('anim');
 
 // Containers whose children reveal one after another (hero excluded).
-const STAGGER_SEL = '.product-grid, .lx-benefits__grid, .lx-testimonials__grid, .faq-list, .journal-grid, .timeline, .values-grid, .lx-split__text, .footer__top';
+const STAGGER_SEL = '.product-grid, .lx-benefits__grid, .lx-testimonials__grid, .faq-list, .timeline, .values-grid, .lx-split__text, .footer__top';
 
 function indexStagger(container) {
     [...container.children].forEach((child, i) => child.style.setProperty('--i', Math.min(i, 8)));
@@ -1031,45 +1005,6 @@ function startCountdown(section, end) {
     box.hidden = false;
     tick();
     const timer = setInterval(tick, 1000);
-}
-
-/* === Journal (articles managed in Website → Journal) === */
-function slugify(t) {
-    return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-
-function journalArticles() {
-    const items = window.CMS ? CMS.list('articles', 'articles') : [];
-    return items.filter(a => a.published !== false && a.title).map(a => ({ ...a, slug: slugify(a.title) }));
-}
-
-async function initJournal() {
-    await window.CMS?.ready;
-    const articles = journalArticles();
-    const featured = articles.find(a => a.featured);
-    const fs = document.getElementById('journal-featured');
-    if (fs) {
-        if (!featured) fs.hidden = true;
-        else {
-            const set = (k, v) => { const el = fs.querySelector(`[data-jf="${k}"]`); if (el) el.textContent = v || ''; };
-            ['category', 'title', 'description', 'date', 'read_time'].forEach(k => set(k, featured[k]));
-            const link = fs.querySelector('[data-jf="link"]');
-            if (link) link.href = `article.html?a=${encodeURIComponent(featured.slug)}`;
-            const cover = fs.querySelector('[data-jf="cover"]');
-            if (cover && featured.cover && featured.cover.src) setCoverImage(cover, featured.cover, featured.title);
-        }
-    }
-    const grid = document.getElementById('journal-grid');
-    if (grid) articles.filter(a => a !== featured).forEach(a => grid.appendChild(createArticleCard(a)));
-}
-
-function setCoverImage(el, cover, alt) {
-    const img = document.createElement('img');
-    img.src = cover.src;
-    img.alt = alt || '';
-    img.className = 'article-cover-img';
-    el.classList.add('cms-has-img');
-    el.replaceChildren(img);
 }
 
 /* === Init === */

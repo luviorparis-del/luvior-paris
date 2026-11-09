@@ -116,7 +116,6 @@ const ADMIN_ROUTES = {
   shop:        { title: 'Shop', tabs: [['products', 'Products', () => renderProducts()], ['inventory', 'Inventory', () => renderInventory()], ['page', 'Shop page', () => renderWsPage('collections')], ['product', 'Product page', () => renderWsPage('product')]] },
   collections: { title: 'Collections', render: () => renderCollections() },
   story:       { title: 'Our Story', render: () => renderWsPage('story') },
-  journal:     { title: 'Journal', render: () => renderWsPage('journal') },
   contact:     { title: 'Contact', render: () => renderWsPage('contact') },
   offers:      { title: 'Offers & Promotions', render: () => renderOffers() },
   media:       { title: 'Media Library', render: () => renderMedia() },

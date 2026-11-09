@@ -12,7 +12,6 @@ const WS_PAGES = [
     links: [['Products', 'shop:products'], ['Collections', 'collections']] },
   { id: 'product', label: 'Product page', file: 'product.html', subtitle: 'Shipping & returns text and FAQ shown on every product page. Per-product details are edited in Shop → Products.' },
   { id: 'story', label: 'Our Story', file: 'our-story.html', subtitle: 'Story sections, images and their order.' },
-  { id: 'journal', label: 'Journal', file: 'journal.html', subtitle: 'Banner, articles (cover, content, gallery, date, featured, published) and quote.' },
   { id: 'contact', label: 'Contact', file: 'contact.html', subtitle: 'Contact details, form wording, FAQ and social profiles.' },
   { id: 'footer', label: 'Footer', file: 'index.html', subtitle: 'Footer text, links, social profiles and copyright — shown on every page.' },
   { id: 'nav', label: 'Header menu', file: 'index.html', subtitle: 'Menu links in the header and mobile menu — shown on every page. The current page is highlighted automatically.' }

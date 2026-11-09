@@ -1333,29 +1333,8 @@ ul, ol {
 }
 
 /* --- Quote Section --- */
-.quote-section {
-    padding: var(--spacing-4xl) var(--spacing-lg);
-    text-align: center;
-}
 
-.quote-section__text {
-    font-family: var(--font-serif);
-    font-size: clamp(1.5rem, 3vw, 2.8rem);
-    font-weight: 400;
-    font-style: normal;
-    line-height: 1.4;
-    max-width: 800px;
-    margin: 0 auto;
-    color: var(--color-gray-300);
-}
 
-.quote-section__author {
-    margin-top: var(--spacing-xl);
-    font-size: 0.7rem;
-    letter-spacing: var(--letter-wider);
-    text-transform: uppercase;
-    color: var(--color-gray-500);
-}
 
 /* --- Brand Values --- */
 .values-grid {
@@ -1455,83 +1434,18 @@ ul, ol {
 
 
 
-/* --- Journal / Article Cards --- */
-.article-card {
-    cursor: pointer;
-}
 
-.article-card__image {
-    position: relative;
-    overflow: hidden;
-    aspect-ratio: 16/10;
-    margin-bottom: var(--spacing-md);
-}
 
-.article-card__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(0.2);
-    transition: transform var(--transition-slow);
-}
 
-.article-card:hover .article-card__image img {
-    transform: scale(1.03);
-}
 
-.article-card__category {
-    font-size: 0.6rem;
-    letter-spacing: var(--letter-widest);
-    text-transform: uppercase;
-    color: var(--color-gray-500);
-    margin-bottom: 8px;
-}
 
-.article-card__title {
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    font-weight: 400;
-    line-height: 1.3;
-    margin-bottom: var(--spacing-sm);
-}
 
-.article-card__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.7rem;
-    color: var(--color-gray-500);
-}
 
-.article-card__meta span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
 
-.article-card__arrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.65rem;
-    letter-spacing: var(--letter-wider);
-    text-transform: uppercase;
-    margin-top: var(--spacing-sm);
-    transition: gap var(--transition-smooth);
-}
 
-.article-card:hover .article-card__arrow {
-    gap: 0.75rem;
-}
 
 /* Dark article cards on white bg */
-.section--white .article-card__title {
-    color: var(--color-black);
-}
 
-.section--white .article-card__arrow {
-    color: var(--color-black);
-}
 
 /* --- Contact Form --- */
 .contact-form {
@@ -2728,7 +2642,6 @@ input[type="checkbox"]:focus-visible {
     }
 }
 .lx-cutout.cms-has-img > .cms-img { filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.6)); }
-.article-cover-img { width: 100%; height: 100%; object-fit: cover; }
 
 .cms-preview-bar {
     position: fixed;
@@ -2769,23 +2682,6 @@ input[type="checkbox"]:focus-visible {
     color: var(--color-gray-500);
 }
 
-/* ---- Journal article page ---- */
-a.article-card { color: inherit; display: block; }
-.article-page { padding-top: calc(var(--header-height) + var(--spacing-3xl)); min-height: 70vh; }
-.article { max-width: 760px; }
-.article__back { display: inline-block; margin-bottom: var(--spacing-xl); }
-.article__meta { margin-bottom: var(--spacing-sm); }
-.article__title { margin-bottom: var(--spacing-xl); }
-.article__cover { margin: 0 0 var(--spacing-xl); }
-.article__cover img { width: 100%; height: auto; }
-.article__body p { margin-bottom: var(--spacing-md); }
-.article__gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-xl);
-}
-.article__gallery img { width: 100%; height: auto; }
 
 /* ============================================================
    PRODUCT CARD LINKS
