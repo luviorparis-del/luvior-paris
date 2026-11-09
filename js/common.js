@@ -453,21 +453,54 @@ async function initStoryReveal() {
 }
 
 /* === Brand film (homepage) === */
+// Accepts an uploaded MP4/WebM, or a YouTube / Vimeo link (played as a silent, looping background).
+function filmEmbed(url) {
+    const yt = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/i);
+    if (yt) {
+        const id = yt[1];
+        const q = new URLSearchParams({ autoplay: 1, mute: 1, loop: 1, playlist: id, controls: 0, rel: 0, playsinline: 1, modestbranding: 1, iv_load_policy: 3, disablekb: 1, fs: 0, enablejsapi: 0 });
+        return { src: `https://www.youtube-nocookie.com/embed/${id}?${q}`, poster: `https://i.ytimg.com/vi/${id}/maxresdefault.jpg` };
+    }
+    const vm = String(url).match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    if (vm) return { src: `https://player.vimeo.com/video/${vm[1]}?background=1&autoplay=1&loop=1&muted=1&dnt=1` };
+    return null;
+}
+
 // Shows the section only once a real video loads; pauses off-screen; respects reduced motion.
 async function initFilm() {
     const section = document.getElementById('brand-film');
     const video = section?.querySelector('video');
     if (!video) return;
     await window.CMS?.ready;
-    const src = video.getAttribute('src') || video.dataset.src;
+    const src = video.dataset.src;
     if (!src) return;
+
+    const embed = filmEmbed(src);
+    if (embed) {
+        const frame = document.createElement('iframe');
+        frame.className = 'lx-film__embed';
+        frame.src = embed.src;
+        frame.title = video.getAttribute('aria-label') || 'Brand film';
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+        frame.setAttribute('tabindex', '-1');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.loading = 'lazy';
+        const poster = video.getAttribute('poster') || embed.poster;
+        if (poster) section.style.setProperty('--film-poster', `url("${poster.replace(/"/g, '%22')}")`);
+        if (video.style.objectPosition) section.style.setProperty('--film-pos', video.style.objectPosition);
+        video.replaceWith(frame);
+        section.classList.add('is-embed');
+        section.hidden = false;
+        return;
+    }
+
     video.muted = true;
     video.addEventListener('loadeddata', () => {
         section.hidden = false;
         if (REDUCED_MOTION) video.pause();
     }, { once: true });
     video.addEventListener('error', () => { section.hidden = true; }, { once: true });
-    if (!video.getAttribute('src')) video.src = src;
+    video.src = src;
     if (REDUCED_MOTION) { video.removeAttribute('autoplay'); return; }
     new IntersectionObserver(([e]) => {
         if (e.isIntersecting) video.play().catch(() => {});

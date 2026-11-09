@@ -113,7 +113,7 @@
             case 'image': return writeImage(el, v);
             case 'video':
                 if (!v) return;
-                if (v.src) el.setAttribute('src', v.src);
+                if (v.src) el.dataset.src = v.src; // the page decides how to play it (file vs YouTube/Vimeo)
                 if (v.poster) el.setAttribute('poster', v.poster);
                 if (v.position) el.style.objectPosition = v.position;
                 return;

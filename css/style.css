@@ -3130,3 +3130,17 @@ body { overflow-x: clip; }
 @media (max-width: 900px) {
     body:has(.pd-sticky.is-visible) .scroll-top { bottom: calc(84px + env(safe-area-inset-bottom)); }
 }
+
+/* Brand film from YouTube/Vimeo: an iframe that always covers the section (no black bars), no interaction */
+.lx-film { container-type: size; }
+.lx-film.is-embed { background: var(--color-black) var(--film-poster, none) var(--film-pos, center) / cover no-repeat; }
+.lx-film__embed {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100cqw, 177.78cqh);
+    height: max(100cqh, 56.25cqw);
+    transform: translate(-50%, -50%);
+    border: 0;
+    pointer-events: none;
+}

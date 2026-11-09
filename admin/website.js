@@ -649,14 +649,21 @@ function wsVideoEditor(value, onChange, scope) {
   };
   const videoInput = pick(WS_VIDEO_TYPES.join(','), async f => { v.src = await wsUploadVideo(f, scope); emit(); });
   const posterInput = pick(WS_IMG_TYPES.join(','), async f => { v.poster = await wsUpload(f, scope + '-poster'); emit(); });
-  const url = h('input', { placeholder: 'or paste a video link (https://…mp4)', value: v.src, oninput: e => { v.src = e.target.value.trim(); emit(); draw(); } });
+  const url = h('input', { placeholder: 'or paste a link: YouTube, Vimeo, or a direct .mp4', value: v.src, oninput: e => { v.src = e.target.value.trim(); emit(); draw(); } });
   const pos = h('select', { onchange: e => { v.position = e.target.value; emit(); draw(); } },
     ...[['center', 'Centre'], ['center top', 'Top'], ['center bottom', 'Bottom'], ['left center', 'Left'], ['right center', 'Right']]
       .map(([val, label]) => h('option', { value: val, selected: v.position === val, text: label })));
 
   function draw() {
     stage.replaceChildren();
-    if (v.src) {
+    const yt = v.src && v.src.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/i);
+    const vm = v.src && v.src.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    if (yt || vm) {
+      stage.appendChild(h('iframe', {
+        src: yt ? `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&mute=1&loop=1&playlist=${yt[1]}&controls=0&rel=0&playsinline=1` : `https://player.vimeo.com/video/${vm[1]}?background=1&autoplay=1&loop=1&muted=1`,
+        allow: 'autoplay; encrypted-media', title: 'Brand film preview', style: 'width:100%;height:100%;border:0;pointer-events:none'
+      }));
+    } else if (v.src) {
       const vid = h('video', { src: v.src, muted: true, loop: true, playsinline: true, autoplay: true, poster: v.poster || undefined });
       vid.muted = true;
       vid.style.objectPosition = v.position;
@@ -676,7 +683,7 @@ function wsVideoEditor(value, onChange, scope) {
     url,
     h('label', { class: 'ws-inline' }, h('span', { class: 'ws-hint', text: 'Framing' }), pos),
     status,
-    h('p', { class: 'ws-hint', text: 'Tips: 10–30 s, no sound needed (it plays muted), MP4 (H.264) 1920×1080, under 50MB. The poster shows while the video loads.' }));
+    h('p', { class: 'ws-hint', text: 'Upload an MP4/WebM (best quality, no YouTube branding) or paste a YouTube/Vimeo link — it plays silently on a loop. Tips: 10–30 s, 1920×1080, under 50MB. The poster shows while it loads.' }));
   draw();
   return root;
 }
