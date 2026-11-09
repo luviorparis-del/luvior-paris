@@ -244,6 +244,9 @@ function wsField(field, value, onChange, scope) {
     case 'image':
       wrap.appendChild(wsImageEditor(value, onChange, scope));
       break;
+    case 'video':
+      wrap.appendChild(wsVideoEditor(value, onChange, scope));
+      break;
     case 'gallery':
       wrap.appendChild(wsGalleryEditor(value || [], onChange, scope));
       break;
@@ -610,4 +613,71 @@ async function mediaDelete(it, used) {
   mediaState.items = mediaState.items.filter(x => x !== it);
   showToast('Image deleted', 'success');
   mediaDraw();
+}
+
+
+/* ---------- video editor (brand film) ---------- */
+const WS_VIDEO_TYPES = ['video/mp4', 'video/webm'];
+const WS_VIDEO_MAX = 50 * 1024 * 1024;
+
+async function wsUploadVideo(file, scope) {
+  if (!WS_VIDEO_TYPES.includes(file.type)) throw new Error('Use an MP4 or WebM video.');
+  if (file.size > WS_VIDEO_MAX) throw new Error('Video is larger than 50MB. Export a shorter or more compressed version (1080p, ~8 Mbps works well).');
+  const ext = file.type === 'video/webm' ? 'webm' : 'mp4';
+  const path = `site/${ws?.page.id || 'shared'}/${scope || 'video'}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await sb.storage.from(WS_BUCKET).upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
+  if (error) throw new Error(error.message);
+  return sb.storage.from(WS_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+function wsVideoEditor(value, onChange, scope) {
+  const v = { src: '', poster: '', position: 'center', ...(value || {}) };
+  const emit = () => onChange({ ...v });
+  const root = h('div', { class: 'ws-img' });
+  const stage = h('div', { class: 'ws-img__stage ws-video__stage' });
+  const status = h('p', { class: 'ws-hint' });
+  const pick = (accept, handler) => {
+    const input = h('input', { type: 'file', accept, hidden: true, onchange: async e => {
+      const file = e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      status.textContent = 'Uploading…';
+      try { await handler(file); status.textContent = 'Uploaded. Save or publish to keep it.'; draw(); }
+      catch (err) { status.textContent = ''; showToast(err.message, 'error', 7000); }
+    } });
+    root.appendChild(input);
+    return input;
+  };
+  const videoInput = pick(WS_VIDEO_TYPES.join(','), async f => { v.src = await wsUploadVideo(f, scope); emit(); });
+  const posterInput = pick(WS_IMG_TYPES.join(','), async f => { v.poster = await wsUpload(f, scope + '-poster'); emit(); });
+  const url = h('input', { placeholder: 'or paste a video link (https://…mp4)', value: v.src, oninput: e => { v.src = e.target.value.trim(); emit(); draw(); } });
+  const pos = h('select', { onchange: e => { v.position = e.target.value; emit(); draw(); } },
+    ...[['center', 'Centre'], ['center top', 'Top'], ['center bottom', 'Bottom'], ['left center', 'Left'], ['right center', 'Right']]
+      .map(([val, label]) => h('option', { value: val, selected: v.position === val, text: label })));
+
+  function draw() {
+    stage.replaceChildren();
+    if (v.src) {
+      const vid = h('video', { src: v.src, muted: true, loop: true, playsinline: true, autoplay: true, poster: v.poster || undefined });
+      vid.muted = true;
+      vid.style.objectPosition = v.position;
+      stage.appendChild(vid);
+    } else if (v.poster) {
+      stage.appendChild(h('img', { src: v.poster, alt: '' }));
+    } else {
+      stage.appendChild(h('span', { text: 'No video yet — the section stays hidden on the website' }));
+    }
+    url.value = v.src;
+  }
+  root.append(stage,
+    h('div', { class: 'btn-group' },
+      h('button', { type: 'button', class: 'btn btn-sm btn-primary', text: 'Upload video', onclick: () => videoInput.click() }),
+      h('button', { type: 'button', class: 'btn btn-sm btn-outline', text: 'Upload poster image', onclick: () => posterInput.click() }),
+      h('button', { type: 'button', class: 'btn btn-sm btn-outline', text: 'Remove video', onclick: () => { v.src = ''; emit(); draw(); } })),
+    url,
+    h('label', { class: 'ws-inline' }, h('span', { class: 'ws-hint', text: 'Framing' }), pos),
+    status,
+    h('p', { class: 'ws-hint', text: 'Tips: 10–30 s, no sound needed (it plays muted), MP4 (H.264) 1920×1080, under 50MB. The poster shows while the video loads.' }));
+  draw();
+  return root;
 }

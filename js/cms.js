@@ -64,7 +64,7 @@
     }
 
     /* ---------- field discovery ---------- */
-    const SECTION_FIELD_SEL = '[data-cms],[data-cms-link],[data-cms-img],[data-cms-setting],[data-cms-list]';
+    const SECTION_FIELD_SEL = '[data-cms],[data-cms-link],[data-cms-img],[data-cms-video],[data-cms-setting],[data-cms-list]';
     const ITEM_FIELD_SEL = '[data-cms-field],[data-cms-field-link],[data-cms-field-img],[data-cms-field-bool],[data-cms-field-gallery]';
 
     const LABELS = { cta: 'Button', eyebrow: 'Small label above heading', link: 'Link', more: 'Link', label: 'Small label', read_time: 'Read time' };
@@ -80,6 +80,7 @@
         if (a('-list') !== null && attrPrefix === 'data-cms') return { key: a('-list'), kind: 'list' };
         if (a('-setting') !== null && attrPrefix === 'data-cms') return { key: a('-setting'), kind: el.dataset.cmsType || 'text', setting: true };
         if (a('-img') !== null) return { key: a('-img'), kind: 'image' };
+        if (a('-video') !== null) return { key: a('-video'), kind: 'video' };
         if (a('-link') !== null) return { key: a('-link'), kind: 'link' };
         if (a('-bool') !== null) return { key: a('-bool'), kind: 'bool' };
         if (a('-gallery') !== null) return { key: a('-gallery'), kind: 'gallery' };
@@ -91,6 +92,7 @@
         switch (kind) {
             case 'link': return readLink(el);
             case 'image': return readImage(el);
+            case 'video': return { src: '', poster: el.getAttribute('poster') || '', position: 'center' };
             case 'bool': return (el.dataset.value ?? readText(el)) === 'true';
             case 'gallery': return [...el.querySelectorAll('img')].map(i => i.getAttribute('src'));
             case 'datetime': case 'product': return el.dataset.default || '';
@@ -102,6 +104,12 @@
         switch (kind) {
             case 'link': return writeLink(el, v);
             case 'image': return writeImage(el, v);
+            case 'video':
+                if (!v) return;
+                if (v.src) el.setAttribute('src', v.src);
+                if (v.poster) el.setAttribute('poster', v.poster);
+                if (v.position) el.style.objectPosition = v.position;
+                return;
             case 'bool': el.dataset.value = v ? 'true' : 'false'; return;
             case 'gallery':
                 el.replaceChildren(...(v || []).map(src => Object.assign(document.createElement('img'), { src, alt: '' })));

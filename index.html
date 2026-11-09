@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luvior Paris — Luxury Fragrances</title>
-    <link rel="stylesheet" href="css/style.css?v=20261010a">
+    <link rel="stylesheet" href="css/style.css?v=20261109a">
     <meta name="description" content="Luvior Paris — Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.">
     <meta property="og:title" content="Luvior Paris — Luxury Fragrances">
     <meta property="og:description" content="Exquisite fragrances crafted to evoke emotion, create memories, and linger beyond time.">
@@ -167,24 +167,9 @@
         </div>
     </section>
 
-    <!-- Collections: cutout left, content right -->
-    <section class="section section--black lx-row lx-collections" data-cms-section="collections" data-cms-label="Collections" data-cms-hint="Collection names and order are managed in Collections.">
-        <div class="container">
-            <div class="lx-split lx-split--reverse fade-up">
-                <div class="lx-split__media">
-                    <span class="lx-vertical-word" aria-hidden="true" data-cms="side_label">Collections</span>
-                    <div class="lx-cutout" data-cutout="images/cutouts/collections.png" data-editorial-slot="1" data-cms-img="image"></div>
-                </div>
-                <div class="lx-split__text">
-                    <p class="label" data-cms="eyebrow">Explore</p>
-                    <h2 class="heading-lg" data-cms="heading">Find Your<br>Olfactive World</h2>
-                    <div class="lx-collections__list" id="collection-cards">
-                        <!-- Populated by JS -->
-                    </div>
-                    <a href="collections.html" class="btn" data-cms-link="cta">View All Collections <span class="arrow">&rarr;</span></a>
-                </div>
-            </div>
-        </div>
+    <!-- Brand film (Admin → Homepage → Brand Film). Hidden until a video is available. -->
+    <section class="lx-film" id="brand-film" data-cms-section="film" data-cms-label="Brand Film" data-cms-hint="Upload a short MP4 or WebM (it plays muted and loops). Until a video exists this section stays hidden." hidden>
+        <video class="lx-film__video" data-cms-video="video" data-cms-title="Film" data-src="videos/brand-film.mp4" muted loop playsinline autoplay preload="metadata" aria-label="Luvior Paris brand film"></video>
     </section>
 
     <!-- Bestseller Spotlight: text left, cutout right -->
@@ -406,7 +391,7 @@
     </button>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="js/common.js?v=20261010a"></script>
-    <script src="js/cms.js?v=20261010a"></script>
+    <script src="js/common.js?v=20261109a"></script>
+    <script src="js/cms.js?v=20261109a"></script>
 </body>
 </html>

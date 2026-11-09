@@ -1450,43 +1450,10 @@ ul, ol {
 }
 
 /* --- Ingredient Cards --- */
-.ingredient-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: var(--spacing-sm);
-}
 
-.ingredient-card {
-    position: relative;
-    aspect-ratio: 1;
-    overflow: hidden;
-    cursor: pointer;
-}
 
-.ingredient-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(0.5) grayscale(0.3);
-    transition: all var(--transition-slow);
-}
 
-.ingredient-card:hover img {
-    filter: brightness(0.7) grayscale(0);
-    transform: scale(1.05);
-}
 
-.ingredient-card__name {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: var(--spacing-md);
-    font-size: 0.7rem;
-    letter-spacing: var(--letter-wider);
-    text-transform: uppercase;
-    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
-}
 
 /* --- Journal / Article Cards --- */
 .article-card {
@@ -1726,48 +1693,12 @@ ul, ol {
 }
 
 /* --- Contact Option Cards --- */
-.contact-options {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-lg);
-}
 
-.contact-option {
-    border: var(--border-thin);
-    padding: var(--spacing-xl);
-    transition: border-color var(--transition-fast);
-}
 
-.contact-option:hover {
-    border-color: var(--color-gray-400);
-}
 
-.contact-option__title {
-    font-size: 0.7rem;
-    letter-spacing: var(--letter-wider);
-    text-transform: uppercase;
-    margin-bottom: var(--spacing-sm);
-}
 
-.contact-option__text {
-    font-size: 0.85rem;
-    color: var(--color-gray-400);
-    margin-bottom: var(--spacing-md);
-    line-height: 1.6;
-}
 
-.contact-option__email {
-    font-size: 0.8rem;
-    color: var(--color-white);
-    border-bottom: 1px solid var(--color-gray-700);
-    display: inline-block;
-    padding-bottom: 2px;
-    transition: border-color var(--transition-fast);
-}
 
-.contact-option__email:hover {
-    border-color: var(--color-white);
-}
 
 /* --- Placeholder Images --- */
 .placeholder-image {
@@ -1782,31 +1713,9 @@ ul, ol {
 }
 
 /* --- Social Links --- */
-.social-links {
-    display: flex;
-    gap: var(--spacing-xl);
-    align-items: center;
-}
 
-.social-link {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-size: 0.75rem;
-    letter-spacing: var(--letter-wide);
-    text-transform: uppercase;
-    color: var(--color-gray-400);
-    transition: color var(--transition-fast);
-}
 
-.social-link:hover {
-    color: var(--color-white);
-}
 
-.social-link svg {
-    width: 18px;
-    height: 18px;
-}
 
 /* ============================================================
    RESPONSIVE
@@ -1826,9 +1735,6 @@ ul, ol {
         grid-template-columns: repeat(3, 1fr);
     }
 
-    .ingredient-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
 }
 
 @media (max-width: 1024px) {
@@ -1905,9 +1811,6 @@ ul, ol {
         margin: 0;
     }
 
-    .contact-options {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 768px) {
@@ -1960,9 +1863,6 @@ ul, ol {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .ingredient-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 
     .section-header {
         flex-direction: column;
@@ -2047,10 +1947,6 @@ ul, ol {
         width: 100%;
     }
 
-    .social-links {
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-    }
 
     .values-grid {
         grid-template-columns: 1fr;
@@ -2591,55 +2487,6 @@ input[type="checkbox"]:focus-visible {
 .lx-quote cite { font-style: normal; }
 
 /* ---- Collections ---- */
-.lx-collections .lx-split__media { gap: var(--spacing-lg); }
-.lx-vertical-word {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 0.68rem;
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: 0.45em;
-    text-transform: uppercase;
-    color: var(--color-gray-500);
-    user-select: none;
-    flex-shrink: 0;
-}
-.lx-collections__list {
-    width: 100%;
-    border-top: var(--border-thin);
-    margin-top: var(--spacing-xs);
-}
-.lx-collection-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md) 0;
-    border-bottom: var(--border-thin);
-    color: var(--color-white);
-}
-.lx-collection-row__num {
-    font-size: 0.7rem;
-    letter-spacing: var(--letter-wide);
-    color: var(--color-gray-500);
-}
-.lx-collection-row__name {
-    display: block;
-    font-size: 1.15rem;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    transition: opacity var(--transition-fast);
-}
-.lx-collection-row__sub {
-    font-size: 0.7rem;
-    letter-spacing: var(--letter-wide);
-    text-transform: uppercase;
-    color: var(--color-gray-500);
-}
-.lx-collection-row__arrow { transition: transform var(--transition-smooth); }
-.lx-collection-row:hover { opacity: 1; }
-.lx-collection-row:hover .lx-collection-row__name { opacity: 0.7; }
-.lx-collection-row:hover .lx-collection-row__arrow { transform: translateX(6px); }
 
 /* ---- Offer ---- */
 .lx-offer__price {
@@ -2749,8 +2596,6 @@ input[type="checkbox"]:focus-visible {
     .lx-benefits__grid { grid-template-columns: 1fr; }
     .lx-benefit + .lx-benefit { border-left: none; border-top: var(--border-thin); padding-top: var(--spacing-xl); }
     .lx-heading { margin-bottom: var(--spacing-xl); }
-    .lx-vertical-word { font-size: 0.62rem; letter-spacing: 0.35em; }
-    .lx-collections .lx-split__media { gap: var(--spacing-sm); }
     .lx-offer__save { margin-left: 0; }
     .lx-offer .lx-offer__cta { width: 100%; justify-content: center; }
     .lx-newsletter__body .newsletter__form { flex-direction: column; }
@@ -3296,3 +3141,58 @@ a.product-card__image { display: block; color: inherit; }
 @media (max-width: 900px) {
     .product-page { padding-bottom: calc(var(--spacing-4xl) + 72px); }
 }
+
+/* ============================================================
+   BRAND FILM (homepage) — full-width cinematic video
+   ============================================================ */
+.lx-film {
+    position: relative;
+    width: 100%;
+    height: clamp(420px, 56.25vw, 92vh);
+    overflow: hidden;
+    background: var(--color-black);
+}
+.lx-film[hidden] { display: none; }
+.lx-film__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+/* Soft fade into the black sections above and below */
+.lx-film::before, .lx-film::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 12%;
+    z-index: 1;
+    pointer-events: none;
+}
+.lx-film::before { top: 0; background: linear-gradient(var(--color-black), transparent); }
+.lx-film::after { bottom: 0; background: linear-gradient(transparent, var(--color-black)); }
+@media (max-width: 768px) {
+    .lx-film { height: min(78vh, 135vw); }
+}
+
+/* ============================================================
+   CONTACT — message form only
+   ============================================================ */
+.contact-page {
+    padding-top: calc(var(--header-height) + var(--spacing-3xl));
+    padding-bottom: var(--spacing-4xl);
+    min-height: 80vh;
+}
+.contact-form__input:hover,
+.contact-form__select:hover,
+.contact-form__textarea:hover { border-color: var(--color-gray-600); }
+@media (max-width: 768px) {
+    .contact-page { padding-top: calc(var(--header-height) + var(--spacing-xl)); padding-bottom: var(--spacing-3xl); }
+}
+
+/* Hardening: no sideways drag on iOS from off-screen drawers/tickers */
+html { overflow-x: clip; }
+.cart-drawer { visibility: hidden; transition: transform 0.55s var(--ease-lux, ease), visibility 0s linear 0.55s; }
+.cart-drawer.active { visibility: visible; transition: transform 0.55s var(--ease-lux, ease), visibility 0s; }

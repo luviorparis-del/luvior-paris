@@ -452,6 +452,29 @@ async function initStoryReveal() {
     root.addEventListener('focusout', e => { if (!root.contains(e.relatedTarget)) release(); });
 }
 
+/* === Brand film (homepage) === */
+// Shows the section only once a real video loads; pauses off-screen; respects reduced motion.
+async function initFilm() {
+    const section = document.getElementById('brand-film');
+    const video = section?.querySelector('video');
+    if (!video) return;
+    await window.CMS?.ready;
+    const src = video.getAttribute('src') || video.dataset.src;
+    if (!src) return;
+    video.muted = true;
+    video.addEventListener('loadeddata', () => {
+        section.hidden = false;
+        if (REDUCED_MOTION) video.pause();
+    }, { once: true });
+    video.addEventListener('error', () => { section.hidden = true; }, { once: true });
+    if (!video.getAttribute('src')) video.src = src;
+    if (REDUCED_MOTION) { video.removeAttribute('autoplay'); return; }
+    new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+    }, { threshold: 0.15 }).observe(section);
+}
+
 /* === Search === */
 function initSearch() {
     const buttons = document.querySelectorAll('.header__search-btn');
@@ -652,7 +675,7 @@ const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').mat
 if (!REDUCED_MOTION) document.documentElement.classList.add('anim');
 
 // Containers whose children reveal one after another (hero excluded).
-const STAGGER_SEL = '.product-grid, .lx-benefits__grid, .lx-testimonials__grid, .lx-collections__list, .faq-list, .journal-grid, .timeline, .ingredient-grid, .values-grid, .contact-options, .lx-split__text, .footer__top';
+const STAGGER_SEL = '.product-grid, .lx-benefits__grid, .lx-testimonials__grid, .faq-list, .journal-grid, .timeline, .values-grid, .lx-split__text, .footer__top';
 
 function indexStagger(container) {
     [...container.children].forEach((child, i) => child.style.setProperty('--i', Math.min(i, 8)));
@@ -920,34 +943,10 @@ async function initHomepage() {
         PRODUCTS.slice(0, 4).forEach(p => featuredGrid.appendChild(createProductCard(p)));
     }
     if (collectionCards) {
-        const asRows = collectionCards.classList.contains('lx-collections__list');
-        COLLECTIONS.forEach((c, i) => collectionCards.appendChild(asRows ? createCollectionRow(c, i) : createCollectionCard(c)));
+        COLLECTIONS.forEach(c => collectionCards.appendChild(createCollectionCard(c)));
     }
     fillEditorialImages();
     renderSpecialOffer();
-}
-
-function createCollectionRow(collection, index) {
-    const row = document.createElement('a');
-    row.className = 'lx-collection-row';
-    row.href = `collections.html#${encodeURIComponent(collection.id)}`;
-    const num = document.createElement('span');
-    num.className = 'lx-collection-row__num';
-    num.textContent = String(index + 1).padStart(2, '0');
-    const body = document.createElement('span');
-    const name = document.createElement('span');
-    name.className = 'lx-collection-row__name';
-    name.textContent = collection.name;
-    const sub = document.createElement('span');
-    sub.className = 'lx-collection-row__sub';
-    sub.textContent = collection.subtitle || '';
-    body.append(name, sub);
-    const arrow = document.createElement('span');
-    arrow.className = 'lx-collection-row__arrow';
-    arrow.textContent = '→';
-    arrow.setAttribute('aria-hidden', 'true');
-    row.append(num, body, arrow);
-    return row;
 }
 
 // Tries each candidate in order; first that loads wins. Slot stays empty if none load.
@@ -969,12 +968,10 @@ function setSlotImage(slot, candidates) {
 // otherwise real Supabase product/collection imagery is used, else the space stays open.
 function fillEditorialImages() {
     const productImages = PRODUCTS.filter(p => p.image).map(p => ({ src: p.image, alt: p.name, photo: true }));
-    const collectionImage = COLLECTIONS.find(c => c.image_url);
     document.querySelectorAll('.lx-cutout[data-cutout]:not(#offer-image):not([data-cms-filled])').forEach(slot => {
         const candidates = [{ src: slot.dataset.cutout, alt: '' }];
         if (slot.dataset.editorialSlot !== undefined) {
             const i = parseInt(slot.dataset.editorialSlot, 10);
-            if (i === 1 && collectionImage) candidates.push({ src: collectionImage.image_url, alt: collectionImage.name, photo: true });
             candidates.push(productImages[i] || productImages[0]);
         }
         if (slot.dataset.fallback) candidates.push({ src: slot.dataset.fallback, alt: '' });
@@ -1084,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQ();
     initSearch();
     initStoryReveal();
+    initFilm();
     initHomepage();
     updateCartBadge();
 });
