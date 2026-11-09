@@ -3089,7 +3089,8 @@ a.product-card__image { display: block; color: inherit; }
 }
 
 /* Hardening: no sideways drag on iOS from off-screen drawers/tickers */
-html { overflow-x: clip; }
+/* clip (not hidden) so body never becomes a scroll container — keeps the sticky header working */
+body { overflow-x: clip; }
 .cart-drawer { visibility: hidden; transition: transform 0.55s var(--ease-lux, ease), visibility 0s linear 0.55s; }
 .cart-drawer.active { visibility: visible; transition: transform 0.55s var(--ease-lux, ease), visibility 0s; }
 
